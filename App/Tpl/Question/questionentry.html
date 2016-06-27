@@ -1,0 +1,361 @@
+<include file="Public:header" />
+<include file="Public:sidenav" />
+
+<div class="main-content">
+	<div class="breadcrumbs" id="breadcrumbs">
+		<script type="text/javascript">
+			try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+		</script>
+		<ul class="breadcrumb">
+			<li>
+				<i class="icon-home home-icon"></i>
+				<a href="#">题库管理</a>
+			</li>
+			<li class="active">题库录入</li>
+		</ul><!-- .breadcrumb -->
+	</div>
+
+	<div class="page-content">
+		<div class="row">
+			<div class="col-xs-12">
+				<form action="{:U('questionentry')}" method="post" id="form1" class="form-horizontal" role="form">
+					<h3>通用设置</h3>
+					<div class="hr hr-16 hr-dotted"></div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="qcode">问题编号：</label>
+						<div class="col-sm-2">
+							<select id="user" name="qcode">
+
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="user">选择设置:</label>
+						<div class="col-sm-4">
+							<label class="position-relative">
+								<input type="checkbox" class="ace" checked/>
+								<span class="lbl">mine</span>
+							</label>
+							<label class="position-relative">
+								<input type="checkbox" class="ace" />
+								<span class="lbl">friend1</span>
+							</label>
+							<label class="position-relative">
+								<input type="checkbox" class="ace" />
+								<span class="lbl">friend2</span>
+							</label>
+							<label class="position-relative">
+								<input type="checkbox" class="ace" />
+								<span class="lbl">friend3</span>
+							</label>
+							<label class="position-relative">
+								<input type="checkbox" class="ace" />
+								<span class="lbl">friend4</span>
+							</label>
+						</div>
+					</div>
+					<div id="mine" style="display:block">
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="portraitLocal">mine头像位置：</label>
+						<div class="col-sm-1">
+							<input type="text" id="portraitLocal" placeholder="X*Y" name="portraitLocal" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="portrailSize">mine头像大小：</label>
+						<div class="col-sm-1">
+							<input type="text" id="portrailSize" placeholder="X*Y" name="portraitSize" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="relation">mine头像底图关系：</label>
+						<div class="col-sm-2" >
+							<input type="radio" name="relation" value="1" checked>上
+							<input type="radio" name="relation" value="2" id="relation">下
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="nameLocal">mine名字位置：</label>
+						<div class="col-sm-1">
+							<input type="text" id="nameLocal" placeholder="X*Y" name="nameLocal" class="" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="namesize">mine名字字体：</label>
+						<div class="col-sm-2">
+							<select id="namesize" name="namesize">
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+							</select>
+						</div>
+					</div>
+					</div>
+
+					<div id="friend1" style="display:none">
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="portraitLocal">friend1头像位置：</label>
+						<div class="col-sm-1">
+							<input type="text" id="portraitLocal" placeholder="X*Y" name="portraitLocal" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="portrailSize">friend1头像大小：</label>
+						<div class="col-sm-1">
+							<input type="text" id="portrailSize" placeholder="X*Y" name="portraitSize" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="relation">friend1头像底图关系：</label>
+						<div class="col-sm-2" >
+							<input type="radio" name="relation" value="1" checked>上
+							<input type="radio" name="relation" value="2" id="relation">下
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="nameLocal">friend1名字位置：</label>
+						<div class="col-sm-1">
+							<input type="text" id="nameLocal" placeholder="X*Y" name="nameLocal" class="" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="namesize">friend1名字字体：</label>
+						<div class="col-sm-2">
+							<select id="namesize" name="namesize">
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+							</select>
+						</div>
+					</div>
+					</div>
+
+					<div id="friend2" style="display:none">
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="portraitLocal">friend2头像位置：</label>
+						<div class="col-sm-1">
+							<input type="text" id="portraitLocal" placeholder="X*Y" name="portraitLocal" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="portrailSize">friend2头像大小：</label>
+						<div class="col-sm-1">
+							<input type="text" id="portrailSize" placeholder="X*Y" name="portraitSize" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="relation">friend2头像底图关系：</label>
+						<div class="col-sm-2" >
+							<input type="radio" name="relation" value="1" checked>上
+							<input type="radio" name="relation" value="2" id="relation">下
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="nameLocal">friend2名字位置：</label>
+						<div class="col-sm-1">
+							<input type="text" id="nameLocal" placeholder="X*Y" name="nameLocal" class="" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="namesize">friend2名字字体：</label>
+						<div class="col-sm-2">
+							<select id="namesize" name="namesize">
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+							</select>
+						</div>
+					</div>
+					</div>
+
+					<div id="friend3" style="display:none">
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="portraitLocal">friend3头像位置：</label>
+						<div class="col-sm-1">
+							<input type="text" id="portraitLocal" placeholder="X*Y" name="portraitLocal" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="portrailSize">friend3头像大小：</label>
+						<div class="col-sm-1">
+							<input type="text" id="portrailSize" placeholder="X*Y" name="portraitSize" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="relation">friend3头像底图关系：</label>
+						<div class="col-sm-2" >
+							<input type="radio" name="relation" value="1" checked>上
+							<input type="radio" name="relation" value="2" id="relation">下
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="nameLocal">friend3名字位置：</label>
+						<div class="col-sm-1">
+							<input type="text" id="nameLocal" placeholder="X*Y" name="nameLocal" class="" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="namesize">friend3名字字体：</label>
+						<div class="col-sm-2">
+							<select id="namesize" name="namesize">
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+							</select>
+						</div>
+					</div>
+					</div>
+
+					<div id="friend4" style="display:none">
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="portraitLocal">friend4头像位置：</label>
+						<div class="col-sm-1">
+							<input type="text" id="portraitLocal" placeholder="X*Y" name="portraitLocal" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="portrailSize">friend4头像大小：</label>
+						<div class="col-sm-1">
+							<input type="text" id="portrailSize" placeholder="X*Y" name="portraitSize" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="relation">friend4头像底图关系：</label>
+						<div class="col-sm-2" >
+							<input type="radio" name="relation" value="1" checked>上
+							<input type="radio" name="relation" value="2" id="relation">下
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="nameLocal">friend4名字位置：</label>
+						<div class="col-sm-1">
+							<input type="text" id="nameLocal" placeholder="X*Y" name="nameLocal" class="" />
+						</div>
+						<label class="col-sm-2 control-label no-padding-right" for="namesize">friend4名字字体：</label>
+						<div class="col-sm-2">
+							<select id="namesize" name="namesize">
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+							</select>
+						</div>
+					</div>
+					</div>
+
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" >上传Icon图片：</label>
+						<div class="col-sm-4">
+							<input type="hidden" name="upicon">
+							<input type="file" name="iconfile" id="iconfile" multiple="" />	
+						</div>
+						<div id="resultIcon"></div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" >上传底图图片：</label>
+						<div class="col-sm-4">
+							<input type="hidden" name="upback">
+							<input type="file" name="backfile" id="backfile" multiple="" />
+						</div>
+						<div id="resultBack"></div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-2">
+							<input type="reset" class="btn btn-light pull-right" value="重置">
+						</div>
+						<div class="col-sm-7">
+							<input type="button" onclick="form1submit()" class="btn btn-success pull-right" value="确认">
+						</div>
+					</div>
+				</form>
+
+				<hr>
+
+				<form action="" method="post" id="form2" class="form-horizontal" role="form">
+					<h3>问题设置</h3>
+					<div class="hr hr-16 hr-dotted"></div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="languageset">语言：</label>
+						<div class="col-sm-2">
+							<select id="languageset" name="languageset">
+								<option value="">中文</option>
+								<option value="">英语</option>
+								<option value="">葡语</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="question">问题：</label>
+						<div class="col-sm-10">
+							<input type="text" id="content" placeholder="你在前世是怎么死去的？" class="col-sm-8" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="answer">答案1：</label>
+						<div class="col-sm-10">
+							<input type="text" id="content" placeholder="xx死于xxxx年：在龙的战斗中战死" class="col-sm-8" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="answer">答案2：</label>
+						<div class="col-sm-10">
+							<input type="text" id="content" placeholder="xx死于xxxx年：在家里蠢死" class="col-sm-8" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="answer">答案3：</label>
+						<div class="col-sm-10">
+							<input type="text" id="content" placeholder="xx死于xxxx年：被丈母娘骂死" class="col-sm-8" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="answer">答案4：</label>
+						<div class="col-sm-10">
+							<input type="text" id="content" placeholder="xx死于xxxx年：踩到香蕉皮摔死" class="col-sm-8" />
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-2">
+							<input type="reset" class="btn btn-light pull-right" value="重置">
+						</div>
+						<div class="col-sm-7">
+							<input type="submit" class="btn btn-success pull-right" value="确认">
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div><!-- /.main-content -->
+
+<include file="Public:footer" />
+<script type="text/javascript">
+$('#iconfile, #backfile').ace_file_input({
+	style:'well',
+	btn_choose:'Drop files here or click to choose',
+	btn_change:null,
+	no_icon:'ace-icon fa fa-cloud-upload',
+	droppable:true,
+	thumbnail:'small',
+	preview_error : function(filename, error_code) {
+		//name of the file that failed
+		//error_code values
+		//1 = 'FILE_LOAD_FAILED',
+		//2 = 'IMAGE_LOAD_FAILED',
+		//3 = 'THUMBNAIL_FAILED'
+		alert(error_code);
+	}
+
+}).on('change', function(){
+	console.log($(this).data('ace_input_files'));
+	console.log($(this).data('ace_input_method'));
+});
+
+function form1submit(){
+    var data = new FormData($('#form1')[0]);
+    $.ajax({
+        url: "{:U('questionentry')}",
+        type: 'POST',
+        data: data,
+        dataType: 'JSON',
+        cache: false,
+        processData: false,
+        contentType: false
+    }).done(function(ret){
+        if(ret['isSuccess']){
+            alert('设置成功！');
+        }else{
+            alert('设置失败！');
+        }
+    });
+    return false;
+}
+</script>
