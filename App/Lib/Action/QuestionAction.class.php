@@ -18,75 +18,125 @@ class QuestionAction extends Action {
     }
 
     public function questionentry(){
-        if(isset($_POST['portraitLocal']) && !empty($_POST['portraitLocal'])
-            && isset($_POST['portraitSize']) && !empty($_POST['portraitSize'])
-            && isset($_POST['nameLocal']) && !empty($_POST['nameLocal'])
-            && isset($_POST['namesize']) && !empty($_POST['namesize'])){
-        $m_q = M('question');
-        $user = $_POST['user'];
-        $portraitLocal = $_POST['portraitLocal'];
-        $portraitSize = $_POST['portraitSize'];
-        $relation = $_POST['relation'];
-        $nameLocal = $_POST['nameLocal'];
-        $namesize = $_POST['namesize'];
+       
+        $this -> display();
+    }
 
-        $user = array(
-            'portraitLocal' => $portraitLocal,
-            'portraitSize'  => $portraitSize,
-            'relation'      => $relation,
-            'namesize'      => $namesize
+    public function questionentrysave(){
+        
+        import('ORG.Net.UploadFile');
+        $upload = new UploadFile();
+        $upload->maxSize  = 3145728 ;
+        $upload->allowExts  = array('jpg', 'gif', 'png', 'jpeg');
+        $upload->savePath = UPLOADS_PATH."/img/";
+        if(!$upload->upload()) {
+            $this->error($upload->getErrorMsg());
+        }else{
+            $info =  $upload->getUploadFileInfo();
+        }
+        
+        $qcode = $_POST['qcode'];
+
+        $data = $_POST;
+        $generalset = $this -> _getGeneralSet($data);
+        $generalsetjson = json_encode($generalset);
+
+        $icon = $info[0]['savepath'].$info[0]['savename'];
+        $bgpic = $info[1]['savepath'].$info[1]['savename'];
+        
+        $item = array(
+            'qcode' => $qcode,
+            'icon'  => $icon,
+            'bgpic' => $bgpic,
+            'generalset' => $generalsetjson
         );
-
-        $set = json_encode($user);
-        echo $set;
-        $filenames = $this -> _upform1file();
-        $data = array(
-            'icon' => $filenames['icon'],
-            'bgpic' => $filenames['back'],
-            'generalset' =>  $set 
-        );
         
-        var_dump($data);
-        //die();
-        //$m_q -> add($data);
-        }else{
-            $this -> display();
-        }
+        $m_q = M("question");
+        $m_q -> add($item);
         
+        $this->success('保存成功！');
     }
 
-    private function _upform1file(){
-        if($_FILES["file"]["error"] > 0){
-            $this -> error("Return Code: " . $_FILES["file"]["error"],'questionentry');
-        }else{
-            $iconfile = time().substr($_FILES['iconfile']['name'], strrpos($_FILES['iconfile']['name'],'.'));
-            $backfile = time().substr($_FILES['backfile']['name'], strrpos($_FILES['backfile']['name'],'.'));
+    private function _getGeneralSet($data){
+        $minechecked = $data['mine'];
+        $friend1checked = $data['friend1'];
+        $friend2checked = $data['friend2'];
+        $friend3checked = $data['friend3'];
+        $friend4checked = $data['friend4'];
+
+        $generalset = array();
+        if($minechecked == 'on'){
+
+            $mine = array(
+                'mineportraitLocal' => $data['mineportraitLocal'],
+                'mineportraitSize'  => $data['mineportraitSize'],
+                'relmine'           => $data['relmine'],
+                'minenameLocal'     => $data['minenameLocal'],
+                'minenamesize'      => $data['minenamesize']
+            );
+
+            $generalset['mine'] = $mine;
         }
-        
-        $response = array();
-        $iconfilepath = ROOTPATH.'/Upload/image/icon/';
-        if (!file_exists($iconfilepath)){
-            mkdir($iconfilepath, 0777, true);
+
+        if($friend1checked == 'on'){
+
+            $friend1 = array(
+                'friend1portraitLocal' => $data['friend1portraitLocal'],
+                'friend1portraitSize'  => $data['friend1portraitSize'],
+                'relfriend1'           => $data['relfriend1'],
+                'friend1nameLocal'     => $data['friend1nameLocal'],
+                'friend1namesize'      => $data['friend1namesize']
+            );
+
+            $generalset['friend1'] = $friend1;
         }
-        $backfilepath = ROOTPATH.'/Upload/image/back/';
-        if(!file_exists($backfilepath)){
-            mkdir($backfilepath, 0777, true);
+
+        if($friend2checked == 'on'){
+
+            $friend2 = array(
+                'friend2portraitLocal' => $data['friend2portraitLocal'],
+                'friend2portraitSize'  => $data['friend2portraitSize'],
+                'relfriend2'           => $data['relfriend2'],
+                'friend2nameLocal'     => $data['friend2nameLocal'],
+                'friend2namesize'      => $data['friend2namesize']
+            );
+
+            $generalset['friend2'] = $friend2;
         }
-        $isupicon = move_uploaded_file($_FILES['iconfile']['tmp_name'], $iconfilepath.$iconfile);
-        $isupback = move_uploaded_file($_FILES['backfile']['tmp_name'], $backfilepath.$backfile);
-        if($isupicon && $isupback){
-            $response['isSuccess'] = true;
-            $filenames['icon'] = $iconfile;
-            $filenames['back'] = $backfile;
-        }else{
-            $response['isSuccess'] = false;
+
+        if($friend3checked == 'on'){
+
+            $friend3 = array(
+                'friend3portraitLocal' => $data['friend3portraitLocal'],
+                'friend3portraitSize'  => $data['friend3portraitSize'],
+                'relfriend3'           => $data['relfriend3'],
+                'friend3nameLocal'     => $data['friend3nameLocal'],
+                'friend3namesize'      => $data['friend3namesize']
+            );
+
+            $generalset['friend3'] = $friend3;
         }
-        return $filenames;
-        echo json_encode($response);
+
+        if($friend4checked == 'on'){
+
+            $friend4 = array(
+                'friend4portraitLocal' => $data['friend4portraitLocal'],
+                'friend4portraitSize'  => $data['friend4portraitSize'],
+                'relfriend4'           => $data['relfriend4'],
+                'friend4nameLocal'     => $data['friend4nameLocal'],
+                'friend4namesize'      => $data['friend4namesize']
+            );
+
+            $generalset['friend4'] = $friend4;
+        }
+
+        return $generalset;
     }
 
-    private function _upform2file(){
-
+    public function answerentrysave(){
+        var_dump($_POST);
     }
+
+    
 
 }
