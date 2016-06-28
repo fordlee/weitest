@@ -164,8 +164,8 @@ class ThinkImage{
      * @param  integer $alpha  水印透明度
      * @return Object          当前图片处理库对象
      */
-    public function water($source, $locate = THINKIMAGE_WATER_SOUTHEAST){
-        $this->img->water($source, $locate);
+    public function water($source, $locate = THINKIMAGE_WATER_SOUTHEAST, $alpha = 100){
+        $this->img->water($source, $locate, $alpha);
         return $this;
     }
 
