@@ -9,13 +9,40 @@
   background-color: rgba(0, 0, 0, .6);
 }
 .dialog .body{
-  width: 600px;
-  height: 400px;
+  width: 800px;
+  height: 720px;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-left: -300px;
+  margin-top: -350px;
+  padding-top: 40px;
+  background-color: #fff;
+  border:1px solid #ccc;
+}
+
+.question_dialog .mask{
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .6);
+}
+.question_dialog .question_body{
+  width: 500px;
+  height: 300px;
   position: fixed;
   left: 50%;
   top: 50%;
   margin-left: -300px;
   margin-top: -200px;
+  padding-left: 60px;
+  padding-top: 80px;
   background-color: #fff;
   border:1px solid #ccc;
 }

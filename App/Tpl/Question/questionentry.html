@@ -11,7 +11,7 @@
 				<i class="icon-home home-icon"></i>
 				<a href="#">题库管理</a>
 			</li>
-			<li class="active">题库录入</li>
+			<li class="active">题库添加</li>
 		</ul><!-- .breadcrumb -->
 	</div>
 
@@ -23,8 +23,8 @@
 					<div class="hr hr-16 hr-dotted"></div>
 					<div class="form-group">
 						<label class="col-sm-2 control-label no-padding-right" for="qcode">题目编号录入：</label>
-						<div class="col-sm-2">
-							<input type="text" id="qcode" name="qcode" placeholder="类型+编号码" />
+						<div class="col-sm-4">
+							<input type="text" id="qcode" name="qcode" placeholder="类型_编号码" />(只需输入类型，例如：test1)
 						</div>
 					</div>
 					<div class="form-group">
@@ -255,58 +255,7 @@
 
 				<hr>
 
-				<form action="{:U('answerentrysave')}" method="post" enctype="multipart/form-data" class="form-horizontal" >
-					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right" for="languageset">语言：</label>
-						<div class="col-sm-2">
-							<select id="languageset" name="languageset">
-								<option value="">中文</option>
-								<option value="">英语</option>
-								<option value="">葡语</option>
-							</select>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right">问题：</label>
-						<div class="col-sm-10">
-							<input type="text" placeholder="你在前世是怎么死去的？" class="col-sm-6" />
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right">答案：</label>
-						<div class="col-sm-10">
-							<input type="text" name="option[]" placeholder="xx死于xxxx年：在龙的战斗中战死" class="col-sm-6" />
-							<div class="col-sm-2">
-							<button type="button" onclick="addAnswerPic(this)" class="btn btn-xs btn-primary">
-								<i class="icon icon-plus"></i>图片
-							</button>&nbsp;
-							<button type="button" onclick="delTr(this)" class="btn btn-xs btn-danger"> 
-								<i class="icon-minus"></i>移除
-							</button>
-							</div>
-							<input type="file" name="answerPic[]" class="col-sm-2" style="display:none">
-						</div>
-					</div>
-					
-					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right"></label>
-						<div class="col-sm-10">
-							<button type="button" onclick="addDia(this);" class="btn btn-sm btn-primary">
-								<i class="icon icon-plus"></i>添加选项
-							</button>
-						</div>
-					</div>
-					
-					<div class="form-group">
-						<div class="col-sm-2">
-							<input type="reset" class="btn btn-light pull-right" value="重置">
-						</div>
-						<div class="col-sm-7">
-							<input type="submit" class="btn btn-primary pull-right" value="添加">
-						</div>
-					</div>
-				</form>
+				
 			</div>
 		</div>
 	</div>
@@ -314,58 +263,6 @@
 
 <include file="Public:footer" />
 <script type="text/javascript">
-
-function formsubmit(){
-    var data = new FormData($('#form1')[0]);
-    $.ajax({
-        url: "{:U('questionentrysave')}",
-        type: 'POST',
-        data: data,
-        dataType: 'JSON',
-        cache: false,
-        processData: false,
-        contentType: false
-    }).done(function(ret){
-        if(ret['isSuccess']){
-            alert('设置成功！');
-        }else{
-            alert('设置失败！');
-        }
-    });
-    return false;
-}
-
-function addAnswerPic(obj){
-	var _this=$(obj);
-	_this.parent().next().toggle();
-}
-
-function addDia(obj){
-	var _this=$(obj);
-	var str=
-	'<div class="form-group">'+
-		'<label class="col-sm-2 control-label no-padding-right" >答案：</label>'+
-		'<div class="col-sm-10">'+
-			'<input type="text" name="option[]" placeholder="xx死于xxxx年：在龙的战斗中战死" class="col-sm-6" />'+
-			'<div class="col-sm-2">'+
-			'<button type="button" onclick="addAnswerPic(this)" class="btn btn-xs btn-primary">'+
-				'<i class="icon icon-plus"></i>图片'+
-			'</button>&nbsp;'+
-			'<button type="button" onclick="delTr(this)" class="btn btn-xs btn-danger">'+ 
-				'<i class="icon-minus"></i>移除'+
-			'</button>'+
-			'</div>'+
-			'<input type="file" name="answerPic[]" class="col-sm-2" style="display:none">'+
-		'</div>'+
-	'</div>';
-	_this.parent().parent().before(str);
-}
-
-function delTr(obj){
-	var _this=$(obj);
-	_this.parent().parent().parent().remove();
-}
-
 $(function(){ 
 	var ischecked = $('#checkmine').is(':checked');
 	if (ischecked){
@@ -443,6 +340,5 @@ $('#checkfriend4').click(function(){
 		$('#friend4').hide();
 	}
 });
-
 
 </script>

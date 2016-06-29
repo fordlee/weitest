@@ -13,7 +13,16 @@ class QuestionAction extends Action {
     }
 
     public function questionlist(){
+        $m_q = M('question');
+        $list = $m_q -> field('id,qcode,status') -> select();
+
+        $m_q_d = M('question_detail');
+        foreach ($list as $k => $v) {
+            $ret = $m_q_d -> where(array('qid'=>$v['id'])) -> select();
+            $list[$k]['qd'] = $ret;
+        }
         
+        $this -> assign('list', $list);
         $this -> display();
     }
 
@@ -22,8 +31,7 @@ class QuestionAction extends Action {
         $this -> display();
     }
 
-    public function questionentrysave(){
-        
+    public function questionentrysave(){ 
         import('ORG.Net.UploadFile');
         $upload = new UploadFile();
         $upload->maxSize  = 3145728 ;
@@ -35,7 +43,7 @@ class QuestionAction extends Action {
             $info =  $upload->getUploadFileInfo();
         }
         
-        $qcode = $_POST['qcode'];
+        $qcode = $_POST['qcode'].'_'.uniqid();
 
         $data = $_POST;
         $generalset = $this -> _getGeneralSet($data);
@@ -48,7 +56,9 @@ class QuestionAction extends Action {
             'qcode' => $qcode,
             'icon'  => $icon,
             'bgpic' => $bgpic,
-            'generalset' => $generalsetjson
+            'generalset' => $generalsetjson,
+            'status' => 1,
+            'addtime' => date()
         );
         
         $m_q = M("question");
@@ -66,7 +76,6 @@ class QuestionAction extends Action {
 
         $generalset = array();
         if($minechecked == 'on'){
-
             $mine = array(
                 'mineportraitLocal' => $data['mineportraitLocal'],
                 'mineportraitSize'  => $data['mineportraitSize'],
@@ -79,7 +88,6 @@ class QuestionAction extends Action {
         }
 
         if($friend1checked == 'on'){
-
             $friend1 = array(
                 'friend1portraitLocal' => $data['friend1portraitLocal'],
                 'friend1portraitSize'  => $data['friend1portraitSize'],
@@ -92,7 +100,6 @@ class QuestionAction extends Action {
         }
 
         if($friend2checked == 'on'){
-
             $friend2 = array(
                 'friend2portraitLocal' => $data['friend2portraitLocal'],
                 'friend2portraitSize'  => $data['friend2portraitSize'],
@@ -105,7 +112,6 @@ class QuestionAction extends Action {
         }
 
         if($friend3checked == 'on'){
-
             $friend3 = array(
                 'friend3portraitLocal' => $data['friend3portraitLocal'],
                 'friend3portraitSize'  => $data['friend3portraitSize'],
@@ -118,7 +124,6 @@ class QuestionAction extends Action {
         }
 
         if($friend4checked == 'on'){
-
             $friend4 = array(
                 'friend4portraitLocal' => $data['friend4portraitLocal'],
                 'friend4portraitSize'  => $data['friend4portraitSize'],
@@ -133,10 +138,50 @@ class QuestionAction extends Action {
         return $generalset;
     }
 
-    public function answerentrysave(){
-        var_dump($_POST);
+    public function addQuestion(){
+        if(isset($_POST['qid']) && !empty($_POST['qid'])
+            && isset($_POST['languageset']) && !empty($_POST['languageset'])
+            && isset($_POST['content']) && !empty($_POST['content'])){
+            $item = array(
+                'qid'      => $_POST['qid'],
+                'language' => $_POST['languageset'],
+                'content'  => $_POST['content']
+            );
+
+            $m_q_d = M('question_detail');
+            $ret = $m_q_d -> where($item) -> find();
+            if($ret == null){
+                $m_q_d -> add($item);
+                $this -> success('添加成功！','questionlist');
+            }else{
+                $this -> error('请勿重复添加！','questionlist');
+            }
+        }else{
+            $this -> error('添加失败！','questionlist');
+        }
     }
 
-    
+    public function setStatus(){
+        $id = $_POST['qid'];
+        $status = $_POST['status'];
+        $m_q = M('question');
+        if($status == 1){
+            $item = array(
+                'id' => $id,
+                'status' => 2
+            );
+
+            $m_q -> save($item);
+        }else{
+            $item = array(
+                'id' => $id,
+                'status' => 1
+            );
+        
+            $m_q -> save($item);
+        }
+
+        $this -> success('设置成功！','questionlist');
+    }
 
 }
