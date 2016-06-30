@@ -36,6 +36,7 @@ class QuestionAction extends Action {
         $upload = new UploadFile();
         $upload->maxSize  = 3145728 ;
         $upload->allowExts  = array('jpg', 'gif', 'png', 'jpeg');
+        $upload->uploadReplace = true;
         $upload->savePath = UPLOADS_PATH."/img/";
         if(!$upload->upload()) {
             $this->error($upload->getErrorMsg());
@@ -49,8 +50,8 @@ class QuestionAction extends Action {
         $generalset = $this -> _getGeneralSet($data);
         $generalsetjson = json_encode($generalset);
 
-        $icon = $info[0]['savepath'].$info[0]['savename'];
-        $bgpic = $info[1]['savepath'].$info[1]['savename'];
+        $icon = '/weitest/Uploads/img/'.$info[0]['savename'];
+        $bgpic = '/weitest/Uploads/img/'.$info[1]['savename'];
         
         $item = array(
             'qcode' => $qcode,

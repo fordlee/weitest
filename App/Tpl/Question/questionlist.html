@@ -11,7 +11,7 @@
 				<i class="icon-home home-icon"></i>
 				<a href="#">题库管理</a>
 			</li>
-			<li class="active">题库列表</li>
+			<li class="active">详细设置</li>
 		</ul><!-- .breadcrumb -->
 	</div>
 
@@ -106,7 +106,7 @@
 							
 							<div class="form-group">
 								<div class="col-sm-2">
-									<input type="reset" class="btn btn-light pull-right" value="重置">
+									
 								</div>
 								<div class="col-sm-7">
 									<input type="submit" class="btn btn-primary pull-right" value="添加">
@@ -162,7 +162,7 @@
 $('.mask').click(function(e) {
    $('#dialog').hide();
    $('#question_dialog').hide();
-   window.location.reload();
+   //window.location.reload();
 });
 
 function addResult(qdid,qid,language,content){
@@ -186,7 +186,7 @@ function addQuestion(qid){
 
 function addAnswerPic(obj){
 	var _this=$(obj);
-	_this.parent().next().toggle();
+	_this.parent().next().click();
 }
 
 function addDia(obj){

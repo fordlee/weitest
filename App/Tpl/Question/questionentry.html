@@ -11,7 +11,7 @@
 				<i class="icon-home home-icon"></i>
 				<a href="#">题库管理</a>
 			</li>
-			<li class="active">题库添加</li>
+			<li class="active">问题设置</li>
 		</ul><!-- .breadcrumb -->
 	</div>
 
@@ -245,7 +245,7 @@
 
 					<div class="form-group">
 						<div class="col-sm-2">
-							<input type="reset" class="btn btn-light pull-right" value="重置">
+							<input type="button" onclick="reload()" class="btn btn-light pull-right" value="重置">
 						</div>
 						<div class="col-sm-7">
 							<input type="submit" class="btn btn-primary pull-right" value="添加">
@@ -263,38 +263,9 @@
 
 <include file="Public:footer" />
 <script type="text/javascript">
-$(function(){ 
-	var ischecked = $('#checkmine').is(':checked');
-	if (ischecked){
-		$('#mine').show();
-	}else{
-		$('#mine').hide();
-	}
-	var ischecked = $('#checkfriend1').is(':checked');
-	if (ischecked){
-		$('#friend1').show();
-	}else{
-		$('#friend1').hide();
-	}
-	var ischecked = $('#checkfried2').is(':checked');
-	if (ischecked){
-		$('#friend2').show();
-	}else{
-		$('#friend2').hide();
-	}
-	var ischecked = $('#checkfried3').is(':checked');
-	if (ischecked){
-		$('#friend3').show();
-	}else{
-		$('#friend3').hide();
-	}
-	var ischecked = $('#checkfried4').is(':checked');
-	if (ischecked){
-		$('#friend4').show();
-	}else{
-		$('#friend4').hide();
-	}
-}); 
+function reload(){
+	window.location.reload();
+} 
 
 $('#checkmine').click(function(){
 	var ischecked = $('#checkmine').is(':checked');

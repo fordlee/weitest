@@ -22,7 +22,7 @@ class AuthAction extends Action {
                 $_SESSION['rule'] = 'admin';
                 $_SESSION['name'] = $ret['name'];
                 $_SESSION['level'] = $ret['level'];
-                $this -> redirect('Index/index');
+                $this -> redirect('Index/gallery');
             } else {
                 $this -> error('email or password error!', 'login');
             }

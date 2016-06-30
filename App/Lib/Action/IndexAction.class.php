@@ -13,9 +13,16 @@ class IndexAction extends Action {
     }
 
     public function index(){
-        
-        
-		$this -> display('index');
+
+		$this -> display('gallery');
     }
+
+    public function gallery(){
+        $m_a = M('answer');
+        
+        $this -> display();
+    }
+
+
 
 }

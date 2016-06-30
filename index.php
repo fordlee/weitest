@@ -5,7 +5,7 @@
     define('APP_PATH', './App/');
 	//根目录路径
 	define('IMAGE_PATH', './Uploads/image');
-	define('UPLOADS_PATH','./Uploads');
+	define('UPLOADS_PATH', './Uploads');
     //开启调试模式
     define('APP_DEBUG', true);
     //加载框架入口文件
