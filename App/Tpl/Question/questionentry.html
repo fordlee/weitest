@@ -18,15 +18,43 @@
 	<div class="page-content">
 		<div class="row">
 			<div class="col-xs-12">
+				<div class="row">
+					<div class="col-sm-3"><font size="5">问题设置</font></div>
+					<div class="col-sm-6">
+						<if condition="$qcodes eq NULL">
+						<a href="{:U('questionedit')}" class="btn btn-success pull-right">
+							转换修改
+						</a>
+						<else/>
+						<a href="{:U('questionentry')}" class="btn btn-success pull-right">
+							转换添加
+						</a>
+						</if>
+					</div>
+				</div>
+				<div class="hr hr-16 hr-dotted"></div>
+				<if condition="$qcodes eq NULL">
 				<form action="{:U('questionentrysave')}" method="post" enctype="multipart/form-data" class="form-horizontal" >
-					<h3>问题设置</h3>
-					<div class="hr hr-16 hr-dotted"></div>
 					<div class="form-group">
 						<label class="col-sm-2 control-label no-padding-right" for="qcode">题目编号录入：</label>
 						<div class="col-sm-4">
 							<input type="text" id="qcode" name="qcode" placeholder="类型_编号码" />(只需输入类型，例如：test1)
 						</div>
 					</div>
+				<else/>
+				<form action="{:U('questionentryedit')}" method="post" enctype="multipart/form-data" class="form-horizontal" >
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="qcode">题目编号选择：</label>
+						<div class="col-sm-4">
+							<select name="qcode">
+								<volist name="qcodes" id="v">
+									<option value="{$v.qcode}">{$v.qcode}</option>
+								</volist>
+							</select>
+						</div>
+					</div>
+				</if>
+					
 					<div class="form-group">
 						<label class="col-sm-2 control-label no-padding-right" for="user">选择设置：</label>
 						<div class="col-sm-4">
@@ -245,10 +273,10 @@
 
 					<div class="form-group">
 						<div class="col-sm-2">
-							<input type="button" onclick="reload()" class="btn btn-light pull-right" value="重置">
+							<input type="button" onclick="window.location.reload()" class="btn btn-light pull-right" value="重置">
 						</div>
 						<div class="col-sm-7">
-							<input type="submit" class="btn btn-primary pull-right" value="添加">
+							<input type="submit" class="btn btn-primary pull-right" <php>if($qcodes == NULL){echo 'value="添加"';}else{echo 'value="修改"';}</php>>
 						</div>
 					</div>
 				</form>
@@ -263,9 +291,23 @@
 
 <include file="Public:footer" />
 <script type="text/javascript">
-function reload(){
-	window.location.reload();
-} 
+$('#iconfile, #backfile').ace_file_input({
+	style:'well',
+	btn_choose:'Drop files here or click to choose',
+	btn_change:null,
+	no_icon:'icon-cloud-upload',
+	droppable:true,
+	thumbnail:'small',
+	preview_error : function(filename, error_code) {
+		//name of the file that failed
+		//error_code values 1 = 'FILE_LOAD_FAILED',2 = 'IMAGE_LOAD_FAILED',3 = 'THUMBNAIL_FAILED'
+		alert(error_code);
+	}
+
+}).on('change', function(){
+	//console.log($(this).data('ace_input_files'));
+	//console.log($(this).data('ace_input_method'));
+});
 
 $('#checkmine').click(function(){
 	var ischecked = $('#checkmine').is(':checked');

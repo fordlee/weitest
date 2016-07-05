@@ -31,10 +31,10 @@
 				<div class="row-fluid">
 					<ul class="ace-thumbnails">
 
+						<volist name="item" id="v">
 						<li>
-							<a href="__PUBLIC__/ace/assets/images/gallery/image-1.jpg" data-rel="colorbox">
-								<img alt="150x150" src="__PUBLIC__/ace/assets/images/gallery/thumb-1.jpg" />
-								<!-- <img alt="150x150" src="/weitest/Uploads/img/5774a0fee7746.jpg"/> -->
+							<a href="{$v.bgpic}" data-rel="colorbox">
+								<img alt="150x150" src="{$v.icon}"/>
 								<div class="text">
 									<div class="inner">点击查看</div>
 								</div>
@@ -44,20 +44,18 @@
 								<a href="#">
 									<i class="icon-link"></i>
 								</a>
-
 								<a href="#">
 									<i class="icon-paper-clip"></i>
 								</a>
-
 								<a href="#">
 									<i class="icon-pencil"></i>
 								</a>
-
 								<a href="#">
 									<i class="icon-remove red"></i>
 								</a>
 							</div>
 						</li>
+					</volist>
 
 					</ul>
 				</div><!-- PAGE CONTENT ENDS -->
@@ -94,11 +92,11 @@ jQuery(function($) {
 	$('.ace-thumbnails [data-rel="colorbox"]').colorbox(colorbox_params);
 	$("#cboxLoadingGraphic").append("<i class='icon-spinner orange'></i>");//let's add a custom loading icon
 
-	/**$(window).on('resize.colorbox', function() {
+	$(window).on('resize.colorbox', function() {
 		try {
 			//this function has been changed in recent versions of colorbox, so it won't work
 			$.fn.colorbox.load();//to redraw the current frame
 		} catch(e){}
-	});*/
+	});
 })
 		</script>

@@ -31,13 +31,13 @@ class QuestionAction extends Action {
         $this -> display();
     }
 
-    public function questionentrysave(){ 
+    public function questionentrysave(){
         import('ORG.Net.UploadFile');
         $upload = new UploadFile();
-        $upload->maxSize  = 3145728 ;
+        $upload->maxSize  = 3145728;
         $upload->allowExts  = array('jpg', 'gif', 'png', 'jpeg');
         $upload->uploadReplace = true;
-        $upload->savePath = UPLOADS_PATH."/img/";
+        $upload->savePath = UPLOADS_PATH."/imgQ/";
         if(!$upload->upload()) {
             $this->error($upload->getErrorMsg());
         }else{
@@ -50,22 +50,73 @@ class QuestionAction extends Action {
         $generalset = $this -> _getGeneralSet($data);
         $generalsetjson = json_encode($generalset);
 
-        $icon = '/weitest/Uploads/img/'.$info[0]['savename'];
-        $bgpic = '/weitest/Uploads/img/'.$info[1]['savename'];
-        
+        $icon = '/weitest/Uploads/imgQ/'.$info[0]['savename'];
+        $bgpic = '/weitest/Uploads/imgQ/'.$info[1]['savename'];
+
         $item = array(
             'qcode' => $qcode,
             'icon'  => $icon,
             'bgpic' => $bgpic,
             'generalset' => $generalsetjson,
             'status' => 1,
-            'addtime' => date()
+            'date' => date('Y-m-d')
         );
         
-        $m_q = M("question");
-        $m_q -> add($item);
+        $m_q = M('question');
+        $ret = $m_q -> add($item);
         
-        $this->success('保存成功！');
+        if($ret != false){
+            $this -> success('添加成功！');
+        }else{
+            $this -> error('添加失败！');
+        }
+    }
+
+    public function questionedit(){
+        $m_q = M('question');
+        $qcodes = $m_q -> field('qcode') -> select();
+
+        $this -> assign('qcodes', $qcodes);
+        $this -> display('questionentry');
+    }
+
+    public function questionentryedit(){
+        import('ORG.Net.UploadFile');
+        $upload = new UploadFile();
+        $upload->maxSize  = 3145728;
+        $upload->allowExts  = array('jpg', 'gif', 'png', 'jpeg');
+        $upload->uploadReplace = true;
+        $upload->savePath = UPLOADS_PATH."/imgQ/";
+        if(!$upload->upload()) {
+            $this->error($upload->getErrorMsg());
+        }else{
+            $info =  $upload->getUploadFileInfo();
+        }
+        
+        $qcode = $_POST['qcode'];
+
+        $data = $_POST;
+        $generalset = $this -> _getGeneralSet($data);
+        $generalsetjson = json_encode($generalset);
+
+        $icon = '/weitest/Uploads/imgQ/'.$info[0]['savename'];
+        $bgpic = '/weitest/Uploads/imgQ/'.$info[1]['savename'];
+
+        $item = array(
+            'qcode' => $qcode,
+            'icon'  => $icon,
+            'bgpic' => $bgpic,
+            'generalset' => $generalsetjson
+        );
+        
+        $m_q = M('question');
+        $ret = $m_q -> where(array('qcode' => $qcode)) -> save($item);
+        
+        if($ret != false){
+            $this -> success('添加成功！');
+        }else{
+            $this -> error('添加失败！');
+        }
     }
 
     private function _getGeneralSet($data){
@@ -184,5 +235,7 @@ class QuestionAction extends Action {
 
         $this -> success('设置成功！','questionlist');
     }
+
+    
 
 }

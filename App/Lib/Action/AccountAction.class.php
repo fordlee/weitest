@@ -13,107 +13,91 @@ class AccountAction extends Action {
         }
     }
 
-    public function accList(){
-    	$m_u = M('user');
-    	$acclist = $m_u -> join('department on user.dept_id = department.id') -> field('user.id,user.dept_id,dept_name,user.name,user.email,user.telephone,user.level') 
-                        -> select();
-        $this -> assign('acclist',$acclist);
+    public function adminlist(){
+    	$m = M('admin');
+    	$adminlist = $m -> select();
+        
+        $this -> assign('adminlist',$adminlist);
         $this -> display();
-    	
     }
 
-    public function accAdd(){
+    public function add(){
     	if((isset($_POST['email']) && !empty($_POST['email']))
     		&&(isset($_POST['password']) && !empty($_POST['password']))){
-    		$dept_id = $_POST['deptname'];
     		$name = $_POST['fullname'];
+            $email = $_POST['email'];
+            $password = $_POST['password'];
+            $telephone = $_POST['tel'];
     		$level = $_POST['level'];
-    		$email = $_POST['email'];
-    		$password = $_POST['password'];
-    		$telephone = $_POST['tel'];
     		$item = array(
-    			"dept_id" => $dept_id,
     			"name" => $name,
+                "email" => $email,
+                "password" => $password,
+                "telephone" => $telephone,
     			"level" => $level,
-    			"email" => $email,
-    			"password" => $password,
-    			"telephone" => $telephone,
-    			"time" => time()
+    			"time" => date('Y-m-d H:i:s')
     		);
-            $m_u = M('user');
-            $ret = $m_u -> where(array("email" => $email)) -> find();
+            $m = M('admin');
+            $ret = $m -> where(array("email" => $email)) -> find();
             
     		if($ret == null){
     			$m_u -> add($item);
-    			$this -> success('添加成功！','accList');
+    			$this -> success('添加成功！','list');
     		}else{
     			$this -> error('该邮箱已经使用！');
     		}
     	}else{
-            $m_d = M('department');
-    		$deptInfo = $m_d -> field('id,dept_name') -> where('pid=0') -> select();
-    		$this -> assign('deptInfo',$deptInfo);
+            
     		$this -> display();
     	}
     }
 
-    public function accEdit(){
+    public function edit(){
         if((isset($_POST['email']) && !empty($_POST['email']))
             &&(isset($_POST['password']) && !empty($_POST['password']))){
-            $userid = $_POST['userid'];
-            $dept_id = $_POST['deptname'];
+            $id = $_POST['id'];
             $name = $_POST['fullname'];
-            $level = $_POST['level'];
             $email = $_POST['email'];
             $password = $_POST['password'];
             $telephone = $_POST['tel'];
+            $level = $_POST['level'];
             $item = array(
-                "dept_id" => $dept_id,
+                "id" => $id,
                 "name" => $name,
                 "email" => $email,
                 "password" => $password,
                 "telephone" => $telephone
             );
-            $m_u = M('user');
-            $ret = $m_u -> where($item) -> find();
+            $m = M('admin');
+            $ret = $m -> where($item) -> find();
             if($ret == null){
-                $m_u -> where('id='.$userid) -> save($item);
-                $this -> success('修改成功！','accList');
+                $m -> where('id='.$id) -> save($item);
+                $this -> success('修改成功！','list');
             }else{
                 $this -> error('没有修改内容！');
             }
         }else{
             $id = $_GET['id'];
-            $email = $_SESSION['username'];
-            $m_d = M('department');
-            $deptInfo = $m_d -> field('id,dept_name') -> where('pid=0') -> select();
-            $this -> assign('deptInfo',$deptInfo);
-            $where = array(
-                "id" => $id,
-                "email" => $email
-            );
-            $m_u = M('user');
-            $ret = $m_u -> where('id='.$id) -> find();
-            $isFind = $m_u -> where($where) -> find();
-            $isSelf = $isFind !== null ? true : false;
-            $this -> assign('isSelf',$isSelf);
-            $this -> assign('userid',$id);
-            $this -> assign('userInfo',$ret);
+            $email = $_SESSION['email'];
+            $m = M('admin');
+            $ret = $m -> where('id='.$id) -> find();
+            
+            $this -> assign('adminInfo',$ret);
             $this -> display();
             
         }
     }
 
 
-    public function accDel(){
+    public function del(){
         if(isset($_GET['id']) && !empty($_GET['id'])){
             $id = $_GET['id'];
-            $email = $_SESSION['username'];
+            $email = $_SESSION['email'];
             $where = array(
                 "id" => $id,
                 "email" => $email
             );
-            $m_u = M('user');
+            $m = M('admin');
             $ret = $m_u -> where($where) -> delete();
             if($ret == false){
                 $this -> error('你不能够删除他人信息！');

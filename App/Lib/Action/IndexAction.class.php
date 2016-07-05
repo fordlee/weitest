@@ -14,12 +14,29 @@ class IndexAction extends Action {
 
     public function index(){
 
-		$this -> display('gallery');
+		$this -> redirect('gallery');
     }
 
     public function gallery(){
+        if(isset($_POST['language']) && !empty($_POST['language'])){
+            $language = $_POST['language'];
+        }else{
+            $language = 'zh';
+        }
+        $m = D('QuestionView');
+        $item = $m -> where(array('language' => $language)) -> select();
+
         $m_a = M('answer');
+        foreach ($item as $k => $v) {
+            $where = array(
+                'qid' => $v['qid'],
+                'qdid' => $v['qdid']
+            );
+            $results = $m_a -> where($where) -> select();
+            $item[$k]['results'] = $results;
+        }
         
+        $this -> assign('item', $item);
         $this -> display();
     }
 
