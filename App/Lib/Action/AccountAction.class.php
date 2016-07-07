@@ -8,7 +8,7 @@ class AccountAction extends Action {
     }
 
     private function CheckmSession(){
-        if(!isset($_SESSION['username'])&& !isset($_SESSION['login']) && $_SESSION['login'] !== true){
+        if(!isset($_SESSION['email'])&& !isset($_SESSION['login']) && $_SESSION['login'] !== true){
             $this -> error('抱歉!您还没有登录或登录超时，请重新登录！',U('Auth/login'));
         }
     }
@@ -24,27 +24,27 @@ class AccountAction extends Action {
     public function add(){
     	if((isset($_POST['email']) && !empty($_POST['email']))
     		&&(isset($_POST['password']) && !empty($_POST['password']))){
-    		$name = $_POST['fullname'];
+    		$name = $_POST['name'];
             $email = $_POST['email'];
             $password = $_POST['password'];
-            $telephone = $_POST['tel'];
-    		$level = $_POST['level'];
+            $telephone = $_POST['telephone'];
+    		//$level = $_POST['level'];
     		$item = array(
     			"name" => $name,
                 "email" => $email,
                 "password" => $password,
                 "telephone" => $telephone,
-    			"level" => $level,
+    			"level" => 1,
     			"time" => date('Y-m-d H:i:s')
     		);
             $m = M('admin');
             $ret = $m -> where(array("email" => $email)) -> find();
             
     		if($ret == null){
-    			$m_u -> add($item);
-    			$this -> success('添加成功！','list');
+    			$m -> add($item);
+    			$this -> success('添加成功！','adminlist');
     		}else{
-    			$this -> error('该邮箱已经使用！');
+    			$this -> error('该邮箱已经使用！','adminlist');
     		}
     	}else{
             
@@ -72,7 +72,7 @@ class AccountAction extends Action {
             $ret = $m -> where($item) -> find();
             if($ret == null){
                 $m -> where('id='.$id) -> save($item);
-                $this -> success('修改成功！','list');
+                $this -> success('修改成功！','adminlist');
             }else{
                 $this -> error('没有修改内容！');
             }
@@ -82,7 +82,7 @@ class AccountAction extends Action {
             $m = M('admin');
             $ret = $m -> where('id='.$id) -> find();
             
-            $this -> assign('adminInfo',$ret);
+            $this -> assign('item',$ret);
             $this -> display();
             
         }
@@ -98,7 +98,7 @@ class AccountAction extends Action {
                 "email" => $email
             );
             $m = M('admin');
-            $ret = $m_u -> where($where) -> delete();
+            $ret = $m -> where($where) -> delete();
             if($ret == false){
                 $this -> error('你不能够删除他人信息！');
             }else{

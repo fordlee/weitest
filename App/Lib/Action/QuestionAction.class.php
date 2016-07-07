@@ -7,7 +7,7 @@ class QuestionAction extends Action {
     }
 
     private function CheckmSession(){
-        if(!isset($_SESSION['username'])&& !isset($_SESSION['login']) && $_SESSION['login'] !== true){
+        if(!isset($_SESSION['email'])&& !isset($_SESSION['login']) && $_SESSION['login'] !== true){
             $this -> error('抱歉!您还没有登录或登录超时，请重新登录！',U('Auth/login'));
         }
     }
@@ -27,7 +27,7 @@ class QuestionAction extends Action {
     }
 
     public function questionentry(){
-       
+        echo 1;die();
         $this -> display();
     }
 
