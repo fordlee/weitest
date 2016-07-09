@@ -59,18 +59,21 @@
 							</button>
 							</div>
 							<input type="file" name="answerPic[]" class="col-sm-2" style="display:none">
-							<if condition="$v['answerpic'] neq NULL">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right">画图设置：</label>
+						<div class="col-sm-10">
+							<!-- <if condition="$v['answerpic'] neq NULL">
 								<img src="{$v['answerpic']}" />
-							</if>
+							</if> -->
+							<textarea name="optionset[]" style="margin: 0px; width: 330px; height: 50px;">{$v['optionset']}</textarea>
 						</div>
 					</div>
 					</volist>
 					<div class="form-group">
 						<label class="col-sm-2 control-label no-padding-right"></label>
 						<div class="col-sm-10">
-							<!-- <button type="button" onclick="addDia(this);" class="btn btn-sm btn-primary">
-								<i class="icon icon-plus"></i>添加选项
-							</button> -->
 						</div>
 					</div>
 					
@@ -94,29 +97,9 @@ function addAnswerPic(obj){
 	_this.parent().next().click();
 }
 
-function addDia(obj){
-	var _this=$(obj);
-	var str=
-	'<div class="form-group">'+
-		'<label class="col-sm-2 control-label no-padding-right" >答案：</label>'+
-		'<div class="col-sm-10">'+
-			'<input type="text" name="option[]" placeholder="xx死于xxxx年：在龙的战斗中战死" class="col-sm-6" />'+
-			'<div class="col-sm-2">'+
-			'<button type="button" onclick="addAnswerPic(this)" class="btn btn-xs btn-primary">'+
-				'<i class="icon icon-plus"></i>图片'+
-			'</button>&nbsp;'+
-			'<button type="button" onclick="delTr(this)" class="btn btn-xs btn-danger">'+ 
-				'<i class="icon-minus"></i>移除'+
-			'</button>'+
-			'</div>'+
-			'<input type="file" name="answerPic[]" class="col-sm-2" style="display:none">'+
-		'</div>'+
-	'</div>';
-	_this.parent().parent().before(str);
-}
-
 function delTr(obj){
 	var _this=$(obj);
+	_this.parent().parent().parent().next().remove();
 	_this.parent().parent().parent().remove();
 }
 

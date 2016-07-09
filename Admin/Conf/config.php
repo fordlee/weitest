@@ -22,6 +22,10 @@ return array(
 	'URL_HTML_SUFFIX'=>'',
 	'URL_ROUTER_ON'   => true, //开启路由
 	'URL_ROUTE_RULES' => array( //定义路由规则
-	)
+	),
+
+	'FACEBOOK_APP_ID' => '1053226548106670',
+	'FACEBOOK_APP_SECRET' => '58a9253409d0cd2be600135a14627d18'
+
 );
 ?>

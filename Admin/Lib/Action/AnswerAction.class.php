@@ -38,6 +38,7 @@ class AnswerAction extends Action {
             $m_a = M('answer');
             $qid = $_POST['qid'];
             $qdid = $_POST['qdid'];
+            $optionset = $_POST['optionset'];
             foreach ($options as $k => $v) {
                 $item = array(
                     'qid' => $qid,
@@ -49,6 +50,7 @@ class AnswerAction extends Action {
                 }else{
                     $item['answerpic'] = NULL;
                 }
+                $item['optionset'] = $optionset[$k];
                 $ret = $m_a -> where($item) -> find();
                 if($ret == null ){
                     $m_a -> add($item);
@@ -70,11 +72,11 @@ class AnswerAction extends Action {
         $m_a = M('answer');
 
         $qdItem = $m_q_d -> where(array('id' => $qdid)) -> find();
-        $aItem = $m_a -> where(array('qid' => $qdid, 'qdid' => $qdid)) -> select();
+        $aItem = $m_a -> where(array('qid' => $qid, 'qdid' => $qdid)) -> select();
         
         $this -> assign('qdItem', $qdItem);
         $this -> assign('aItem', $aItem);
-
+        
         $this -> display('Answer/answeredit');
     }
 
@@ -96,6 +98,7 @@ class AnswerAction extends Action {
 
             $m_a = M('answer');
             $aids = $_POST['aid'];
+            $optionset = $_POST['optionset'];
             foreach ($options as $k => $v) {
                 $item = array(
                     'id' => $aids[$k],
@@ -107,6 +110,7 @@ class AnswerAction extends Action {
                 }else{
                     $item['answerpic'] = $ret['answerpic'];
                 }
+                $item['optionset'] = $optionset[$k];
                 $m_a -> where(array('id' => $aids[$k])) -> save($item);
             }
             $this -> success('操作成功！', U('Question/questionlist'));

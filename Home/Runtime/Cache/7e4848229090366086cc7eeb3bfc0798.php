@@ -10,21 +10,23 @@
 <div id="all">
     <div id="header">
         <div id="header-box">
-            <a class="header-logo" href="#"></a>
-            <a class="header-home" href="#">HOME</a>
-            <select class="lan-switch">
-                <option value="zh">中文</option>
-                <option value="en">English</option>
-                <option value="fr">French</option>
-                <option value="pt">Portuguese</option>
+            <form action="<?php echo U('Index/index');?>" id="filterform" method="post">
+            <a href="#" class="header-logo" ></a>
+            <a href="<?php echo U('Index/index');?>" class="header-home" >HOME</a>
+            <select id="language" class="lan-switch" name="language">
+                <option value="zh" <?php if($language == 'zh') echo "selected"; ?>>中文</option>
+                <option value="en" <?php if($language == 'en') echo "selected"; ?>>English</option>
+                <option value="fr" <?php if($language == 'fr') echo "selected"; ?>>French</option>
+                <option value="pt" <?php if($language == 'pt') echo "selected"; ?>>Portuguese</option>
             </select>
+            </form>
         </div>
     </div>
 
         <div id="container">
             <p style="text-align: center">Advertisement</p>
             <div id="middle-ad"></div>
-
+            
             <a href="#" class="nextbtn">
                 <span>NEXT</span>
                 <img src="__PUBLIC__/mytests/img/arrow1.png">
@@ -63,8 +65,11 @@
     </div>
 
 </div>
-
-
-
+<script src="__PUBLIC__/mytests/js/jquery-3.0.0.min.js"></script>
+<script type="text/javascript">
+$('#language').change(function(e) {
+    $('#filterform').submit();
+});
+</script>
 </body>
 </html>

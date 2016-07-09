@@ -25,16 +25,17 @@
         <span class="icon-bar"></span>
     </button>
     <div class="header-box">
-        <a class="header-logo" href="#"></a>
-        <a class="header-home" id="header-home" href="#">HOME</a>
-        <a class="lan-switch" id="lan-switch" href="#">
-            中文
-            <ul>
-                <li>English</li>
-                <li>French</li>
-                <li>Brazil</li>
-            </ul>
-        </a>
+        <form action="<?php echo U('Index/question');?>" id="filterform" method="post">
+            <input type="hidden" name="id" value="<?php echo ($qid); ?>" >
+            <a href="#" class="header-logo" ></a>
+            <a href="<?php echo U('Index/index');?>" class="header-home" id="header-home">HOME</a>
+            <select id="language" class="lan-switch" name="language">
+                <option value="zh" <?php if($language == 'zh') echo "selected"; ?>>中文</option>
+                <option value="en" <?php if($language == 'en') echo "selected"; ?>>English</option>
+                <option value="fr" <?php if($language == 'fr') echo "selected"; ?>>French</option>
+                <option value="pt" <?php if($language == 'pt') echo "selected"; ?>>Portuguese</option>
+            </select>
+        </form>
     </div>
 </div>
 
@@ -46,11 +47,11 @@
 <div id="container">
     <div id="container-main">
         <div id="container-content">
-            <h1>这个周末谁会吻你？</h1>
-            <div class="fb-banner"><img src="__PUBLIC__/mytests/img/banner.png" style="width: 100%"></div>
+            <h1><?php echo ($qitem["content"]); ?></h1>
+            <div class="fb-banner"><img src="<?php echo ($qitem["bgpic"]); ?>" style="width: 80%"></div>
             <div class="fb-share"><img src="__PUBLIC__/mytests/img/Facebook-login.png"></div>
             <p>请登录<span>Facebook</span>以查看你的测试结果</p>
-            <a href="#">
+            <a href="<?php echo U('Facebook/PaintResult');?>/id/<?php echo ($qid); ?>">
                 <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
                 <span>使用Facebook登录</span>
             </a>
@@ -62,46 +63,14 @@
             <div class="as-content"></div>
         </div>
 
-        <a class="container-vice-box" href="#">
-            <img src="__PUBLIC__/mytests/img/a.jpg">
-            <div class="container-vice-box-btn">
-                <img src="__PUBLIC__/mytests/img/arrow.png">
-                <span>这个周末谁会吻你？</span>
-            </div>
-            <div class="container-vice-mask"></div>
-        </a>
-        <a class="container-vice-box" href="#">
-            <img src="__PUBLIC__/mytests/img/a.jpg">
-            <div class="container-vice-box-btn">
-                <img src="__PUBLIC__/mytests/img/arrow.png">
-                <span>这个周末谁会吻你？</span>
-            </div>
-            <div class="container-vice-mask"></div>
-        </a>
-        <a class="container-vice-box" href="#">
-            <img src="__PUBLIC__/mytests/img/a.jpg">
-            <div class="container-vice-box-btn">
-                <img src="__PUBLIC__/mytests/img/arrow.png">
-                <span>这个周末谁会吻你？</span>
-            </div>
-            <div class="container-vice-mask"></div>
-        </a>
-        <a class="container-vice-box" href="#">
-            <img src="__PUBLIC__/mytests/img/a.jpg">
-            <div class="container-vice-box-btn">
-                <img src="__PUBLIC__/mytests/img/arrow.png">
-                <span>这个周末谁会吻你？</span>
-            </div>
-            <div class="container-vice-mask"></div>
-        </a>
-        <a class="container-vice-box" href="#">
-            <img src="__PUBLIC__/mytests/img/a.jpg">
-            <div class="container-vice-box-btn">
-                <img src="__PUBLIC__/mytests/img/arrow.png">
-                <span>这个周末谁会吻你？</span>
-            </div>
-            <div class="container-vice-mask"></div>
-        </a>
+        <?php if(is_array($item)): $i = 0; $__LIST__ = array_slice($item,0,5,true);if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$v): $mod = ($i % 2 );++$i;?><a href="#" class="container-vice-box">
+                <img src="<?php echo ($v["icon"]); ?>">
+                <div class="container-vice-box-btn">
+                    <img src="__PUBLIC__/mytests/img/arrow.png">
+                    <span><?php echo ($v["content"]); ?></span>
+                </div>
+                <div class="container-vice-mask"></div>
+            </a><?php endforeach; endif; else: echo "" ;endif; ?>
     </div>
     <div id="container-patch">
         <div class="as_600x300">
@@ -114,44 +83,12 @@
         <div id="container-patch-bigbox">
 
             <div class="patch-list patch-list_top">
-
-                    <a class="container-patch-box patch-no-margin1" href="#">
+                <?php if(is_array($item)): $i = 0; $__LIST__ = array_slice($item,0,6,true);if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$v): $mod = ($i % 4 );++$i;?><a href="#" class="container-patch-box patch-no-margin3">
                         <div>
-                        <img src="__PUBLIC__/mytests/img/a.jpg">
+                            <img src="<?php echo ($v["icon"]); ?>" >
                         </div>
-                        <span>这个周末谁会吻你？</span>
-                    </a
-                    ><a class="container-patch-box patch-no-margin2" href="#">
-                        <div>
-                            <img src="__PUBLIC__/mytests/img/a.jpg">
-                        </div>
-                        <span>这个周末谁会吻你？</span>
-                    </a
-                    ><a class="container-patch-box patch-no-margin3" href="#">
-                        <div>
-                            <img src="__PUBLIC__/mytests/img/a.jpg">
-                        </div>
-                        <span>这个周末谁会吻你？</span>
-                    </a
-                    ><a class="container-patch-box patch-no-margin4" href="#">
-                        <div>
-                            <img src="__PUBLIC__/mytests/img/a.jpg">
-                        </div>
-                        <span>这个周末谁会吻你？</span>
-                    </a
-                    ><a class="container-patch-box patch-no-margin5" href="#">
-                        <div>
-                            <img src="__PUBLIC__/mytests/img/a.jpg">
-                        </div>
-                        <span>这个周末谁会吻你？</span>
-                    </a
-                    ><a class="container-patch-box patch-no-margin6" href="#">
-                        <div>
-                            <img src="__PUBLIC__/mytests/img/a.jpg">
-                        </div>
-                        <span>这个周末谁会吻你？</span>
-                    </a>
-
+                        <span><?php echo ($v["content"]); ?></span>
+                    </a><?php endforeach; endif; else: echo "" ;endif; ?>
             </div>
 
             <div class="as_336x280">
@@ -160,47 +97,17 @@
             </div>
 
             <div class="patch-list patch-list_bottom">
-                <a class="container-patch-box patch-no-margin1" href="#">
-                    <div>
-                        <img src="__PUBLIC__/mytests/img/a.jpg">
-                    </div>
-                    <span>这个周末谁会吻你？</span>
-                </a
-                        ><a class="container-patch-box patch-no-margin2" href="#">
-                    <div>
-                        <img src="__PUBLIC__/mytests/img/a.jpg">
-                    </div>
-                    <span>这个周末谁会吻你？</span>
-                </a
-                        ><a class="container-patch-box patch-no-margin3" href="#">
-                    <div>
-                        <img src="__PUBLIC__/mytests/img/a.jpg">
-                    </div>
-                    <span>这个周末谁会吻你？</span>
-                </a
-                        ><a class="container-patch-box patch-no-margin4" href="#">
-                    <div>
-                        <img src="__PUBLIC__/mytests/img/a.jpg">
-                    </div>
-                    <span>这个周末谁会吻你？</span>
-                </a
-                        ><a class="container-patch-box patch-no-margin5" href="#">
-                    <div>
-                        <img src="__PUBLIC__/mytests/img/a.jpg">
-                    </div>
-                    <span>这个周末谁会吻你？</span>
-                </a
-                        ><a class="container-patch-box patch-no-margin6" href="#">
-                    <div>
-                        <img src="__PUBLIC__/mytests/img/a.jpg">
-                    </div>
-                    <span>这个周末谁会吻你？</span>
-                </a>
+                <?php if(is_array($item)): $i = 0; $__LIST__ = array_slice($item,0,6,true);if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$v): $mod = ($i % 4 );++$i;?><a href="#" class="container-patch-box patch-no-margin3">
+                        <div>
+                            <img src="<?php echo ($v["icon"]); ?>" >
+                        </div>
+                        <span><?php echo ($v["content"]); ?></span>
+                    </a><?php endforeach; endif; else: echo "" ;endif; ?>
             </div>
         </div>
         <a href="#" class="nextbtn">
             <span>NEXT</span>
-            <img src="__PUBLIC__/mytests/img/箭头.png">
+            <img src="__PUBLIC__/mytests/img/arrow1.png">
         </a>
         <div id="footer-link">
             <a href="#">条款和条件</a>
@@ -214,5 +121,11 @@
     </div>
 </div>
 <div id="footer"></div>
+<script src="http://ajax.useso.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script type="text/javascript">
+$('#language').change(function(e) {
+    $('#filterform').submit();
+});
+</script>
 </body>
 </html>
