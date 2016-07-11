@@ -156,11 +156,10 @@ class FacebookAction extends Action {
         return $language;
     }
 
-    public function PaintResult(){
+    public function paintResult(){
         $info = $this -> facebookLogin();
         $userprofile = $info['user_profile'];
-        //$allfirend = $info['allFriends'];
-        var_dump($userprofile);
+        $allfirend = $info['allFriends'];
         $qid = $_GET['id'];
         $language = $this -> _getLanguage();
         $m = D('QuestionView');
@@ -172,81 +171,69 @@ class FacebookAction extends Action {
             'qid'  => $qitem['qid']
         );
         $aitem = $m_a -> where($where) -> select();
+        
+        //随机获取答案
         $randnum = $this -> _myrand(count($aitem)-1);
-        $data = $this -> _replaceVar($json_decode($aitem[$randnum]['optionset'],true));
-        var_dump($data);
-        /*$data=array(
-        array(
-            "type"=>"text",
-            "attribute"=>array(
-                "content"=>"你好，{#minename}今天很开心：",
-                "color"=>"#000000",
-                "size"=>"20",
-                "font"=>"c:/windows/fonts/simhei.ttf",
-                "x"=>50,
-                "y"=>50
-            ),
-        ),
-
-        array(
-            "type"=>"image",
-            "attribute"=>array(
-                "content"=>IMAGE_PATH.'/pic.jpg',
-                "x"=>250,
-                "y"=>0,
-                "alpha" => 10,
-                "func"=>"round"//round|resize(100,100)|cut
-            ),
-        ),
-
-        array(
-            "type"=>"image",
-            "attribute"=>array(
-                "content"=>IMAGE_PATH.'/pic.jpg',
-                "x"=>0,
-                "y"=>100,
-                "alpha" => 50,
-                "func"=>"round"
-            ),
-        ),
-
-        array(
-            "type"=>"text",
-            "attribute"=>array(
-                "content"=>"成功是留给有准备的人的！",
-                "color"=>"#4CAF50",
-                "size"=>"20",
-                "font"=>"c:/windows/fonts/simhei.ttf",
-                "x"=>50,
-                "y"=>250
-            ),
-        )
-    );*/
+        $data = json_decode($aitem[$randnum]['optionset'],true);
+        
         import('ORG.Util.Image.FacebookPaint');
         $image = new FacebookPaint();
         $imgfile=IMAGE_PATH.'/test.jpg';
         $im=imagecreatefromjpeg($imgfile);
         foreach ($data as $k => $v) {
             if($v['type']=="text"){
-                $im=$image -> injectText($im,$v['attribute']);
+                $im=$image -> injectText($im,$v['attribute'],$this -> _setSysParam($v['attribute']['content'],$info));
             }elseif($v['type']=="image"){
-                $im=$image -> injectImage($im,$v['attribute']);
+                $im=$image -> injectImage($im,$v['attribute'],$this -> _setSysParam($v['attribute']['content'],$info));
             }
         }
 
         //输出图片
-        //Header("Content-type: image/jpeg");
+        //header("Content-type: image/jpeg");
         //imagejpeg($im);
-
+        $filename = array(
+            'uid'  => $info['user_profile']['id'],
+            'id'   => $randnum+1,
+            'qid'  => $qitem['qid'],
+            'qdid' => $qitem['qdid']
+        );
+        
+        $filename = implode("_", $filename);
+        $filepath = IMAGE_PATH.'/'.$filename.'.jpeg';
+        imagejpeg($im,$filepath);
         //释放空间
-        //ImageDestroy($im); 
+        imagedestroy($im);
+        $this -> _setquestion($qid);
+        $filepath = str_replace('./', '/weitest/', $filepath);
+        
+        $this -> assign('status', 1);
+        $this -> assign('resultsrc', $filepath);
+        $this -> display('Index/question');
+        
+    }
+
+    private function _setquestion($qid){
+        
+        if(!empty($_SESSION['language'])){
+            $language = $_SESSION['language'];
+        }else{
+            $language = 'zh';
+        }
+        $m = D('QuestionView');
+        $item = $m -> where(array('language' => $language)) -> select();
+        $qitem = $m -> where(array('language' => $language,'id' => $qid)) -> find();
+        
+        $this -> assign('qid', $qid);
+        $this -> assign('language', $language);
+        $this -> assign('item', $item);
+        $this -> assign('qitem', $qitem);
 
     }
 
     //每隔300秒返回选项随机数
     private function _myrand($length){
         $currentTime = time();
-        $changeTime = 300;
+        $changeTime = 6;
         $rand = '';
         if(isset($_SESSION['time'])) {
            if(($currentTime - $_SESSION['time']) >= $changeTime) {
@@ -265,13 +252,50 @@ class FacebookAction extends Action {
         return $rand;
     }
 
-    private function _replaceVar($data){
-        foreach ($data as $k => $v) {
-            $content = $v['attribute']['content'];
-            echo $content;    
-        }
+    //设置内容内置系统变量
+    private function _setSysParam($content='', $apiData){
+        //$content="姓名：{#user_profile.name}，生日：{#user_profile.birthday.date|strtotime=###;date=Y/m/d,###}，是最帅的人！";
+        preg_match_all('/{#(.*?)}/im',$content, $match);
+        $match=@$match[1];
 
-        return $data;
+        //解析并处理系统变量内容
+        foreach ($match as $key => $value) {
+            $_sep=explode('|', $value);
+            $_paramArr=explode('.', $_sep[0]);
+            $_fun=@$_sep[1];
+
+            //获取系统变量
+            $_param=$apiData;
+            foreach ($_paramArr as $key1 => $value1) {
+                $_param=$_param[$value1];
+            }
+
+            //调用后续处理函数
+            if($_fun){
+                $_funArr=explode(';',$_fun);
+
+                foreach ($_funArr as $key2 => $value2) {
+                    $_funSep=explode('=',$value2);
+                    $_funParam=@$_funSep[1]?explode(',',$_funSep[1]):array();
+
+                    //检查参数中的预置当前参数###
+                    foreach ($_funParam as $key3 => $value3) {
+                        if($value3=='###'){
+                            $_funParam[$key3]=$_param;
+                        }
+                    }
+                    //print_r($_funParam);exit;
+                    $_param=@call_user_func_array($_funSep[0],$_funParam);
+                }
+            }
+
+            //置换内容中系统变量
+            $content=str_replace('{#'.$value.'}', $_param, $content);
+        }
+        //echo $content;
+        $content=preg_replace('/{#(.*?)}/im', '', $content);
+
+        return $content;
     }
 
 }

@@ -31,66 +31,104 @@ class TestAction extends Action {
 
     public function arr2json(){
         $data=array(
-		array(
-			"type"=>"text",
-			"attribute"=>array(
-				"content"=>"你好，{#me_name}今天很开心：",
-				"color"=>"#000000",
-				"size"=>"20",
-				"font"=>"c:/windows/fonts/simhei.ttf",
-				"x"=>50,
-				"y"=>50
-			),
-		),
-		
-		//round|resize(100,100)|cut
-		array(
-			"type"=>"image",
-			"attribute"=>array(
-				"content"=>"pic.jpg",
-				"x"=>250,
-				"y"=>0,
-				"alpha"=>50,
-				"func"=>"round"
-			),
-		),
+            /*array(
+                "type"=>"text",
+                "attribute"=>array(
+                    "content"=>"姓名：{#user_profile.name}，生日：{#user_profile.birthday.date|strtotime=###;date=Y/m/d,###}，是最帅的人！",
+                    "color"=>"#000000",
+                    "size"=>"20",
+                    "font"=>"c:/windows/fonts/simhei.ttf",
+                    "x"=>0,
+                    "y"=>100
+                )
+            ),*/
 
-		array(
-			"type"=>"image",
-			"attribute"=>array(
-				"content"=>"pic.jpg",
-				"x"=>0,
-				"y"=>100,
-				"alpha"=>100,
-				"func"=>"round"
-			),
-		),
+            array(
+                "type"=>"image",
+                "attribute"=>array(
+                    "content"=>"{#user_profile.user_picture}",
+                    "x"=>250,
+                    "y"=>0,
+                    "alpha" => 100,
+                    "func"=>"round"//round|resize(100,100)|cut|opacity(10)
+                ),
+            ),
 
-		array(
-			"type"=>"text",
-			"attribute"=>array(
-				"content"=>"成功是留给有准备的人的！",
-				"color"=>"#4CAF50",
-				"size"=>"20",
-				"font"=>"c:/windows/fonts/simhei.ttf",
-				"x"=>50,
-				"y"=>250
-			),
-		)
-	);
+            /*array(
+                "type"=>"text",
+                "attribute"=>array(
+                    "content"=>"成功是留给有准备的人的！",
+                    "color"=>"#4CAF50",
+                    "size"=>"20",
+                    "font"=>"c:/windows/fonts/simhei.ttf",
+                    "x"=>50,
+                    "y"=>250
+                ),
+            ),*/
+
+            array(
+                "type"=>"image",
+                "attribute"=>array(
+                    "content"=>"pic.jpg",
+                    "x"=>200,
+                    "y"=>0,
+                    "func"=>"round"
+                ),
+            ),
+
+            /*array(
+                "type"=>"image",
+                "attribute"=>array(
+                    "content"=>"pic.jpg",
+                    "x"=>0,
+                    "y"=>0,
+                    "func"=>"resize(300,300)|round"
+                )
+            ),*/
+            
+            array(
+                "type"=>"image",
+                "attribute"=>array(
+                    "content"=>"test1.jpg",
+                    "x"=>270,
+                    "y"=>0,
+                    "func"=>"stripXcut(3,3)"
+                )
+            ), 
+            
+            array(
+                "type"=>"image",
+                "attribute"=>array(
+                    "content"=>"test1.jpg",
+                    "x"=>270,
+                    "y"=>0,
+                    "alpha"=>50,
+                    "func"=>"freecut(270,420,270,0)"
+                )
+            )
+        );
 
         $ret = json_encode($data);
         echo $ret;
     }
 
     public function getUrlPicture(){
+    	
+    	$ret = file_get_contents("https://scontent.xx.fbcdn.net/v/t1.0-1/s320x320/13310349_213272095732702_3570793724905543015_n.jpg?oh=7ffa2be07abca92b956c69fa6f7088cc&oe=57FB6430");
+        $im=imagecreatefromstring($ret);
+    	Header("Content-type: image/jpeg");
+    	imagejpeg($im);
+        
+    }
+
+    public function getUrlPictureString(){
     	$img = UPLOADS_PATH.'/header/1.jpg';
         file_put_contents($img, file_get_contents("https://scontent.xx.fbcdn.net/v/t1.0-1/s320x320/13310349_213272095732702_3570793724905543015_n.jpg?oh=7ffa2be07abca92b956c69fa6f7088cc&oe=57FB6430"));
         $imgfile = UPLOADS_PATH.'/header/1.jpg';
-        $im=imagecreatefromjpeg($imgfile);
         Header("Content-type: image/jpeg");
         imagejpeg($im);
         ImageDestroy($im);
+        echo $ret;
     }
 
 }

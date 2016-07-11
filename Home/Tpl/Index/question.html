@@ -48,10 +48,16 @@
     <div id="container-main">
         <div id="container-content">
             <h1>{$qitem.content}</h1>
-            <div class="fb-banner"><img src="{$qitem.bgpic}" style="width: 80%"></div>
+            <div class="fb-banner">
+                <if condition="$status eq 1">
+                    <img src="{$resultsrc}" style="width:90%">
+                <else />
+                    <img src="{$qitem.bgpic}" style="width:90%">
+                </if>
+            </div>
             <div class="fb-share"><img src="__PUBLIC__/mytests/img/Facebook-login.png"></div>
             <p>请登录<span>Facebook</span>以查看你的测试结果</p>
-            <a href="{:U('Facebook/PaintResult')}/id/{$qid}">
+            <a href="{:U('Facebook/paintResult')}/id/{$qid}">
                 <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
                 <span>使用Facebook登录</span>
             </a>
@@ -127,7 +133,7 @@
     </div>
 </div>
 <div id="footer"></div>
-<script src="http://ajax.useso.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="__PUBLIC__/mytests/js/jquery-3.0.0.min.js"></script>
 <script type="text/javascript">
 $('#language').change(function(e) {
     $('#filterform').submit();
