@@ -5,6 +5,7 @@
     define('APP_PATH', './Home/');
 	//根目录路径
 	define('IMAGE_PATH', './Uploads/image');
+	define('FONT_PATH', './Uploads/font');
 	define('UPLOADS_PATH', './Uploads');
     //开启调试模式
     define('APP_DEBUG', true);

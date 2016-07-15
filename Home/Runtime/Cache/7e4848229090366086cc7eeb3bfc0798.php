@@ -11,13 +11,13 @@
     <div id="header">
         <div id="header-box">
             <form action="<?php echo U('Index/index');?>" id="filterform" method="post">
-            <a href="#" class="header-logo" ></a>
+            <a href="<?php echo U('Index/index');?>" class="header-logo" ><img src="__PUBLIC__/mytests/img/logo.png" alt="mytests.co" title="Home"></a>
             <a href="<?php echo U('Index/index');?>" class="header-home" >HOME</a>
             <select id="language" class="lan-switch" name="language">
                 <option value="zh" <?php if($language == 'zh') echo "selected"; ?>>中文</option>
                 <option value="en" <?php if($language == 'en') echo "selected"; ?>>English</option>
-                <option value="fr" <?php if($language == 'fr') echo "selected"; ?>>French</option>
                 <option value="pt" <?php if($language == 'pt') echo "selected"; ?>>Portuguese</option>
+                <!-- <option value="fr" <?php if($language == 'fr') echo "selected"; ?>>French</option> -->
             </select>
             </form>
         </div>
@@ -26,13 +26,16 @@
         <div id="container">
             <p style="text-align: center">Advertisement</p>
             <div id="middle-ad"></div>
-            
-            <a href="#" class="nextbtn">
+            <!-- <?php if(($backflag) == "1"): ?><a href="javascript:void()" onclick="window.history.back(-1);" class="nextbtn">
+                    <img src="__PUBLIC__/mytests/img/arrowb1.png">
+                    <span>BACK</span>
+                </a><?php endif; ?>
+            <a href="<?php echo U('Index/next');?>" class="nextbtn">
                 <span>NEXT</span>
                 <img src="__PUBLIC__/mytests/img/arrow1.png">
-            </a>
+            </a> -->
             <br/>
-            <?php if(is_array($item)): $i = 0; $__LIST__ = $item;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$v): $mod = ($i % 2 );++$i;?><a href="<?php echo U('index/question');?>/id/<?php echo ($v["id"]); ?>" class="container-box">
+            <?php if(is_array($item)): $i = 0; $__LIST__ = $item;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$v): $mod = ($i % 2 );++$i;?><a href="<?php echo U('Index/question');?>/id/<?php echo ($v["id"]); ?>" class="container-box">
                     <img class="container-box-img" src="<?php echo ($v["icon"]); ?>">
                     <div class="container-box-mask">
                         <div class="container-box-title"><?php echo ($v["content"]); ?></div>
@@ -44,10 +47,14 @@
                 <span></span>
             </div>
             <br/>
-            <a href="#" class="nextbtn" style="margin-bottom: 30px">
+            <?php if(($backflag) == "1"): ?><a href="javascript:void()" onclick="window.history.back(-1);" class="nextbtn">
+                <img src="__PUBLIC__/mytests/img/arrowb1.png">
+                <span>BACK</span>
+            </a><?php endif; ?>
+            <!-- <a href="<?php echo U('Index/next');?>" class="nextbtn" style="margin-bottom: 30px">
                 <span>NEXT</span>
                 <img src="__PUBLIC__/mytests/img/arrow1.png">
-            </a>
+            </a> -->
 
             <p style="text-align: center">Advertisement</p>
             <div id="bottom-ad" style="margin-bottom: 30px"></div>

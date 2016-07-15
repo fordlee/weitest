@@ -6,6 +6,7 @@
 	//根目录路径
 	define('IMAGE_PATH', './Uploads/image');
 	define('UPLOADS_PATH', './Uploads');
+	define('FONT_PATH','./Uploads/font');
     //开启调试模式
     define('APP_DEBUG', true);
     //加载框架入口文件

@@ -20,8 +20,8 @@ class AnswerAction extends Action {
     }
 
     public function answerentrysave(){
-        $options = $_POST['option'];
-        if(!in_array('', $options)){
+        $optionset = $_POST['optionset'];
+        if(!in_array('', $optionset)){
             import('ORG.Net.UploadFile');
             $upload = new UploadFile();
             $upload->maxSize  = 3145728 ;
@@ -38,19 +38,19 @@ class AnswerAction extends Action {
             $m_a = M('answer');
             $qid = $_POST['qid'];
             $qdid = $_POST['qdid'];
-            $optionset = $_POST['optionset'];
-            foreach ($options as $k => $v) {
+            $option = $_POST['option'];
+            foreach ($optionset as $k => $v) {
                 $item = array(
                     'qid' => $qid,
                     'qdid'=> $qdid,
-                    'optionresult' => $v
+                    'optionset' => $v
                 );
                 if($info !== null){
                     $item['answerpic'] = '/weitest/Uploads/imgA/'.$info[$k]['savename'];
                 }else{
                     $item['answerpic'] = NULL;
                 }
-                $item['optionset'] = $optionset[$k];
+                $item['optionresult'] = $option[$k];
                 $ret = $m_a -> where($item) -> find();
                 if($ret == null ){
                     $m_a -> add($item);
@@ -59,7 +59,7 @@ class AnswerAction extends Action {
 
             $this -> success('操作成功！', U('Question/questionlist'));
         }else{
-            $this -> error('选项内容不能为空！',U('Question/questionlist'));
+            $this -> error('选项设置不能为空！',U('Question/questionlist'));
         }
         
     }
@@ -81,8 +81,8 @@ class AnswerAction extends Action {
     }
 
     public function answereditsave(){
-        $options = $_POST['option'];
-        if(!in_array('', $options)){
+        $optionset = $_POST['optionset'];
+        if(!in_array('', $optionset)){
             import('ORG.Net.UploadFile');
             $upload = new UploadFile();
             $upload->maxSize  = 3145728 ;
@@ -98,11 +98,11 @@ class AnswerAction extends Action {
 
             $m_a = M('answer');
             $aids = $_POST['aid'];
-            $optionset = $_POST['optionset'];
-            foreach ($options as $k => $v) {
+            $option = $_POST['option'];
+            foreach ($optionset as $k => $v) {
                 $item = array(
                     'id' => $aids[$k],
-                    'optionresult' => $v
+                    'optionset' => $v
                 );
                 $ret = $m_a -> where('id='.$aids[$k]) -> find();
                 if($info !== NULL){
@@ -110,7 +110,7 @@ class AnswerAction extends Action {
                 }else{
                     $item['answerpic'] = $ret['answerpic'];
                 }
-                $item['optionset'] = $optionset[$k];
+                $item['optionresult'] = $option[$k];
                 $m_a -> where(array('id' => $aids[$k])) -> save($item);
             }
             $this -> success('操作成功！', U('Question/questionlist'));

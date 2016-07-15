@@ -4,11 +4,33 @@ class IndexAction extends Action {
     public function index(){
     	$language = $this -> _getLanguage();
         $m = D('QuestionView');
-        $item = $m -> where(array('language' => $language)) -> limit(12) -> select();
-        
+        $where = array(
+            'status' => 1,
+            'language' => $language
+        );
+        //$item = $m -> order('id desc') -> where($where) -> limit(12) -> select();
+        $item = $m -> where($where) -> limit(12) -> select();
         $this -> assign('language', $language);
         $this -> assign('item', $item);
 		$this -> display();
+    }
+
+    public function next(){
+        $language = $this -> _getLanguage();
+        $m = D('QuestionView');
+        $where = array(
+            'status' => 1,
+            'language' => $language
+        );
+        $count = $m -> where($where) -> count();
+        $start = rand(0,$count-12);
+        //$item = $m -> order('id desc') -> where($where) -> limit($start,12) -> select();
+        $item = $m -> where($where) -> limit($start,12) -> select();
+
+        $this -> assign('backflag',1);
+        $this -> assign('language', $language);
+        $this -> assign('item', $item);
+        $this -> display('index');
     }
 
     public function question(){
@@ -20,8 +42,19 @@ class IndexAction extends Action {
         
     	$language = $this -> _getLanguage();
         $m = D('QuestionView');
-        $item = $m -> where(array('language' => $language)) -> select();
-        $qitem = $m -> where(array('language' => $language,'id' => $qid)) -> find();
+        $start = $_SESSION['start'];
+        $where = array(
+            'status' => 1,
+            'language' => $language
+        );
+        //$item = $m -> order('id desc') -> where($where) -> limit(0,12) -> select();
+        $item = $m -> where($where) -> limit(0,12) -> select();
+        $w_q = array(
+            'id' => $qid,
+            'status' => 1,
+            'language' => $language
+        );
+        $qitem = $m -> where($w_q) -> find();
         
         $this -> assign('qid', $qid);
         $this -> assign('language', $language);
@@ -42,9 +75,6 @@ class IndexAction extends Action {
 
         return $language;
     }
-
-    
-
     
 
 }

@@ -3,17 +3,17 @@
 class FacebookAction extends Action {
 	
     public function facebookLogin(){
-        /*require_once __DIR__ . '/Facebook/autoload.php';
+        require_once './Facebook/autoload.php';
         $fb = new Facebook\Facebook([
           'app_id' => C('FACEBOOK_APP_ID'),
           'app_secret' => C('FACEBOOK_APP_SECRET'),
           'default_graph_version' => 'v2.4'
           ]);
-
+        
         $loginHelper = $fb->getRedirectLoginHelper();
         $canvasHelper = $fb->getCanvasHelper();
 
-        $permissions = ['email','user_birthday', 'user_location', 'user_website','user_friends'];
+        $permissions = ['email','user_birthday','user_location', 'user_website','user_friends'];
         $info = array(); 
         try {
             if (isset($_SESSION['facebook_access_token'])) {
@@ -30,7 +30,7 @@ class FacebookAction extends Action {
             echo 'Facebook SDK returned an error: ' . $e->getMessage();
             exit;
          }
-
+        
         if (isset($accessToken)) {
             if (isset($_SESSION['facebook_access_token'])) {
                 $fb->setDefaultAccessToken($_SESSION['facebook_access_token']);
@@ -68,9 +68,7 @@ class FacebookAction extends Action {
                 exit;
             }
             
-            $info['profile'] = $profile;
-            // printing $profile array on the screen which holds the basic info about user
-            print_r($profile);
+            $info['user_profile'] = $profile;
             
             // getting profile picture of the user
             try {
@@ -85,16 +83,9 @@ class FacebookAction extends Action {
                 echo 'Facebook SDK returned an error: ' . $e->getMessage();
                 exit;
             }
-            
-            // showing picture on the screen
-            echo "<img src='".$picture['url']."'/>";
 
-            $info['user_picture'] = $picture['url'];
-            // saving picture
-            $img = __DIR__.'/'.$profile['id'].'.jpg';
-            file_put_contents($img, file_get_contents($picture['url']));
+            $info['user_profile']['user_picture'] = $picture['url'];
             
-            // get list of friends' names
             try {
                 $requestFriends = $fb->get('/me/invitable_friends?fields=id,name,picture');
                 $friends = $requestFriends->getGraphEdge();
@@ -116,34 +107,20 @@ class FacebookAction extends Action {
                     $friendsArray = $friends->asArray();
                     $allFriends = array_merge($friendsArray, $allFriends);
                 }
-                foreach ($allFriends as $key) {
-                    echo $key['id']."<br>";
-                    echo $key['name'] . "<br>";
-                    echo "<img src='".$key['picture']['url']."'/><br>";
-                }
-                echo count($allFriends);
             } else {
                 $allFriends = $friends->asArray();
-                $totalFriends = count($allFriends);
-                foreach ($allFriends as $key) {
-                    echo $key['id']."<br>";
-                    echo $key['name'] . "<br>";
-                    echo "<img src='".$key['picture']['url']."'/><br>";
-                }
             }
 
             $info['allFriends'] = $allFriends;
-
-
-            
+            $info = json_decode($info,true);
+            return $info;
         } else {
             $loginUrl = $loginHelper->getLoginUrl('http://app.mytests.co/facebook/login.php', $permissions);
-            echo '<a href="' . $loginUrl . '">Log in with Facebook!</a>';
-        }*/
+        }
 
-        $info = file_get_contents(APP_PATH.'Conf/info.json');
-        $info = json_decode($info,true);
-        return $info;
+        //$info = file_get_contents(APP_PATH.'Conf/info.json');
+        //$info = json_decode($info,true);
+        //return $info;
     }
 
     private function _getLanguage(){
@@ -158,8 +135,7 @@ class FacebookAction extends Action {
 
     public function paintResult(){
         $info = $this -> facebookLogin();
-        $userprofile = $info['user_profile'];
-        $allfirend = $info['allFriends'];
+        
         $qid = $_GET['id'];
         $language = $this -> _getLanguage();
         $m = D('QuestionView');
@@ -174,66 +150,80 @@ class FacebookAction extends Action {
         
         //随机获取答案
         $randnum = $this -> _myrand(count($aitem)-1);
-        $data = json_decode($aitem[$randnum]['optionset'],true);
         
+        $optionresult = $aitem[$randnum]['optionresult'];
+        $data = json_decode($aitem[$randnum]['optionset'],true);
+
+        $uid = $info['user_profile']['id'];
+        $_SESSION['uid'] = $uid;
+        $foldername = substr($uid,-2);
+        $path = IMAGE_PATH.'/'.$foldername;
+
+        //生成文件夹
+        if(!is_dir($path)){
+            mkdir($path,0777,true);
+        }
+
+        //判断本地文件
+        $filenameArr = array(
+            'uid'  => $info['user_profile']['id'],
+            'qid'  => $qitem['qid'],
+            'qdid' => $qitem['qdid']
+        );
+        $filepath = $this -> _getFilename($path,$filenameArr);
+        if(!file_exists($filepath)){
+            $this -> _createSavePic($info,$data,$filepath);
+        }
+        
+        //返回json格式数据
+        $filepathJson = $this -> _filepathToJson($filepath,$optionresult);
+        echo $filepathJson;
+    }
+
+    private function _getFilename($path, $filenameArr){
+        $filename = implode("_", $filenameArr);
+        $filepath = $path.'/'.$filename.'.jpg';
+
+        return $filepath;
+    }
+
+    private function _filepathToJson($filepath,$optionresult){
+        $filepath = str_replace('./', '/weitest/', $filepath);
+        $filepath = json_encode(array('path' => $filepath.'?t='.rand(1,100), 'result' => $optionresult));
+
+        return $filepath;
+    }
+
+    private function _createSavePic($info,$data,$filepath){
         import('ORG.Util.Image.FacebookPaint');
         $image = new FacebookPaint();
         $imgfile=IMAGE_PATH.'/test.jpg';
         $im=imagecreatefromjpeg($imgfile);
+        
+        //系统随机变量
+        $_SESSION['_RAND']=array();
+
         foreach ($data as $k => $v) {
+            $content = $this -> _setSysParam($v['attribute']['content'],$info);
             if($v['type']=="text"){
-                $im=$image -> injectText($im,$v['attribute'],$this -> _setSysParam($v['attribute']['content'],$info));
+                $v['attribute']['font'] = FONT_PATH.'/'.$v['attribute']['font'];
+                $im=$image -> injectText($im,$v['attribute'],$content);
             }elseif($v['type']=="image"){
-                $im=$image -> injectImage($im,$v['attribute'],$this -> _setSysParam($v['attribute']['content'],$info));
+                $im=$image -> injectImage($im,$v['attribute'],$content);
             }
         }
-
-        //输出图片
-        //header("Content-type: image/jpeg");
-        //imagejpeg($im);
-        $filename = array(
-            'uid'  => $info['user_profile']['id'],
-            'id'   => $randnum+1,
-            'qid'  => $qitem['qid'],
-            'qdid' => $qitem['qdid']
-        );
         
-        $filename = implode("_", $filename);
-        $filepath = IMAGE_PATH.'/'.$filename.'.jpeg';
+        unset($_SESSION['_RAND']);
+        
+        //保存图片
         imagejpeg($im,$filepath);
-        //释放空间
         imagedestroy($im);
-        $this -> _setquestion($qid);
-        $filepath = str_replace('./', '/weitest/', $filepath);
-        
-        $this -> assign('status', 1);
-        $this -> assign('resultsrc', $filepath);
-        $this -> display('Index/question');
-        
     }
 
-    private function _setquestion($qid){
-        
-        if(!empty($_SESSION['language'])){
-            $language = $_SESSION['language'];
-        }else{
-            $language = 'zh';
-        }
-        $m = D('QuestionView');
-        $item = $m -> where(array('language' => $language)) -> select();
-        $qitem = $m -> where(array('language' => $language,'id' => $qid)) -> find();
-        
-        $this -> assign('qid', $qid);
-        $this -> assign('language', $language);
-        $this -> assign('item', $item);
-        $this -> assign('qitem', $qitem);
-
-    }
-
-    //每隔300秒返回选项随机数
+    //返回选项随机数
     private function _myrand($length){
         $currentTime = time();
-        $changeTime = 6;
+        $changeTime = 0;
         $rand = '';
         if(isset($_SESSION['time'])) {
            if(($currentTime - $_SESSION['time']) >= $changeTime) {
@@ -254,7 +244,7 @@ class FacebookAction extends Action {
 
     //设置内容内置系统变量
     private function _setSysParam($content='', $apiData){
-        //$content="姓名：{#user_profile.name}，生日：{#user_profile.birthday.date|strtotime=###;date=Y/m/d,###}，是最帅的人！";
+        //$content="姓名：{#user_profile.name}，生日：{#user_profile.birthday.date|strtotime=###;date=Y/m/d,###}，是最帅的人！{#SYSTEM.rand(100,200)}";
         preg_match_all('/{#(.*?)}/im',$content, $match);
         $match=@$match[1];
 
@@ -264,10 +254,45 @@ class FacebookAction extends Action {
             $_paramArr=explode('.', $_sep[0]);
             $_fun=@$_sep[1];
 
+            //调用系统函数
+            if($_paramArr[0]=='SYSTEM'){
+                preg_match_all('/(\w+)/im', $_paramArr[1], $sysFun);
+                $sysFun=$sysFun[0][0];
+                $sysParam=$this -> _getStrParam($_paramArr[1]);
+
+                if($sysFun)$_param=@call_user_func_array($sysFun,$sysParam);
+
+                $content=str_replace('{#'.$value.'}', $_param, $content);
+                continue;
+            }
+
             //获取系统变量
             $_param=$apiData;
             foreach ($_paramArr as $key1 => $value1) {
-                $_param=$_param[$value1];
+
+                //处理数据中的随机数
+                preg_match_all('/^_?RAND(\((\d+)\))?/m', $value1, $match);
+                if($match[0]){
+
+                    $_index=$match[2][0];
+
+                    if(isset($_index)&&$_index!=''){ //获取已存的RAND数据
+                        $_rand=$_SESSION['_RAND'][$_index];
+                    }else{
+                        $_len=count($_param);
+                        $_rand=rand(0,$_len-1);
+                        array_push($_SESSION['_RAND'], $_rand);
+                    }
+
+                    $_param=$_param[$_rand];
+                    continue;
+                }
+
+                $_param=@$_param[$value1];
+                if(empty($_param)){
+                    $_param='';
+                    break;
+                }
             }
 
             //调用后续处理函数
@@ -281,21 +306,28 @@ class FacebookAction extends Action {
                     //检查参数中的预置当前参数###
                     foreach ($_funParam as $key3 => $value3) {
                         if($value3=='###'){
-                            $_funParam[$key3]=$_param;
+                            $_funParam[$key3]=&$_param;
                         }
                     }
-                    //print_r($_funParam);exit;
                     $_param=@call_user_func_array($_funSep[0],$_funParam);
+                    unset($_funParam);
                 }
             }
 
             //置换内容中系统变量
             $content=str_replace('{#'.$value.'}', $_param, $content);
+            unset($_param);
         }
-        //echo $content;
-        $content=preg_replace('/{#(.*?)}/im', '', $content);
 
+        $content=preg_replace('/{#(.*?)}/im', '', $content);
+        
         return $content;
+    }
+
+    //获取函数参数列表
+    private function _getStrParam($str){
+        preg_match_all('/(\d+)/im', $str, $match);
+        return $match[0];
     }
 
 }

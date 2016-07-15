@@ -31,7 +31,7 @@ class TestAction extends Action {
 
     public function arr2json(){
         $data=array(
-            /*array(
+            array(
                 "type"=>"text",
                 "attribute"=>array(
                     "content"=>"姓名：{#user_profile.name}，生日：{#user_profile.birthday.date|strtotime=###;date=Y/m/d,###}，是最帅的人！",
@@ -41,7 +41,7 @@ class TestAction extends Action {
                     "x"=>0,
                     "y"=>100
                 )
-            ),*/
+            ),
 
             array(
                 "type"=>"image",
@@ -54,7 +54,7 @@ class TestAction extends Action {
                 ),
             ),
 
-            /*array(
+            array(
                 "type"=>"text",
                 "attribute"=>array(
                     "content"=>"成功是留给有准备的人的！",
@@ -64,7 +64,7 @@ class TestAction extends Action {
                     "x"=>50,
                     "y"=>250
                 ),
-            ),*/
+            ),
 
             array(
                 "type"=>"image",

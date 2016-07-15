@@ -5,21 +5,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
     <title>Mytests</title>
     <link href="__PUBLIC__/mytests/css/question.css" rel="stylesheet" type="text/css">
-    <script>
-        function change(){
-            var headerHome=document.getElementById("header-home");
-            var lanSwitch=document.getElementById("lan-switch");
-            var header=document.getElementById("header");
-            var width=window.screen.width;
-                header.style.cssText="height:180px";
-                headerHome.style.cssText="display:block";
-                lanSwitch.style.cssText="display:block";
-        }
-    </script>
 </head>
 <body>
 <div id="header" class="header">
-    <button id="header-hidden" onclick="change()">
+    <button id="header-hidden" onclick="toggle()">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -27,13 +16,13 @@
     <div class="header-box">
         <form action="{:U('Index/question')}" id="filterform" method="post">
             <input type="hidden" name="id" value="{$qid}" >
-            <a href="#" class="header-logo" ></a>
+            <a href="{:U('Index/index')}" class="header-logo" ></a>
             <a href="{:U('Index/index')}" class="header-home" id="header-home">HOME</a>
             <select id="language" class="lan-switch" name="language">
                 <option value="zh" <php>if($language == 'zh') echo "selected";</php>>中文</option>
                 <option value="en" <php>if($language == 'en') echo "selected";</php>>English</option>
-                <option value="fr" <php>if($language == 'fr') echo "selected";</php>>French</option>
                 <option value="pt" <php>if($language == 'pt') echo "selected";</php>>Portuguese</option>
+                <!-- <option value="fr" <php>if($language == 'fr') echo "selected";</php>>French</option> -->
             </select>
         </form>
     </div>
@@ -49,28 +38,30 @@
         <div id="container-content">
             <h1>{$qitem.content}</h1>
             <div class="fb-banner">
-                <if condition="$status eq 1">
-                    <img src="{$resultsrc}" style="width:90%">
-                <else />
-                    <img src="{$qitem.bgpic}" style="width:90%">
-                </if>
+                <img src="{$qitem.bgpic}" id="resultpic" style="width:100%">
             </div>
-            <div class="fb-share"><img src="__PUBLIC__/mytests/img/Facebook-login.png"></div>
-            <p>请登录<span>Facebook</span>以查看你的测试结果</p>
-            <a href="{:U('Facebook/paintResult')}/id/{$qid}">
-                <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
-                <span>使用Facebook登录</span>
-            </a>
+            <div id="FbLogin">
+                <div class="fb-share"><img src="__PUBLIC__/mytests/img/Facebook-login.png"></div>
+                <p>请登录<span>Facebook</span>以查看你的测试结果</p>
+                <a href="javascript:void()" onclick="paintResult('{$qid}')">
+                <!-- <a href="{:U('Facebook/paintResult')}/id/{$qid}"> -->
+                    <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
+                    <span>使用Facebook登录</span>
+                </a>
+            </div>
+            <div id="result" style="display:none">
+                <p id="rcontent"></p>
+            </div>
         </div>
     </div>
     <div id="container-vice">
-        <div class="as_336x280">
-            <p>Advertisement</p>
+        <div class="as_336x280" style="margin-top:-12px">
+            <p class="as-title">Advertisement</p>
             <div class="as-content"></div>
         </div>
 
         <volist name="item" id="v" offset="0" length="5">
-            <a href="#" class="container-vice-box">
+            <a href="{:U('Index/question')}/id/{$v.id}" class="container-vice-box">
                 <img src="{$v.icon}">
                 <div class="container-vice-box-btn">
                     <img src="__PUBLIC__/mytests/img/arrow.png">
@@ -82,7 +73,7 @@
     </div>
     <div id="container-patch">
         <div class="as_600x300">
-            <p>Advertisement</p>
+            <p class="as-title">Advertisement</p>
             <div class="ad-content"></div>
         </div>
 
@@ -91,8 +82,8 @@
         <div id="container-patch-bigbox">
 
             <div class="patch-list patch-list_top">
-                <volist name="item" id="v" offset="0" length="6" mod="4">
-                    <a href="#" class="container-patch-box patch-no-margin3">
+                <volist name="item" id="v" offset="0" length="6">
+                    <a href="{:U('Index/question')}/id/{$v.id}" class="container-patch-box">
                         <div>
                             <img src="{$v.icon}" >
                         </div>
@@ -102,13 +93,13 @@
             </div>
 
             <div class="as_336x280">
-                <p>Advertisement</p>
+                <p class="as-title">Advertisement</p>
                 <div class="as-content"></div>
             </div>
 
             <div class="patch-list patch-list_bottom">
-                <volist name="item" id="v" offset="0" length="6" mod="4">
-                    <a href="#" class="container-patch-box patch-no-margin3">
+                <volist name="item" id="v" offset="0" length="6">
+                    <a href="{:U('Index/question')}/id/{$v.id}" class="container-patch-box">
                         <div>
                             <img src="{$v.icon}" >
                         </div>
@@ -138,6 +129,25 @@
 $('#language').change(function(e) {
     $('#filterform').submit();
 });
+
+function paintResult(qid){
+    var url = "{:U('Facebook/paintResult')}";
+    $.ajax({
+        url: url,
+        data: {
+            'id':qid
+        },
+        dataType:"json",
+        type: 'get'
+    }).done(function(data){
+        $('#resultpic').attr('src',data.path);
+        $('#FbLogin').attr('style','display:none');
+        $('#result').attr('style','display:block');
+        $('#rcontent').text(data.result);
+    }).fail(function(msg) {
+        alert(msg);
+    });
+}
 </script>
 </body>
 </html>

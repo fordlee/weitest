@@ -14,7 +14,7 @@ class IndexAction extends Action {
 
     public function index(){
 
-		$this -> redirect('gallery');
+		$this -> redirect('Question/questionlist');
     }
 
     public function gallery(){
@@ -39,15 +39,15 @@ class IndexAction extends Action {
             $item[$k]['generalset'] = $generalset;
         }
 
-        $setQR = $this -> _setQuestionResult($item[0]);
-        $this -> _paintQuestionResult($setQR);
+        //$setQR = $this -> _setQuestionResult($item[0]);
+        //$this -> _paintQuestionResult($setQR);
         //die();
         $this -> assign('item', $item);
         $this -> display();
     }
 
     //设置问题答案参数
-    private function _setQuestionResult($qr){
+    /*private function _setQuestionResult($qr){
         $setQR = array();
         $bgpicPath = str_replace('/weitest', '.', $qr['bgpic']);
         $minePortraitPath = IMAGE_PATH.'/icon.png';
@@ -116,7 +116,7 @@ class IndexAction extends Action {
         $paint = A('Paint');
         $paint -> portraitLocate($setQR);
         $paint -> nameLocate($setQR);
-    }
+    }*/
 
 
 }

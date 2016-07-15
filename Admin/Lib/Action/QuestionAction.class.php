@@ -46,9 +46,10 @@ class QuestionAction extends Action {
         
         $qcode = $_POST['qcode'].'_'.uniqid();
 
-        $data = $_POST;
-        $generalset = $this -> _getGeneralSet($data);
-        $generalsetjson = json_encode($generalset);
+        //$data = $_POST;
+        //$generalset = $this -> _getGeneralSet($data);
+        //$generalsetjson = json_encode($generalset);
+        $generalsetjson = '';
 
         $icon = '/weitest/Uploads/imgQ/'.$info[0]['savename'];
         $bgpic = '/weitest/Uploads/imgQ/'.$info[1]['savename'];
@@ -66,6 +67,7 @@ class QuestionAction extends Action {
         $ret = $m_q -> add($item);
         
         if($ret != false){
+            //$this -> success('添加成功！','Question/questionlist');
             $this -> success('添加成功！');
         }else{
             $this -> error('添加失败！');
@@ -95,9 +97,10 @@ class QuestionAction extends Action {
         
         $qcode = $_POST['qcode'];
 
-        $data = $_POST;
-        $generalset = $this -> _getGeneralSet($data);
-        $generalsetjson = json_encode($generalset);
+        //$data = $_POST;
+        //$generalset = $this -> _getGeneralSet($data);
+        //$generalsetjson = json_encode($generalset);
+        $generalsetjson = '';
 
         $icon = '/weitest/Uploads/imgQ/'.$info[0]['savename'];
         $bgpic = '/weitest/Uploads/imgQ/'.$info[1]['savename'];
@@ -113,7 +116,7 @@ class QuestionAction extends Action {
         $ret = $m_q -> where(array('qcode' => $qcode)) -> save($item);
         
         if($ret != false){
-            $this -> success('添加成功！');
+            $this -> success('添加成功！','Question/questionlist');
         }else{
             $this -> error('添加失败！');
         }

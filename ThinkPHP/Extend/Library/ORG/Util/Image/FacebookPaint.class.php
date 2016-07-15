@@ -3,19 +3,35 @@ class FacebookPaint{
 
     //注入文字
 	public function injectText($im,$attribute,$content){
-		 $c=$this -> _parseColor($attribute['color']);
-		 $font_color  = imagecolorallocate($im,$c[0],$c[1],$c[2]);
 
-		 ImageTTFText($im, $attribute['size'], 0, $attribute['x'], $attribute['y'], $font_color, $attribute['font'], $content);
-		 return $im;
+		$c=$this -> _parseColor($attribute['color']);
+		$font_color  = imagecolorallocate($im,$c[0],$c[1],$c[2]);
+		
+		$attribute['content']=$content;
+
+		//解析处理函数
+		$funcArr=explode('|', @$attribute['func']);
+		foreach ($funcArr as $key => $value) {
+
+			if(preg_match('/^wrap/im', $value)>=1){
+				$im=$this -> _autoWrap($im,$attribute);
+				return $im;
+			}
+		}
+
+		//处理文字定位(center|right|bottom)
+		$attribute=$this -> _setTextAxis($im,$attribute);
+		
+		ImageTTFText($im, $attribute['size'], 0, $attribute['x'], $attribute['y'], $font_color, $attribute['font'], $content);
+		//header('Content-Type: image/png');imagepng($im);exit;
+		return $im;
 	}
 
 	//注入图片
 	public function injectImage($im,$attribute,$content){
-
 		$funcArr=explode('|', $attribute['func']);
-		
 		$_im=$this -> _getImgSource($content);
+		
 		//解析处理函数
 		foreach ($funcArr as $key => $value) {
 
@@ -27,6 +43,14 @@ class FacebookPaint{
 				$_im=$this -> _freecutPic($_im,$this -> _getStrParam($value));
 			}elseif(preg_match('/^stripXcut/im', $value)>=1){//X轴裁图
 				$_im=$this -> _stripXcutPic($_im,$this -> _getStrParam($value));
+			}elseif(preg_match('/^gray/im', $value)>=1){//黑白图片
+				$_im=$this -> _grayPic($_im);
+			}elseif(preg_match('/^bright/im', $value)>=1){//调节亮度
+				$_im=$this -> _brightPic($_im,$this -> _getStrParam($value));
+			}elseif(preg_match('/^color/im', $value)>=1){//改变颜色
+				$_im=$this -> _colorPic($_im,$this -> _getStrParam($value));
+			}elseif(preg_match('/^emboss/im', $value)>=1){//改变浮雕
+				$_im=$this -> _emboss($_im);
 			}
 		}
 
@@ -34,8 +58,8 @@ class FacebookPaint{
 			$attribute['alpha'] = 100;
 		}
 
-		imagecopymerge($im, $_im, $attribute['x'], $attribute['y'], 0, 0, imagesx($_im), imagesy($_im), $attribute['alpha']); 
-
+		//imagecopymerge($im, $_im, $attribute['x'], $attribute['y'], 0, 0, imagesx($_im), imagesy($_im), $attribute['alpha']); 
+		$this -> imagecopymerge_alpha($im, $_im, $attribute['x'], $attribute['y'], 0, 0, imagesx($_im), imagesx($_im), $attribute['alpha']);
 		return $im;
 	}
 
@@ -98,6 +122,11 @@ class FacebookPaint{
 		$fff= imagecolorallocate($thumb , 255 , 255 ,255);//拾取白色
 		imagecolortransparent($thumb ,$fff );//把图片中白色设置为透明色
 
+		/**/
+		imagealphablending($thumb,false);
+		imagesavealpha($thumb,true);
+		/**/
+
 	    imagecopyresampled($thumb,$im,0,0,0,0,$width,$height,$im_width,$im_height);
 	    return $thumb;
 	}
@@ -151,6 +180,81 @@ class FacebookPaint{
 		return $img;
 	}
 
+	//不失真缩小图片
+	private function smallPic($im,$param){
+		$maxwidth = $param[0];
+		$maxheight = $param[1];
+
+		$pic_width = imagesx($im);
+		$pic_height = imagesy($im);
+
+		if(($maxwidth && $pic_width > $maxwidth) || ($maxheight && $pic_height > $maxheight)){
+			if($maxwidth && $pic_width>$maxwidth){
+				$widthratio = $maxwidth/$pic_width;
+				$resizewidth_tag = true;
+			}
+
+			if($maxheight && $pic_height>$maxheight){
+				$heightratio = $maxheight/$pic_height;
+				$resizeheight_tag = true;
+			}
+
+			if($resizewidth_tag && $resizeheight_tag){
+				if($widthratio<$heightratio){
+					$ratio = $widthratio;
+				}else{
+					$ratio = $heightratio;
+				}
+			}
+
+			if($resizewidth_tag && !$resizeheight_tag)$ratio = $widthratio;
+			if($resizeheight_tag && !$resizewidth_tag)$ratio = $heightratio;
+
+			$newwidth = $pic_width * $ratio;
+			$newheight = $pic_height * $ratio;
+
+			if(function_exists("imagecopyresampled")){
+				$newim = imagecreatetruecolor($newwidth,$newheight);//PHP系统函数
+				imagecopyresampled($newim,$im,0,0,0,0,$newwidth,$newheight,$pic_width,$pic_height);//PHP系统函数
+			}else{
+				$newim = imagecreate($newwidth,$newheight);
+				imagecopyresized($newim,$im,0,0,0,0,$newwidth,$newheight,$pic_width,$pic_height);
+			}
+
+			return $newim;
+		}else{
+			return $im;
+		}
+	}
+
+	//图像黑白处理
+	private function _grayPic($im){
+		imagefilter($im, IMG_FILTER_GRAYSCALE);
+		return $im;
+	}
+
+	//图片浮雕处理
+	private function _emboss($im){
+		imagefilter($im, IMG_FILTER_EMBOSS);
+		return $im;
+	}
+
+	//图片亮度处理
+	private function _brightPic($im, $param){
+		$bright = $param[0];
+		imagefilter($im, IMG_FILTER_BRIGHTNESS, $bright);
+		return $im;
+	}
+
+	//图片颜色改变
+	private function _colorPic($im, $param){
+		$r = $param[0];
+		$g = $param[1];
+		$b = $param[2];
+		imagefilter($im, IMG_FILTER_COLORIZE, $r, $g, $b);
+		return $im;
+	}	
+
 	########################通用函数 START########################
 	//解析颜色
 	private function _parseColor($color){
@@ -165,25 +269,68 @@ class FacebookPaint{
 	//获取图片类型并创建相应图片资源 $im=getImgSource('test.jpg');
 	private function _getImgSource($path){
 		if(preg_match('/^(http|https)/im', $path)){
-			$ret = file_get_contents($path);
-        	$im=imagecreatefromstring($ret);
-		}else{
-			$path = IMAGE_PATH.'/'.$path;
-			$image_size=GetImageSize($path);
-			switch($image_size[2]){
-				case  1:
-				$im=@ImageCreateFromGIF($path);
-				break;
-				case  2:
-				$im=@ImageCreateFromJPEG($path);
-				break;
-				case  3:
-				$im=@ImageCreateFromPNG($path);
-				break;
+			$uid =  $_SESSION['uid'];
+			$foldername = substr($uid,-2);
+	        $tmpHeader = UPLOADS_PATH.'/tmp/'.$foldername;
+
+	        //生成文件夹
+	        if(!is_dir($tmpHeader)){
+	            mkdir($tmpHeader,0777,true);
+	        }
+	        
+	        $arr=pathinfo($path);
+			$name=explode('?', $arr['basename']);
+			$name=$name[0];
+			$filename = $tmpHeader.'/'.$uid.'_'.$name;
+			if(!file_exists($filename)){
+				$ret = file_get_contents($path);
+        		$im=imagecreatefromstring($ret);
+        		file_put_contents($filename, $ret);
+			}else{
+				$im = $this -> _createImgSource($filename);
 			}
+		}else{
+			$path = UPLOADS_PATH.'/local/'.$path;
+			$im = $this -> _createImgSource($path);
 		}
 		
 		return $im;
+	}
+
+	private function _createImgSource($path){
+		
+		$image_size=GetImageSize($path);
+		switch($image_size[2]){
+			case  1:
+			$im=@ImageCreateFromGIF($path);
+			break;
+			case  2:
+			$im=@ImageCreateFromJPEG($path);
+			break;
+			case  3:
+			$im=@ImageCreateFromPNG($path);
+			break;
+		}
+
+		return $im;
+	}
+
+	private function imagecopymerge_alpha($dst_im, $src_im, $dst_x, $dst_y, $src_x, $src_y, $src_w, $src_h, $pct){
+	    // creating a cut resource
+	    $cut = imagecreatetruecolor($src_w, $src_w);
+	    $cut = imagecreatetruecolor($src_w,$src_w);
+
+		$fff= imagecolorallocate($cut , 255 , 255 ,255);//拾取白色
+		imagecolortransparent($cut ,$fff );//把图片中白色设置为透明色
+
+	    // copying relevant section from background to the cut resource
+	    imagecopy($cut, $dst_im, 0, 0, $dst_x, $dst_y, $src_w, $src_h);
+	   
+	    // copying relevant section from watermark to the cut resource
+	    imagecopy($cut, $src_im, 0, 0, $src_x, $src_y, $src_w, $src_h);
+
+	    // insert cut resource to destination image
+	    imagecopymerge($dst_im, $cut, $dst_x, $dst_y, 0, 0, $src_w, $src_h, $pct);
 	}
 
 	//获取函数参数列表
@@ -205,6 +352,105 @@ class FacebookPaint{
 		);
 		
 		return $info;
+	}
+
+	//获取文本大小(长宽)
+	private function _getTextSize($attribute){
+		//imagettfbbox ( float $size , float $angle , string $fontfile , string $text );
+		$sizeArr=imagettfbbox ($attribute['size'], 0, $attribute['font'], $attribute['content']);
+		$size=array(
+			'width'=>abs($sizeArr[2]-$sizeArr[0]),
+			'height'=>abs($sizeArr[5]-$sizeArr[3])
+		);
+
+		return $size;
+	}
+
+	//获取文本的坐标轴
+	private function _getTextAxis($type,$im,$attribute){
+		$im_width = imagesx($im);
+	    $im_height = imagesy($im);
+		
+		//获取文字大小
+		$textSize=$this -> _getTextSize($attribute);
+
+		$param_attr=$type=='x'?$attribute['x']:$attribute['y'];
+		$param_sizeImg=$type=='x'?$im_width:$im_height;
+		$param_sizeText=$type=='x'?$textSize['width']:$textSize['height'];
+
+		preg_match_all('/(\w+)/im', $param_attr, $match);
+		$match=$match[0];
+
+		$axis=count($match)>=2?($match[1]-$param_sizeText/2):($param_sizeImg-$param_sizeText)/2;
+		return $axis;
+	}
+
+
+	//设置文本的坐标轴
+	private function _setTextAxis($im,$attribute){
+		//获取画板长宽
+		$im_width = imagesx($im);
+	    $im_height = imagesy($im);	
+
+		//获取文字大小
+		$textSize=$this -> _getTextSize($attribute);
+
+		$axisArr=array(
+			'x'=>$attribute['x'],
+			'y'=>$attribute['y']
+		);
+
+		foreach ($axisArr as $key => $value) {
+			preg_match_all('/(center|right|bottom)\(?(\d+)?\)?/', $value, $match);
+			
+			$axisName=$key;
+			$fun=@$match[1][0];
+			$param=@$match[2][0];
+			$param_check=isset($param)&&$param!='';
+			
+			if(!$fun)continue;
+
+			$param_attr=$axisName=='x'?$attribute['x']:$attribute['y'];
+			$param_sizeImg=$axisName=='x'?$im_width:$im_height;
+			$param_sizeText=$axisName=='x'?$textSize['width']:$textSize['height'];
+			
+			switch ($fun) {
+				case 'center':
+					$axis=$param_check?($param-$param_sizeText/2):($param_sizeImg-$param_sizeText)/2;
+					break;
+				case 'right':
+				case 'bottom':
+					$axis=$param_check?($param-$param_sizeText):($param_sizeImg-$param_sizeText);
+					break;
+			}
+			$attribute[$axisName]=$axis;
+		}
+		
+		return $attribute;
+	}
+
+	//自动换行
+	private function _autoWrap($im,$attribute){
+		$param=$this -> _getStrParam($attribute['func']);
+		$textArr=preg_split('/[;\r\n]+/s', $attribute['content']);
+
+		$_im=$im;
+		$_attribute=$attribute;
+		foreach ($textArr as $key => $value) {
+			$_attribute['content']=$value;
+			$_attribute['func']='';
+			$textSize=$this -> _getTextSize($attribute);//获取文字大小
+			
+			preg_match_all('/\d+/', $_attribute['y'], $matchs);
+			$_y=$matchs[0][0]+$key*($param[0]);
+			$_attribute['y']=preg_replace('/\d+/', $_y, $_attribute['y']);
+
+			$_im= $this -> injectText($_im,$_attribute,$_attribute['content']);
+			$_attribute=$attribute;
+		}
+
+		unset($_attribute);
+		return $_im;
 	}
 	
 }
