@@ -51,8 +51,8 @@ class QuestionAction extends Action {
         //$generalsetjson = json_encode($generalset);
         $generalsetjson = '';
 
-        $icon = '/weitest/Uploads/imgQ/'.$info[0]['savename'];
-        $bgpic = '/weitest/Uploads/imgQ/'.$info[1]['savename'];
+        $icon = $info[0]['savename'];
+        $bgpic = $info[1]['savename'];
 
         $item = array(
             'qcode' => $qcode,
@@ -102,8 +102,8 @@ class QuestionAction extends Action {
         //$generalsetjson = json_encode($generalset);
         $generalsetjson = '';
 
-        $icon = '/weitest/Uploads/imgQ/'.$info[0]['savename'];
-        $bgpic = '/weitest/Uploads/imgQ/'.$info[1]['savename'];
+        $icon = $info[0]['savename'];
+        $bgpic = $info[1]['savename'];
 
         $item = array(
             'qcode' => $qcode,

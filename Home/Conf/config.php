@@ -16,6 +16,7 @@ return array(
 	//数据库相关
 	'DB_PREFIX' => '',
 	'DB_DSN' => 'mysql://root:@localhost:3306/weitest',//数据库配置
+	//'DB_DSN' => 'mysql://thehotgames:weekmovie2013@mysqls.mytests.co:3306/mytests_co',//数据库配置
 	'DB_CHARSET'=>'utf8',
 	
 	//限制伪静态后缀
@@ -26,7 +27,7 @@ return array(
 
 	'FACEBOOK_APP_ID' => '1053226548106670',
 	'FACEBOOK_APP_SECRET' => '58a9253409d0cd2be600135a14627d18',
-
+	'IMAGEQ_PATH' => '/Uploads/imgQ',
 	'LOG_RECORD' => true, // 开启日志记录    
 	'LOG_RECORD_LEVEL' => array('EMERG','ALERT','CRIT','ERR')
 );
