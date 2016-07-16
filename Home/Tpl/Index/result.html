@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta property="fb:admins" content="100002516366303"/>
+    <meta property="fb:admins" content="1058741375"/>
+    <meta property="fb:app_id" content="1629023360662076"/>
+    <meta property="og:site_name" content="nametests.com"/>
+    <title>你和你的朋友是哪些怪物？</title>
+    <meta name="description" content="大家都很怕你！我们会告诉你你們究竟是谁！点击这里！">
+    <meta name="author" content="nametests">
+    <meta property="og:title" content="你和你的朋友是哪些怪物？"/>
+    <meta property="og:description" content="大家都很怕你！我们会告诉你你們究竟是谁！点击这里！"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="http://zh.nametests.com/test/forwarded/22713/Ni%20He%20Ni%20De%20Peng%20You/Da%20Jia%20Du%20Hen%20Pa%20Ni%20/"/>
+    <meta property="og:image" content=""/>
+    <meta property="og:image:type" content="image/jpeg"/>
+    <meta property="og:image:width" content="800"/>
+    <meta property="og:image:height" content="420"/>
+
+    <title>Mytests</title>
+    <link href="__PUBLIC__/mytests/css/question.css?t=1" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div id="header" class="header">
+    <button id="header-hidden" onclick="toggle()">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+    <div class="header-box">
+        <form action="{:U('Index/question')}" id="filterform" method="post">
+            <input type="hidden" name="id" value="{$qid}" >
+            <a href="/" class="header-logo" ></a>
+            <a href="/" class="header-home" id="header-home">HOME</a>
+            <select id="language" class="lan-switch" name="language">
+                <option value="zh" <php>if($language == 'zh') echo "selected";</php>>中文</option>
+                <option value="en" <php>if($language == 'en') echo "selected";</php>>English</option>
+                <option value="pt" <php>if($language == 'pt') echo "selected";</php>>Portuguese</option>
+                <!-- <option value="fr" <php>if($language == 'fr') echo "selected";</php>>French</option> -->
+            </select>
+        </form>
+    </div>
+</div>
+
+<div id="up-ad">
+<p>Advertisement</p>
+<div></div>
+</div>
+
+<div id="container">
+    <div id="container-main">
+        <div id="container-content">
+            <h1>{$qitem.content}</h1>
+            <div class="fb-banner">
+                <if condition ="$path eq NULL">
+                <img src="{:C('IMAGEQ_PATH')}/{$qitem.bgpic}" id="resultpic" style="width:100%">
+                <else/>
+                <img src="{$path}" id="resultpic" style="width:100%">
+                </if>
+            </div>
+            <div id="FbLogin">
+                <div class="fb-share"><img src="__PUBLIC__/mytests/img/Facebook-login.png"></div>
+                <p>请登录<span>Facebook</span>以查看你的测试结果</p>
+                <!-- <a href="javascript:void()" onclick="paintResult('{$qid}')"> -->
+                <a href="{:U('Result/show')}/id/{$qid}">
+                    <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
+                    <span>使用Facebook登录</span>
+                </a>
+            </div>
+            <div id="result" style="display:none">
+                <p id="rcontent"></p>
+            </div>
+        </div>
+    </div>
+    <div id="container-vice">
+        <div class="as_336x280" style="margin-top:-12px">
+            <p class="as-title">Advertisement</p>
+            <div class="as-content"></div>
+        </div>
+
+        <volist name="item" id="v" offset="0" length="6">
+            <a href="{:U('Index/question')}/id/{$v.id}" class="container-vice-box">
+                <img src="{:C('IMAGEQ_PATH')}/{$v.icon}">
+                <div class="container-vice-box-btn">
+                    <img src="__PUBLIC__/mytests/img/arrow.png">
+                    <span>{$v.content}</span>
+                </div>
+                <div class="container-vice-mask"></div>
+            </a>
+        </volist>
+    </div>
+    <div id="container-patch">
+        <div class="as_600x300">
+            <p class="as-title">Advertisement</p>
+            <div class="ad-content"></div>
+        </div>
+
+        <div id="title">You May Like</div>
+
+        <div id="container-patch-bigbox">
+
+            <div class="patch-list patch-list_top">
+                <volist name="item" id="v" offset="0" length="6">
+                    <a href="{:U('Index/question')}/id/{$v.id}" class="container-patch-box">
+                        <div>
+                            <img src="{:C('IMAGEQ_PATH')}/{$v.icon}" >
+                        </div>
+                        <span>{$v.content}</span>
+                    </a>
+                </volist>
+            </div>
+
+            <div class="as_336x280">
+                <p class="as-title">Advertisement</p>
+                <div class="as-content"></div>
+            </div>
+
+            <div class="patch-list patch-list_bottom">
+                <volist name="item" id="v" offset="0" length="6">
+                    <a href="{:U('Index/question')}/id/{$v.id}" class="container-patch-box">
+                        <div>
+                            <img src="{:C('IMAGEQ_PATH')}/{$v.icon}" >
+                        </div>
+                        <span>{$v.content}</span>
+                    </a>
+                </volist>
+            </div>
+        </div>
+        <a href="#" class="nextbtn">
+            <span>NEXT</span>
+            <img src="__PUBLIC__/mytests/img/arrow1.png">
+        </a>
+        <div id="footer-link">
+			<a href="tos.html" target="_blank">TOS</a>
+            <br/>
+            <p>Copyright 2016 By Mytests.co©</p>
+        </div>
+    </div>
+</div>
+<div id="footer"></div>
+<script src="__PUBLIC__/mytests/js/jquery-3.0.0.min.js"></script>
+<script type="text/javascript">
+$('#language').change(function(e) {
+    $('#filterform').submit();
+});
+
+function paintResult(qid){
+    var url = "{:U('Facebook/paintResult')}";
+    $.ajax({
+        url: url,
+        data: {
+            'id':qid
+        },
+        dataType:"json",
+        type: 'get'
+    }).done(function(data){
+        $('#resultpic').attr('src',data.path);
+        $('#FbLogin').attr('style','display:none');
+        $('#result').attr('style','display:block');
+        $('#rcontent').text(data.result);
+    }).fail(function(msg) {
+        alert(msg);
+    });
+}
+</script>
+</body>
+</html>
