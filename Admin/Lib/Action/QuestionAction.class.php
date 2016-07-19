@@ -223,7 +223,34 @@ class QuestionAction extends Action {
         $qitem = $m_q_d -> where(array("qid" => $qid)) -> select();
 
         $this -> assign('qitem',$qitem);
-        $this -> display();
+        
+        $this -> display('questionedit');
+    }
+
+    public function editquestionsave(){
+        $qdid = $_POST['qdid'];
+        $qid = $_POST['qid'];
+        $content = $_POST['content'];
+
+        $m_q_d = M('question_detail');
+        $newItem = array(
+            "id" => $qdid,
+            "qid" => $qid,
+            "content" => $content
+        );
+
+        $ret = $m_q_d -> where($newItem) -> select();
+
+        if($ret == null){
+            $ret1 = $m_q_d -> where(array("id" => $qdid)) -> save($newItem);
+            if($ret1 != false){
+                $this -> success('修改成功！', 'questionlist');
+            }else{
+                $this -> error('修改失败！');
+            }
+        }else{
+            $this -> error('未修改内容！');
+        }
     }
 
     public function setStatus(){

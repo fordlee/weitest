@@ -51,12 +51,20 @@
     <div id="container-main">
         <div id="container-content">
             <h1>{$qitem.content}</h1>
+            <neq name="Think.const.ACTION_NAME" value="analyze">
+                <if condition="$path neq NULL">
+                    <a href="javascript:;" onclick="share('{$qid}','{$sharePath}')">
+                        <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
+                        <span>{$languageTp.share}</span>
+                    </a>
+                </if>
+            </neq>
             <div class="fb-banner">
                 <if condition ="$path eq NULL">
                     <eq name="Think.const.ACTION_NAME" value="analyze">
                         <img src="__PUBLIC__/mytests/img/loading.gif"><br>
-                        <span>{$languageTp.loading_txt}</span>
-                        <span>{$languageTp.facebook_like_txt}</span>
+                        <span>{$languageTp.loading_txt}</span><br>
+                        <span style='margin-top: 15px;display: inline-block;font-weight: bold;position: relative;bottom: -20px;'>{$languageTp.facebook_like_txt}</span>
                     <else/>
                         <img src="{:C('IMAGEQ_PATH')}/{$qitem.bgpic}" id="resultpic" style="width:100%">
                     </eq>
@@ -69,6 +77,9 @@
                     <div class="fb-like" data-href="{$languageTp.facebook_like}" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="false">
                     </div>
                 </div>
+                <eq name="Think.const.ACTION_NAME" value="analyze">
+                <img src="__PUBLIC__/mytests/img/loadarrow.gif"/>
+                </eq>
             <neq name="Think.const.ACTION_NAME" value="analyze">
                 <if condition="$path eq NULL">
                 <p>{$languageTp.login_txt}</p>
@@ -77,6 +88,7 @@
                     <span>{$languageTp.login}</span>
                 </a>
                 <else/>
+                <span>{$languageTp.description}</span><br>
                 <a href="javascript:;" onclick="share('{$qid}','{$sharePath}')">
                     <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
                     <span>{$languageTp.share}</span>
@@ -178,15 +190,30 @@ function openwindow(url,name,iWidth,iHeight){
     window.open(url,name,'height='+iHeight+',,innerHeight='+iHeight+',width='+iWidth+',innerWidth='+iWidth+',top='+iTop+',left='+iLeft+',toolbar=no,menubar=no,scrollbars=auto,resizeable=yes,location=no,status=no');
 }
 
+var timeFlag=new Date().getTime();
+var resultUrl="{:U('Result/show')}/id/{$qid}";
 function analyze(){
+    window.timeFlag=new Date().getTime();
     $.post("{:U('Result/show')}",{ id:{$qid},tag:'analyze'},function(response){
         //Facebook un login
         if(response.login==false){
             location.href=response.loginUrl;
         }else{
-            location.href="{:U('Result/show')}/id/{$qid}";
+            var timeNow=new Date().getTime(),diff=(timeNow-timeFlag)/1000;
+            if(diff>6){
+                location.href=resultUrl;
+            }else{
+                console.log(diff);
+                setTimeout(function(){
+                    location.href=resultUrl;
+                },(6-diff)*1000);
+            }
         }
-    })
+    });
+
+    setTimeout(function(){
+        location.href=resultUrl;
+    },10*1000)
 }
 
 <eq name="Think.const.ACTION_NAME" value="analyze">

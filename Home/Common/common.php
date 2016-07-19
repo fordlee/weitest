@@ -28,8 +28,8 @@ function replaceLanguage($language){
 	            "loading_txt" => "Analyze profile,Calculating your result...",
 	            "facebook_like_txt" => "Please like us!",
 	            "facebook_like" => "https://www.facebook.com/Mytestsco-English-927186497408131",
-	            "description" => "click here! Share with your little friends onlookers!",
-	            "ogdescription" => "click here! Share with your little friends onlookers!",
+	            "description" => "click here! Share with your little friends!",
+	            "ogdescription" => "click here! Share with your little friends!",
 	        );
 	        break;
 	    case 'pt':
@@ -52,8 +52,8 @@ function replaceLanguage($language){
 	            "loading_txt" => "Analyze profile,Calculating your result...",
 	            "facebook_like_txt" => "Please like us!",
 	            "facebook_like" => "https://www.facebook.com/Mytestsco-English-927186497408131",
-	            "description" => "click here! Share with your little friends onlookers!",
-	            "ogdescription" => "click here! Share with your little friends onlookers!",
+	            "description" => "click here! Share with your little friends!",
+	            "ogdescription" => "click here! Share with your little friends!",
 	        );
 	        break;
 	}

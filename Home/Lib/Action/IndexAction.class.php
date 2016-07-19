@@ -87,7 +87,7 @@ class IndexAction extends Action {
             header("Location:".$url);
         }else{
             //$server_name = $_SERVER['SERVER_NAME'];
-            $server_name = "zh.mytests.co";
+            $server_name = "en.mytests.co";
             $language = explode('.',$server_name)[0];
             if($language == "www" || $language == "mytests" || $language == "Mytests"){
                 $language = "en";

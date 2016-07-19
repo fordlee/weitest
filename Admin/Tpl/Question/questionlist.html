@@ -12,6 +12,7 @@
 				<a href="#">题库管理</a>
 			</li>
 			<li class="active">详细设置</li>
+			<li><button onclick="addQuestionCode()" class="btn btn-xs btn-success">添加编号</button></li>
 		</ul><!-- .breadcrumb -->
 	</div>
 
@@ -39,8 +40,8 @@
 									[<a href="javascript:void()" onclick="addResult('{$qdetail.id}','{$qdetail.qid}', '{$qdetail.language}')">添加</a>&nbsp;<a href="{:U('Answer/editResult')}/qid/{$qdetail.qid}/qdid/{$qdetail.id}">修改</a>]
 									<br>
 								</volist>
-								<a href="javascript:void()" onclick="addQuestion('{$v.id}')" class="btn btn-xs btn-primary">添加题目</a>
-								<a href="{:U('Question/editQuestion')}/qid/{$v.id}" class="btn btn-xs btn-light">修改题目</a>
+								<a href="javascript:void()" onclick="addQuestion('{$v.id}')" class="btn btn-xs btn-primary">添加标题</a>
+								<a href="{:U('Question/editQuestion')}/qid/{$v.id}" class="btn btn-xs btn-light">修改标题</a>
 							</td>
 							<td class="center">
 								<form action="{:U('setStatus')}" method="post" >
@@ -171,6 +172,10 @@ $('.mask').click(function(e) {
    $('#question_dialog').hide();
    //window.location.reload();
 });
+
+function addQuestionCode(){
+	window.location.href = "{:U('Question/questionentry')}";
+}
 
 function addResult(qdid,qid,language){
 	var content = '{$qdetail.content}';

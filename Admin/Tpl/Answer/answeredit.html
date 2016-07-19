@@ -24,7 +24,7 @@
 					<div class="form-group">
 						<label class="col-sm-2 control-label no-padding-right" for="languageset">语言：</label>
 						<div class="col-sm-2">
-							<select id="languageset" name="languageset">
+							<select id="languageset" disabled name="languageset">
 								<option value="zh" <php>if($qdItem['language'] == zh)echo selected</php>>
 									中文
 								</option>
@@ -41,7 +41,7 @@
 					<div class="form-group">
 						<label class="col-sm-2 control-label no-padding-right">问题：</label>
 						<div class="col-sm-10">
-							<input type="text" name="content" placeholder="你在前世是怎么死去的？" class="col-sm-6" value="{$qdItem['content']}" />
+							<input type="text" name="content" readonly placeholder="" class="col-sm-6" value="{$qdItem['content']}" />
 						</div>
 					</div>
 					<volist name="aItem" id="v">

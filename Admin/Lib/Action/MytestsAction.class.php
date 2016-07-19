@@ -1,7 +1,11 @@
 <?php
 // 本类由系统自动生成，仅供测试用途
-class MytestAction extends Action {
+class MytestsAction extends Action {
 	
+    public function index(){
+        $this -> display('Mytests/demo');
+    }
+
     public function facebookLogin(){
 
         $info = file_get_contents(APP_PATH.'Conf/info.json');
@@ -36,8 +40,8 @@ class MytestAction extends Action {
         
 
         $filepath = $this -> _filepathSwap($filepath);
-        $this -> assign('srcPath',$filepath);
-        $this -> display('Index/showpaint');
+        //$this -> assign('srcPath',$filepath);
+        //$this -> display('demo');
         echo "<img src='$filepath'>";
     }
 
@@ -68,8 +72,6 @@ class MytestAction extends Action {
             if($v['type']=="text"){
                 $v['attribute']['font'] = FONT_PATH.'/'.$v['attribute']['font'];
                 $im=$image -> injectText($im,$v['attribute'],$content);
-                //header('Content-Type: image/png');
-                //imagepng($im);exit;
             }elseif($v['type']=="image"){
                 $im=$image -> injectImage($im,$v['attribute'],$content);
             }
@@ -190,6 +192,60 @@ class MytestAction extends Action {
         preg_match_all('/(\d+)/im', $str, $match);
         return $match[0];
     }
+
+    public function storeJson(){
+        if(@isset($_POST['codeContent'])){
+            $content=@$_POST['codeContent'];
+            $data=json_decode($content,true);
+            
+            header('Content-type: text/json');
+
+            if(count($data)>=1){
+                file_put_contents('temp.json', $content);
+                echo json_encode(array(
+                    'error'=>0,
+                    'content'=>'Json 存储成功'
+                ));
+            }else{
+                echo json_encode(array(
+                    'error'=>1,
+                    'content'=>'Json 格式或内容有误'
+                ));
+            }
+            exit;
+        }
+    }
+
+    public function upLoadZip(){
+        if(@$_FILES){
+            $content=@$_FILES["demoZip"];
+            $file=$content['tmp_name'];
+            if($file){
+                $file=$content['tmp_name'];
+                $res=unzip_file($file,'upload/_temp/');
+            }
+            
+            header("Content-type: text/html; charset=utf-8");
+
+            if(@$res['status']){
+                var_dump(array(
+                    'error'=>0,
+                    'content'=>'文件解压成功!'
+                ));
+                echo '<style type="text/css">.xdebug-var-dump{background: #B7FDB7;}</style>';
+            }else{
+                var_dump(array(
+                    'error'=>1,
+                    'content'=>'压缩文件有误'
+                ));
+                echo '<style type="text/css">.xdebug-var-dump{background: #FBD1C7;}</style>';
+            }
+
+            echo '<br>3s后返回...<script type="text/javascript">setTimeout(function(){history.go(-1);},3000)</script>';
+            exit;
+        }
+    }
+
 
 }
 ?>

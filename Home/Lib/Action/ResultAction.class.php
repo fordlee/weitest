@@ -8,7 +8,7 @@ class ResultAction extends Action {
 	}
 
     public function show(){
-        require_once './Facebook/autoload.php';
+        /*require_once './Facebook/autoload.php';
 
 		$qid = $_GET['id'];
         $tag=$_POST['tag'];
@@ -19,7 +19,7 @@ class ResultAction extends Action {
 
 		//if($_SESSION['facebook_access_token']=='')unset($_SESSION['facebook_access_token']);
 		
-        /*$fb = new Facebook\Facebook([
+        $fb = new Facebook\Facebook([
           'app_id' => C('FACEBOOK_APP_ID'),
           'app_secret' => C('FACEBOOK_APP_SECRET'),
           'default_graph_version' => 'v2.4'
@@ -139,8 +139,10 @@ class ResultAction extends Action {
 			$info['allFriends'] = $allFriends;
 
             $userInfo = $info['user_profile'];
+            $userInfo = json_decode(json_encode($userInfo),true);
             $this -> _storeUserInfo($userInfo);
-		
+
+		    $info = json_decode(json_encode($info),true);
 			$this->paintResult($fb,$info,$accessToken,$qid,$tag);exit;
         } else {
             $loginUrl = $helper->getLoginUrl('http://'.$_SERVER['SERVER_NAME'].'/Result/show'.($qid?'/id/'.$qid:''), $permissions);
@@ -330,7 +332,7 @@ class ResultAction extends Action {
             header("Location:".$url);
         }else{
             //$server_name = $_SERVER['SERVER_NAME'];
-            $server_name = "zh.mytests.co";
+            $server_name = "en.mytests.co";
             $language = explode('.',$server_name)[0];
             if($language == "www" || $language == "mytests" || $language == "Mytests"){
                 $language = "en";

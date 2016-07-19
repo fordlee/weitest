@@ -134,6 +134,7 @@ class TestAction extends Action {
     public function storeUserInfo(){
         $info = file_get_contents(APP_PATH.'Conf/info.json');
         $info = json_decode($info,true);
+
         $userInfo = $info['user_profile'];
         var_dump($userInfo);
 
