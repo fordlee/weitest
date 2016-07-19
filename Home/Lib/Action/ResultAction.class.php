@@ -2,13 +2,24 @@
 // 本类由系统自动生成，仅供测试用途
 class ResultAction extends Action {
 	
+	public function analyze(){
+		$id=$_GET['id'];
+		R('Index/question', array($id,'analyze'));
+	}
+
     public function show(){
-        $qid = $_GET['id'];
-        /*require_once './Facebook/autoload.php';
+        require_once './Facebook/autoload.php';
+
+		$qid = $_GET['id'];
+        $tag=$_POST['tag'];
+
+        if($tag=='analyze'){
+        	$qid = $_POST['id'];
+        }
 
 		//if($_SESSION['facebook_access_token']=='')unset($_SESSION['facebook_access_token']);
 		
-        $fb = new Facebook\Facebook([
+        /*$fb = new Facebook\Facebook([
           'app_id' => C('FACEBOOK_APP_ID'),
           'app_secret' => C('FACEBOOK_APP_SECRET'),
           'default_graph_version' => 'v2.4'
@@ -33,7 +44,8 @@ class ResultAction extends Action {
 			echo 'Facebook SDK returned an error: ' . $e->getMessage();
 			unset($_SESSION['facebook_access_token']);
 			exit;
-		}
+		}		
+		
 
         if (isset($accessToken)) {
 			if (isset($_SESSION['facebook_access_token'])) {
@@ -125,102 +137,163 @@ class ResultAction extends Action {
 			}
 
 			$info['allFriends'] = $allFriends;
-			
-			//$info = file_get_contents(APP_PATH.'Conf/info.json');
-			//$info = json_decode($info,true);
-			//return $info;
-			
-			$this->paintResult($fb,$info,$accessToken);exit;
+
+            $userInfo = $info['user_profile'];
+            $this -> _storeUserInfo($userInfo);
+		
+			$this->paintResult($fb,$info,$accessToken,$qid,$tag);exit;
         } else {
             $loginUrl = $helper->getLoginUrl('http://'.$_SERVER['SERVER_NAME'].'/Result/show'.($qid?'/id/'.$qid:''), $permissions);
-			usleep(500000);
-			header('Location:'.$loginUrl);
-        }*/
 
+            if($tag=='analyze'){ //AJAX异步后台处理程序
+            	header('Content-type:text/json');
+            	echo json_encode(array(
+            		'login'=>false,
+            		'loginUrl'=>$loginUrl
+            	));
+            	exit;
+            }else{
+				usleep(500000);
+				header('Location:'.$loginUrl);
+            }
+
+        }*/
+		
+        $accessToken = 1;
         $info = file_get_contents(APP_PATH.'Conf/info.json');
         $info = json_decode($info,true);
-            
-        $this->paintResult($fb,$info,$accessToken);exit;
+
+        $userInfo = $info['user_profile'];
+        $this -> _storeUserInfo($userInfo);
+
+        $this->paintResult($fb,$info,$accessToken,$qid,$tag);exit;
     }
 
-    private function _getLanguage(){
-        
-        if(!empty($_SESSION['language'])){
-            $language = $_SESSION['language'];
-        }else{
-            $language = 'zh';
-        }
+    public function paintResult($fb,$info,$accessToken,$questionId='',$tag=''){
 
-        return $language;
-    }
-
-    public function paintResult($fb,$info,$accessToken){
-
+	
 		$qid = $_GET['id'];
-			
-		$language = $this -> _getLanguage();
-		$m = D('QuestionView');
-		$m_a = M('answer');
-		$where = array(
-			'status' => 1,
-			'language' => $language
-		);
-		$item = $m -> where($where) -> limit(12) -> select();
-		
-		$qitem = $m -> where(array('id' => $qid,'language' => $language)) -> find();
-		$where = array(
-			'qdid' => $qitem['qdid'],
-			'qid'  => $qitem['qid']
-		);
-		$aitem = $m_a -> where($where) -> select();
-		
-		//随机获取答案
-		$randnum = $this -> _myrand(count($aitem)-1);
-		
-		$optionresult = $aitem[$randnum]['optionresult'];
-		$data = json_decode($aitem[$randnum]['optionset'],true);
-
-		$uid = $info['user_profile']['id'];
-		$_SESSION['uid'] = $uid;
-		$foldername = substr($uid,-2);
-		$path = IMAGE_PATH.'/'.$foldername;
-
-		//生成文件夹
-		if(!is_dir($path)){
-			mkdir($path,0777,true);
+        
+		if($tag=='analyze'){//AJAX异步后台处理程序
+			$qid=$questionId;
 		}
 
-		//判断本地文件
-		$filenameArr = array(
-			'uid'  => $info['user_profile']['id'],
-			'qid'  => $qitem['qid'],
-			'qdid' => $qitem['qdid']
-		);
-		$filepath = $this -> _getFilename($path,$filenameArr);
-		//if(!file_exists($filepath)){
-			$this -> _createSavePic($info,$data,$filepath);
-		//}
-		
+        if (isset($accessToken)) {
+			
+			$language = $this -> _getLanguage();
+			$languageTp = replaceLanguage($language);
+            
+			$m = D('QuestionView');
+			$m_a = M('answer');
+			$where = array(
+				'status' => 1,
+				'language' => $language
+			);
+			$item = $m -> where($where) -> limit(12) -> select();
+			
+			$qitem = $m -> where(array('id' => $qid,'language' => $language)) -> find();
+			$where = array(
+				'qdid' => $qitem['qdid'],
+				'qid'  => $qitem['qid']
+			);
+			$aitem = $m_a -> where($where) -> select();
+			
+			//随机获取答案
+			$randnum = $this -> _myrand(count($aitem)-1);
+			
+			$optionresult = $aitem[$randnum]['optionresult'];
+			$data = json_decode($aitem[$randnum]['optionset'],true);
 
-		$filepath = $this -> _filepathSwap($filepath,$optionresult);
-		$this -> assign('path',$filepath);
-		$this -> assign('item',$item);
-		$this -> assign('qid',$qid);
-		$this -> display('Index/result');
+			$uid = $info['user_profile']['id'];
+			$_SESSION['uid'] = $uid;
+			$foldername = substr($uid,-2);
+			$path = IMAGE_PATH.'/'.$foldername;
+
+			//生成文件夹
+			if(!is_dir($path)){
+				mkdir($path,0777,true);
+			}
+
+			//判断本地文件
+			$filenameArr = array(
+				'uid'  => $info['user_profile']['id'],
+				'qid'  => $qitem['qid'],
+				'qdid' => $qitem['qdid']
+			);
+			$filepath = $this -> _getFilename($path,$filenameArr);
+			//if(!file_exists($filepath)){
+				$this -> _createSavePic($info,$data,$filepath);
+			//}
+			
+			$filepath = $this -> _filepathSwap($filepath,$optionresult);
+			$sharePath = $this -> _getSharePath($filepath);
+			$shareUrl = $this -> _getShareUrl($sharePath,$qid);
+			
+			$ogimage = 'http://'.$_SERVER['HTTP_HOST'].$filepath;
+			$this -> assign('ogimage',$ogimage);
+			$this -> assign('path',$filepath);
+			$this -> assign('sharePath',$sharePath);
+			$this -> assign('shareUrl',$shareUrl);
+			$this -> assign('language',$language);
+			$this -> assign('languageTp',$languageTp);
+			$this -> assign('qitem',$qitem);
+			$this -> assign('item',$item);
+			$this -> assign('qid',$qid);
+
+			if($tag=='analyze'){//AJAX异步后台处理程序
+            	header('Content-type:text/json');
+            	echo json_encode(array(
+            		'login'=>true,
+            		'paint'=>true
+            	));
+            	exit;
+			}else{
+				$this -> display('Index/question');	
+			}
+            
+        } else {
+
+			if($tag=='analyze'){//AJAX异步后台处理程序
+            	header('Content-type:text/json');
+            	echo json_encode(array(
+            		'login'=>true,
+            		'paint'=>false
+            	));
+            	exit;
+			}else{
+				echo $accessToken;exit;
+			}
+
+        }	
 
     }
 
     private function _getFilename($path, $filenameArr){
         $filename = implode("_", $filenameArr);
-        $filepath = $path.'/'.$filename.'.png';
+        $filepath = $path.'/'.$filename.'.jpg';
 
         return $filepath;
+    }
+	
+	private function _getSharePath($filepath){
+        //91+231721203887791_1_2.jpg
+        $path = str_replace('/Uploads/image/', '', $filepath);
+        $sharePath = str_replace('/', '-', $path);
+
+        return $sharePath;
+    }
+
+    private function _getShareUrl($sharePath,$qid){
+        //http://'+location.host+'/index.php/index/question/id/'+qid+'?tag=share&pic='+pic
+        $shareUrl = 'http://'.$_SERVER['HTTP_HOST'].'/index.php/index/question/id/'.$qid.'?tag=share&pic='.$sharePath;
+        
+        return $shareUrl;
     }
 
     private function _filepathSwap($filepath,$optionresult){
         $filepath = str_replace('./', '/', $filepath);
         //$filepath = json_encode(array('path' => $filepath.'?t='.rand(1,100), 'result' => $optionresult));
-
+		$filepath = $filepath.'?t='.rand(1,100);
         return $filepath;
     }
 
@@ -246,8 +319,49 @@ class ResultAction extends Action {
         unset($_SESSION['_RAND']);
         
         //保存图片
-        imagepng($im,$filepath);
+        imagejpeg($im,$filepath);
         imagedestroy($im);
+    }
+
+    private function _getLanguage(){
+        if(isset($_POST['language']) && !empty($_POST['language'])){
+            $language = $_POST['language'];
+            $url = "http://".$language.".mytests.co";
+            header("Location:".$url);
+        }else{
+            //$server_name = $_SERVER['SERVER_NAME'];
+            $server_name = "zh.mytests.co";
+            $language = explode('.',$server_name)[0];
+            if($language == "www" || $language == "mytests" || $language == "Mytests"){
+                $language = "en";
+            }
+        }
+
+        return $language;
+    }
+
+    private function _storeUserInfo($userInfo){
+        $uid = $userInfo['id'];
+        $userInfo['uid'] = $uid;
+        array_splice($userInfo, 0, 1);
+
+        $userBirthday = $userInfo['birthday']['date'];
+        $userInfo['birthday'] = date("Y-m-d",strtotime($userBirthday));
+        
+        $location = $userInfo['location']['name'];
+        $userInfo['location'] = $location;
+        
+        $m_u = M('user');
+        $isExist = $m_u -> where(array("uid" => $uid)) -> find();
+        if($isExist != NULL){
+            $isUpdate = $m_u -> where($userInfo) -> find();
+            if($isUpdate == NULL)
+                $m_u -> where(array("uid" => $uid)) -> save($userInfo);
+        }else{
+            $userInfo['adddate'] = date('Y-m-d');
+            $m_u -> add($userInfo);
+        }
+
     }
 
     //返回选项随机数
@@ -311,7 +425,15 @@ class ResultAction extends Action {
                     }else{
                         $_len=count($_param);
                         $_rand=rand(0,$_len-1);
-                        array_push($_SESSION['_RAND'], $_rand);
+	
+                        //生成不重复随机数
+                        $_arr=range(0,$_len-1);
+                        $_sRand=$_SESSION['_RAND']?$_SESSION['_RAND']:array();
+                        $_arr=array_merge(array_diff($_arr,$_sRand),array_diff($_sRand,$_arr));
+                        $_len=count($_arr);
+                        $_rand=$_arr[rand(0,$_len-1)];
+
+                        array_push($_SESSION['_RAND'], $_rand);					
                     }
 
                     $_param=$_param[$_rand];

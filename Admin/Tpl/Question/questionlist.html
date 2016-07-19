@@ -36,10 +36,11 @@
 							<td >
 								<volist name="v['qd']" id="qdetail">
 									<font size="5">{$qdetail.content}</font>
-									[<a href="javascript:void()" onclick="addResult('{$qdetail.id}','{$qdetail.qid}', '{$qdetail.language}', '{$qdetail.content}')">添加</a>&nbsp;<a href="{:U('Answer/editResult')}/qid/{$qdetail.qid}/qdid/{$qdetail.id}">修改</a>]
+									[<a href="javascript:void()" onclick="addResult('{$qdetail.id}','{$qdetail.qid}', '{$qdetail.language}')">添加</a>&nbsp;<a href="{:U('Answer/editResult')}/qid/{$qdetail.qid}/qdid/{$qdetail.id}">修改</a>]
 									<br>
 								</volist>
 								<a href="javascript:void()" onclick="addQuestion('{$v.id}')" class="btn btn-xs btn-primary">添加题目</a>
+								<a href="{:U('Question/editQuestion')}/qid/{$v.id}" class="btn btn-xs btn-light">修改题目</a>
 							</td>
 							<td class="center">
 								<form action="{:U('setStatus')}" method="post" >
@@ -80,7 +81,6 @@
 									<input type="text" name="content" id="content" placeholder="" class="col-sm-6" />
 								</div>
 							</div>
-							<?php for ($i=0; $i < 1 ; $i++) { ?>
 							<div class="form-group">
 								<label class="col-sm-2 control-label no-padding-right">答案：</label>
 								<div class="col-sm-10">
@@ -102,7 +102,6 @@
 									<textarea name="optionset[]" style="margin: 0px; width: 330px; height: 200px;"></textarea>
 								</div>
 							</div>
-							<?php } ?>
 							<div class="form-group">
 								<label class="col-sm-2 control-label no-padding-right"></label>
 								<div class="col-sm-10">
@@ -173,7 +172,8 @@ $('.mask').click(function(e) {
    //window.location.reload();
 });
 
-function addResult(qdid,qid,language,content){
+function addResult(qdid,qid,language){
+	var content = '{$qdetail.content}';
 	$('#qdid').val(qdid);
 	$('#qid').val(qid);
 	$('#content').val(content);
@@ -188,7 +188,7 @@ function addResult(qdid,qid,language,content){
 }
 
 function addQuestion(qid){
-	$('#questionid').val(qid)
+	$('#questionid').val(qid);
 	$('#question_dialog').show();
 }
 

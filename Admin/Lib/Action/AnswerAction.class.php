@@ -46,7 +46,7 @@ class AnswerAction extends Action {
                     'optionset' => $v
                 );
                 if($info !== null){
-                    $item['answerpic'] = '/weitest/Uploads/imgA/'.$info[$k]['savename'];
+                    $item['answerpic'] = $info[$k]['savename'];
                 }else{
                     $item['answerpic'] = NULL;
                 }
@@ -106,7 +106,7 @@ class AnswerAction extends Action {
                 );
                 $ret = $m_a -> where('id='.$aids[$k]) -> find();
                 if($info !== NULL){
-                    $item['answerpic'] = '/weitest/Uploads/imgA/'.$info[$k]['savename'];
+                    $item['answerpic'] = $info[$k]['savename'];
                 }else{
                     $item['answerpic'] = $ret['answerpic'];
                 }

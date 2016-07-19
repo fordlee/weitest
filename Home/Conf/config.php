@@ -28,6 +28,7 @@ return array(
 	'FACEBOOK_APP_ID' => '1053226548106670',
 	'FACEBOOK_APP_SECRET' => '58a9253409d0cd2be600135a14627d18',
 	'IMAGEQ_PATH' => '/Uploads/imgQ',
+	'IMAGEA_PATH' => '/Uploads/imgA',
 	'LOG_RECORD' => true, // 开启日志记录    
 	'LOG_RECORD_LEVEL' => array('EMERG','ALERT','CRIT','ERR')
 );

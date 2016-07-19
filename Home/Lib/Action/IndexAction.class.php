@@ -11,6 +11,8 @@ class IndexAction extends Action {
         //$item = $m -> order('id desc') -> where($where) -> limit(12) -> select();
         $item = $m -> where($where) -> limit(12) -> select();
         $this -> assign('language', $language);
+		$languageTp = replaceLanguage($language);
+        $this -> assign('languageTp',$languageTp);
         $this -> assign('item', $item);
 		$this -> display();
     }
@@ -29,15 +31,20 @@ class IndexAction extends Action {
 
         $this -> assign('backflag',1);
         $this -> assign('language', $language);
+		$languageTp = replaceLanguage($language);
+        $this -> assign('languageTp',$languageTp);
         $this -> assign('item', $item);
         $this -> display('index');
     }
 
-    public function question(){
-        if(!isset($_GET['id']) && empty($_GET['id'])){
-            $qid = $_POST['id'];
-        }else{
-            $qid = $_GET['id'];
+    public function question($questionId='',$processTag=''){
+
+        $qid = $_GET['id'];
+
+        //-------------
+        if($questionId){
+            $qid=$questionId;
+            $this->assign('processTag',$processTag);
         }
         
     	$language = $this -> _getLanguage();
@@ -55,22 +62,36 @@ class IndexAction extends Action {
             'language' => $language
         );
         $qitem = $m -> where($w_q) -> find();
+
+		$ogimage = 'http://'.$_SERVER['HTTP_HOST'].C('IMAGEQ_PATH').'/'.$qitem['bgpic'];
+        $pic=$_GET['pic'];
+        if($pic){
+            $_path=str_replace('-', '/', $pic);
+            $ogimage='http://'.$_SERVER['HTTP_HOST'].'/Uploads/image/'.$_path;
+        }
         
+        $this -> assign('ogimage',$ogimage);     
         $this -> assign('qid', $qid);
         $this -> assign('language', $language);
+		$languageTp = replaceLanguage($language);
+        $this -> assign('languageTp',$languageTp);
         $this -> assign('item', $item);
         $this -> assign('qitem', $qitem);
-        $this -> display();
+        $this -> display('Index:question');
     }
-
-    private function _getLanguage(){
+	
+	private function _getLanguage(){
         if(isset($_POST['language']) && !empty($_POST['language'])){
             $language = $_POST['language'];
-            $_SESSION['language'] = $language;
-        }elseif(!empty($_SESSION['language'])){
-            $language = $_SESSION['language'];
+            $url = "http://".$language.".mytests.co";
+            header("Location:".$url);
         }else{
-            $language = 'zh';
+            //$server_name = $_SERVER['SERVER_NAME'];
+            $server_name = "zh.mytests.co";
+            $language = explode('.',$server_name)[0];
+            if($language == "www" || $language == "mytests" || $language == "Mytests"){
+                $language = "en";
+            }
         }
 
         return $language;

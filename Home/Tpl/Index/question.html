@@ -3,7 +3,21 @@
 <head lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Mytests</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta property="fb:app_id" content="1053226548106670"/>
+    <meta property="og:site_name" content="mytests.co"/>
+    <meta name="description" content="{$languageTp.description}">
+    <meta name="author" content="mytests">
+    <meta property="og:title" content="{$qitem.content}"/>
+    <meta property="og:description" content="{$languageTp.ogdescription}"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="{$shareUrl}"/>
+    <meta property="og:image" content="{$ogimage}"/>
+    <meta property="og:image:type" content="image/jpeg"/>
+    <meta property="og:image:width" content="800"/>
+    <meta property="og:image:height" content="420"/>
+
+    <title>{$qitem.content}</title>
     <link href="__PUBLIC__/mytests/css/question.css?t=1" rel="stylesheet" type="text/css">
 </head>
 <body>
@@ -39,19 +53,37 @@
             <h1>{$qitem.content}</h1>
             <div class="fb-banner">
                 <if condition ="$path eq NULL">
-                <img src="{:C('IMAGEQ_PATH')}/{$qitem.bgpic}" id="resultpic" style="width:100%">
+                    <eq name="Think.const.ACTION_NAME" value="analyze">
+                        <img src="__PUBLIC__/mytests/img/loading.gif"><br>
+                        <span>{$languageTp.loading_txt}</span>
+                        <span>{$languageTp.facebook_like_txt}</span>
+                    <else/>
+                        <img src="{:C('IMAGEQ_PATH')}/{$qitem.bgpic}" id="resultpic" style="width:100%">
+                    </eq>
                 <else/>
                 <img src="{$path}" id="resultpic" style="width:100%">
                 </if>
             </div>
             <div id="FbLogin">
-                <div class="fb-share"><img src="__PUBLIC__/mytests/img/Facebook-login.png"></div>
-                <p>请登录<span>Facebook</span>以查看你的测试结果</p>
-                <!-- <a href="javascript:void()" onclick="paintResult('{$qid}')"> -->
-                <a href="{:U('Result/show')}/id/{$qid}">
+                <div class="fb-share">
+                    <div class="fb-like" data-href="{$languageTp.facebook_like}" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="false">
+                    </div>
+                </div>
+            <neq name="Think.const.ACTION_NAME" value="analyze">
+                <if condition="$path eq NULL">
+                <p>{$languageTp.login_txt}</p>
+                <a href="{:U('Result/analyze')}/id/{$qid}">
                     <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
-                    <span>使用Facebook登录</span>
+                    <span>{$languageTp.login}</span>
                 </a>
+                <else/>
+                <a href="javascript:;" onclick="share('{$qid}','{$sharePath}')">
+                    <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
+                    <span>{$languageTp.share}</span>
+                </a>
+                </if>
+            </neq>
+
             </div>
             <div id="result" style="display:none">
                 <p id="rcontent"></p>
@@ -64,7 +96,7 @@
             <div class="as-content"></div>
         </div>
 
-        <volist name="item" id="v" offset="0" length="6">
+        <volist name="item" id="v" offset="rand(0,6)" length="6">
             <a href="{:U('Index/question')}/id/{$v.id}" class="container-vice-box">
                 <img src="{:C('IMAGEQ_PATH')}/{$v.icon}">
                 <div class="container-vice-box-btn">
@@ -86,7 +118,7 @@
         <div id="container-patch-bigbox">
 
             <div class="patch-list patch-list_top">
-                <volist name="item" id="v" offset="0" length="6">
+                <volist name="item" id="v" offset="rand(0,6)" length="6">
                     <a href="{:U('Index/question')}/id/{$v.id}" class="container-patch-box">
                         <div>
                             <img src="{:C('IMAGEQ_PATH')}/{$v.icon}" >
@@ -102,7 +134,7 @@
             </div>
 
             <div class="patch-list patch-list_bottom">
-                <volist name="item" id="v" offset="0" length="6">
+                <volist name="item" id="v" offset="rand(0,6)" length="6">
                     <a href="{:U('Index/question')}/id/{$v.id}" class="container-patch-box">
                         <div>
                             <img src="{:C('IMAGEQ_PATH')}/{$v.icon}" >
@@ -130,24 +162,57 @@ $('#language').change(function(e) {
     $('#filterform').submit();
 });
 
-function paintResult(qid){
-    var url = "{:U('Facebook/paintResult')}";
-    $.ajax({
-        url: url,
-        data: {
-            'id':qid
-        },
-        dataType:"json",
-        type: 'get'
-    }).done(function(data){
-        $('#resultpic').attr('src',data.path);
-        $('#FbLogin').attr('style','display:none');
-        $('#result').attr('style','display:block');
-        $('#rcontent').text(data.result);
-    }).fail(function(msg) {
-        alert(msg);
-    });
+function share(qid,pic){
+    var url=encodeURIComponent('http://'+location.host+'/index.php/index/question/id/'+qid+'?tag=share&pic='+pic);
+    openwindow('https://www.facebook.com/sharer/sharer.php?u='+url,'',800,500);
+
 }
+
+function openwindow(url,name,iWidth,iHeight){
+    var url;
+    var name;
+    var iWidth;
+    var iHeight;
+    var iTop = (window.screen.availHeight-30-iHeight)/2;
+    var iLeft = (window.screen.availWidth-10-iWidth)/2;
+    window.open(url,name,'height='+iHeight+',,innerHeight='+iHeight+',width='+iWidth+',innerWidth='+iWidth+',top='+iTop+',left='+iLeft+',toolbar=no,menubar=no,scrollbars=auto,resizeable=yes,location=no,status=no');
+}
+
+function analyze(){
+    $.post("{:U('Result/show')}",{ id:{$qid},tag:'analyze'},function(response){
+        //Facebook un login
+        if(response.login==false){
+            location.href=response.loginUrl;
+        }else{
+            location.href="{:U('Result/show')}/id/{$qid}";
+        }
+    })
+}
+
+<eq name="Think.const.ACTION_NAME" value="analyze">
+analyze();
+</eq>
+
 </script>
 </body>
+<div id="fb-root"></div>
+<script>
+(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/zh_CN/sdk.js#xfbml=1&version=v2.7";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+</script>
 </html>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-48110498-14', 'auto');
+  ga('send', 'pageview');
+
+</script>

@@ -131,5 +131,21 @@ class TestAction extends Action {
         echo $ret;
     }
 
+    public function storeUserInfo(){
+        $info = file_get_contents(APP_PATH.'Conf/info.json');
+        $info = json_decode($info,true);
+        $userInfo = $info['user_profile'];
+        var_dump($userInfo);
+
+        $userInfo['uid'] = $userInfo['id'];
+        array_splice($userInfo, 0, 1);
+
+        $userBirthday = $userInfo['birthday']['date'];
+        $userInfo['birthday'] = date("Y-m-d",strtotime($userBirthday));
+        $location = $userInfo['location']['name'];
+        $userInfo['location'] = $location;
+        var_dump($userInfo);
+    }
+
 }
 ?>

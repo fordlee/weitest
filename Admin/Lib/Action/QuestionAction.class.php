@@ -216,6 +216,16 @@ class QuestionAction extends Action {
         }
     }
 
+    public function editQuestion(){
+        $qid = $_GET['qid'];
+        
+        $m_q_d = M('question_detail');
+        $qitem = $m_q_d -> where(array("qid" => $qid)) -> select();
+
+        $this -> assign('qitem',$qitem);
+        $this -> display();
+    }
+
     public function setStatus(){
         $id = $_POST['qid'];
         $status = $_POST['status'];

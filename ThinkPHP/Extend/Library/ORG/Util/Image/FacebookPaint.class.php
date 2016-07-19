@@ -87,7 +87,7 @@ class FacebookPaint{
 	    $rt_corner  = imagerotate($lt_corner, 270, 0);  
 	    imagecopymerge($im, $rt_corner, $image_width - $radius, 0, 0, 0, $radius, $radius, 100);  
 	  
-		$color=imagecolorallocate($im,255,255,255);
+		$color=imagecolorallocate($im,0,0,255);
 		imagecolortransparent($im,$color);
 
 		return $im;
@@ -96,7 +96,7 @@ class FacebookPaint{
 	//画圆角边角
 	private function _get_lt_rounder_corner($radius) {  
 	    $img     = imagecreatetruecolor($radius, $radius);  // 创建一个正方形的图像  
-	    $bgcolor    = imagecolorallocate($img, 255, 255, 255);   // 图像的背景  
+	    $bgcolor    = imagecolorallocate($img, 0, 0, 255);   // 图像的背景  
 	    $fgcolor    = imagecolorallocate($img, 0, 0, 0);  
 	    imagefill($img, 0, 0, $bgcolor);  
 	    imagefilledarc($img, $radius, $radius, $radius*2, $radius*2, 180, 270, $fgcolor, IMG_ARC_PIE); 
@@ -119,7 +119,7 @@ class FacebookPaint{
 	    $im_height=imagesy($im);//大图高度
 	    $thumb = imagecreatetruecolor($width,$height);
 
-		$fff= imagecolorallocate($thumb , 255 , 255 ,255);//拾取白色
+		$fff= imagecolorallocate($thumb , 0 , 0 ,255);//拾取白色
 		imagecolortransparent($thumb ,$fff );//把图片中白色设置为透明色
 
 		/**/
@@ -147,7 +147,7 @@ class FacebookPaint{
 		
 		//设置新图像
 		$img = imagecreatetruecolor($width, $height);
-		$color = imagecolorallocate($img, 255, 255, 255);
+		$color = imagecolorallocate($img, 0, 0, 255);
 		imagefill($img, 0, 0, $color);
 		
 		imagecopyresampled($img,$im,0,0,$x,$y,$width,$height,$width,$im_height);
@@ -173,7 +173,7 @@ class FacebookPaint{
 		
 		//设置新图像
 		$img = imagecreatetruecolor($width, $height);
-		$color = imagecolorallocate($img, 255, 255, 255);
+		$color = imagecolorallocate($img, 0, 0, 255);
 	    imagefill($img, 0, 0, $color);
 		imagecopyresampled($img,$im,0,0,$x,$y,$width,$height,$width,$im_height);
 		
@@ -320,7 +320,7 @@ class FacebookPaint{
 	    $cut = imagecreatetruecolor($src_w, $src_w);
 	    $cut = imagecreatetruecolor($src_w,$src_w);
 
-		$fff= imagecolorallocate($cut , 255 , 255 ,255);//拾取白色
+		$fff= imagecolorallocate($cut , 0 , 0 ,255);//拾取白色
 		imagecolortransparent($cut ,$fff );//把图片中白色设置为透明色
 
 	    // copying relevant section from background to the cut resource
