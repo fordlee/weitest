@@ -18,7 +18,7 @@
     <meta property="og:image:height" content="420"/>
 
     <title>{$qitem.content}</title>
-    <link href="__PUBLIC__/mytests/css/question.css?t=1" rel="stylesheet" type="text/css">
+    <link href="__PUBLIC__/mytests/css/question.css?t=2" rel="stylesheet" type="text/css">
 </head>
 <body>
 <div id="header" class="header">
@@ -53,9 +53,10 @@
             <h1>{$qitem.content}</h1>
             <neq name="Think.const.ACTION_NAME" value="analyze">
                 <if condition="$path neq NULL">
-                    <a href="javascript:;" onclick="share('{$qid}','{$sharePath}')">
+                    <a href="javascript:;" class="FBshare" onclick="share('{$qid}','{$sharePath}')">
                         <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
                         <span>{$languageTp.share}</span>
+                        <div></div>
                     </a>
                 </if>
             </neq>
@@ -66,10 +67,10 @@
                         <span>{$languageTp.loading_txt}</span><br>
                         <span style='margin-top: 15px;display: inline-block;font-weight: bold;position: relative;bottom: -20px;'>{$languageTp.facebook_like_txt}</span>
                     <else/>
-                        <img src="{:C('IMAGEQ_PATH')}/{$qitem.bgpic}" id="resultpic" style="width:100%">
+                        <img alt="{$qitem.content}" src="{:C('IMAGEQ_PATH')}/{$qitem.bgpic}" id="resultpic" style="width:100%">
                     </eq>
                 <else/>
-                <img src="{$path}" id="resultpic" style="width:100%">
+                <img src="{$path}"  alt="{$qitem.content}" id="resultpic" style="width:100%">
                 </if>
             </div>
             <div id="FbLogin">
@@ -83,15 +84,16 @@
             <neq name="Think.const.ACTION_NAME" value="analyze">
                 <if condition="$path eq NULL">
                 <p>{$languageTp.login_txt}</p>
-                <a href="{:U('Result/analyze')}/id/{$qid}">
+                <a class="FBlogin" href="{:U('Result/analyze')}/id/{$qid}">
                     <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
                     <span>{$languageTp.login}</span>
                 </a>
                 <else/>
                 <span>{$languageTp.description}</span><br>
-                <a href="javascript:;" onclick="share('{$qid}','{$sharePath}')">
+                <a href="javascript:;" class="CSS FBshare" onclick="share('{$qid}','{$sharePath}')">
                     <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
                     <span>{$languageTp.share}</span>
+                    <div></div>
                 </a>
                 </if>
             </neq>
@@ -108,7 +110,7 @@
             <div class="as-content"></div>
         </div>
 
-        <volist name="item" id="v" offset="rand(0,6)" length="6">
+        <volist name="item" id="v" offset="12" length="6">
             <a href="{:U('Index/question')}/id/{$v.id}" class="container-vice-box">
                 <img src="{:C('IMAGEQ_PATH')}/{$v.icon}">
                 <div class="container-vice-box-btn">
@@ -130,7 +132,7 @@
         <div id="container-patch-bigbox">
 
             <div class="patch-list patch-list_top">
-                <volist name="item" id="v" offset="rand(0,6)" length="6">
+                <volist name="item" id="v" offset="6" length="6">
                     <a href="{:U('Index/question')}/id/{$v.id}" class="container-patch-box">
                         <div>
                             <img src="{:C('IMAGEQ_PATH')}/{$v.icon}" >
@@ -146,7 +148,7 @@
             </div>
 
             <div class="patch-list patch-list_bottom">
-                <volist name="item" id="v" offset="rand(0,6)" length="6">
+                <volist name="item" id="v" offset="0" length="6">
                     <a href="{:U('Index/question')}/id/{$v.id}" class="container-patch-box">
                         <div>
                             <img src="{:C('IMAGEQ_PATH')}/{$v.icon}" >
@@ -170,9 +172,6 @@
 <div id="footer"></div>
 <script src="__PUBLIC__/mytests/js/jquery-3.0.0.min.js"></script>
 <script type="text/javascript">
-$('#language').change(function(e) {
-    $('#filterform').submit();
-});
 
 function share(qid,pic){
     var url=encodeURIComponent('http://'+location.host+'/index.php/index/question/id/'+qid+'?tag=share&pic='+pic);
@@ -233,13 +232,4 @@ analyze();
 }(document, 'script', 'facebook-jssdk'));
 </script>
 </html>
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-48110498-14', 'auto');
-  ga('send', 'pageview');
-
-</script>
+<script type="text/javascript" src="__PUBLIC__/mytests/js/common.js?t=3"></script>

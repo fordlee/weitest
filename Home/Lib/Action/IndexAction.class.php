@@ -2,14 +2,17 @@
 // 本类由系统自动生成，仅供测试用途
 class IndexAction extends Action {
     public function index(){
+        //load('@.localLanJump');
+        //autoGo();
     	$language = $this -> _getLanguage();
         $m = D('QuestionView');
         $where = array(
             'status' => 1,
             'language' => $language
         );
-        //$item = $m -> order('id desc') -> where($where) -> limit(12) -> select();
-        $item = $m -> where($where) -> limit(12) -> select();
+        $item = $m -> order('id desc') -> where($where) -> limit(12) -> select();
+        var_dump($item);die();
+        //$item = $m -> where($where) -> limit(12) -> select();
         $this -> assign('language', $language);
 		$languageTp = replaceLanguage($language);
         $this -> assign('languageTp',$languageTp);
@@ -26,8 +29,8 @@ class IndexAction extends Action {
         );
         $count = $m -> where($where) -> count();
         $start = rand(0,$count-12);
-        //$item = $m -> order('id desc') -> where($where) -> limit($start,12) -> select();
-        $item = $m -> where($where) -> limit($start,12) -> select();
+        $item = $m -> order('id desc') -> where($where) -> limit($start,12) -> select();
+        //$item = $m -> where($where) -> limit($start,12) -> select();
 
         $this -> assign('backflag',1);
         $this -> assign('language', $language);
@@ -49,13 +52,19 @@ class IndexAction extends Action {
         
     	$language = $this -> _getLanguage();
         $m = D('QuestionView');
-        $start = $_SESSION['start'];
+		$where = array(
+            'status' => 1,
+            'language' => $language
+        );
+		$count = $m -> where($where) -> count();
+        $start = rand(0,$count-12);
         $where = array(
             'status' => 1,
             'language' => $language
         );
-        //$item = $m -> order('id desc') -> where($where) -> limit(0,12) -> select();
-        $item = $m -> where($where) -> limit(0,12) -> select();
+        $item = $m -> order('id desc') -> where($where) -> limit(0,18) -> select();
+		shuffle($item);
+        //$item = $m -> where($where) -> limit(0,12) -> select();
         $w_q = array(
             'id' => $qid,
             'status' => 1,
@@ -84,10 +93,12 @@ class IndexAction extends Action {
         if(isset($_POST['language']) && !empty($_POST['language'])){
             $language = $_POST['language'];
             $url = "http://".$language.".mytests.co";
+            //$qid = $_POST['id'];
+            //$url = "http://".$language.".mytests.co/question/id/".$qid;
             header("Location:".$url);
         }else{
             //$server_name = $_SERVER['SERVER_NAME'];
-            $server_name = "en.mytests.co";
+            $server_name = "zh.mytests.co";
             $language = explode('.',$server_name)[0];
             if($language == "www" || $language == "mytests" || $language == "Mytests"){
                 $language = "en";

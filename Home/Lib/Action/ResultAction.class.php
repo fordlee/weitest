@@ -139,10 +139,10 @@ class ResultAction extends Action {
 			$info['allFriends'] = $allFriends;
 
             $userInfo = $info['user_profile'];
-            $userInfo = json_decode(json_encode($userInfo),true);
+			$userInfo = json_decode(json_encode($userInfo),true);
             $this -> _storeUserInfo($userInfo);
-
-		    $info = json_decode(json_encode($info),true);
+		
+			$info = json_decode(json_encode($info),true);
 			$this->paintResult($fb,$info,$accessToken,$qid,$tag);exit;
         } else {
             $loginUrl = $helper->getLoginUrl('http://'.$_SERVER['SERVER_NAME'].'/Result/show'.($qid?'/id/'.$qid:''), $permissions);
@@ -191,7 +191,7 @@ class ResultAction extends Action {
 				'status' => 1,
 				'language' => $language
 			);
-			$item = $m -> where($where) -> limit(12) -> select();
+			$item = $m -> where($where) -> limit(20) -> select();
 			
 			$qitem = $m -> where(array('id' => $qid,'language' => $language)) -> find();
 			$where = array(
@@ -223,9 +223,9 @@ class ResultAction extends Action {
 				'qdid' => $qitem['qdid']
 			);
 			$filepath = $this -> _getFilename($path,$filenameArr);
-			//if(!file_exists($filepath)){
+			if(!file_exists($filepath)){
 				$this -> _createSavePic($info,$data,$filepath);
-			//}
+			}
 			
 			$filepath = $this -> _filepathSwap($filepath,$optionresult);
 			$sharePath = $this -> _getSharePath($filepath);
@@ -307,6 +307,7 @@ class ResultAction extends Action {
         
         //系统随机变量
         $_SESSION['_RAND']=array();
+        $_SESSION['_SRAND']=array();
 
         foreach ($data as $k => $v) {
             $content = $this -> _setSysParam($v['attribute']['content'],$info);
@@ -319,6 +320,7 @@ class ResultAction extends Action {
         }
         
         unset($_SESSION['_RAND']);
+        unset($_SESSION['_SRAND']);
         
         //保存图片
         imagejpeg($im,$filepath);
@@ -329,10 +331,12 @@ class ResultAction extends Action {
         if(isset($_POST['language']) && !empty($_POST['language'])){
             $language = $_POST['language'];
             $url = "http://".$language.".mytests.co";
+            //$qid = $_POST['id'];
+            //$url = "http://".$language.".mytests.co/question/id/".$qid;
             header("Location:".$url);
         }else{
             //$server_name = $_SERVER['SERVER_NAME'];
-            $server_name = "en.mytests.co";
+            $server_name = "zh.mytests.co";
             $language = explode('.',$server_name)[0];
             if($language == "www" || $language == "mytests" || $language == "Mytests"){
                 $language = "en";
@@ -352,16 +356,25 @@ class ResultAction extends Action {
         
         $location = $userInfo['location']['name'];
         $userInfo['location'] = $location;
-        
+
+        $itemArr=array('uid','name','first_name','last_name','gender','email','gender','birthday','location','user_picture');
+        foreach ($itemArr as $k => $v) {
+            if(!$userInfo[$v]){
+                $item[$v] = '';
+            }else{
+                $item[$v] = $userInfo[$v];
+            }
+        }
+
         $m_u = M('user');
         $isExist = $m_u -> where(array("uid" => $uid)) -> find();
         if($isExist != NULL){
-            $isUpdate = $m_u -> where($userInfo) -> find();
+            $isUpdate = $m_u -> where($item) -> find();
             if($isUpdate == NULL)
-                $m_u -> where(array("uid" => $uid)) -> save($userInfo);
+                $m_u -> where(array("uid" => $uid)) -> save($item);
         }else{
-            $userInfo['adddate'] = date('Y-m-d');
-            $m_u -> add($userInfo);
+            $item['adddate'] = date('Y-m-d');
+            $m_u -> add($item);
         }
 
     }
@@ -400,52 +413,52 @@ class ResultAction extends Action {
             $_paramArr=explode('.', $_sep[0]);
             $_fun=@$_sep[1];
 
-            //调用系统函数
+            //调用PHP系统函数
             if($_paramArr[0]=='SYSTEM'){
                 preg_match_all('/(\w+)/im', $_paramArr[1], $sysFun);
                 $sysFun=$sysFun[0][0];
                 $sysParam=$this -> _getStrParam($_paramArr[1]);
-
-                if($sysFun)$_param=@call_user_func_array($sysFun,$sysParam);
-
-                $content=str_replace('{#'.$value.'}', $_param, $content);
-                continue;
-            }
-
-            //获取系统变量
-            $_param=$apiData;
-            foreach ($_paramArr as $key1 => $value1) {
+                
+                if(!$sysFun)continue;
 
                 //处理数据中的随机数
-                preg_match_all('/^_?RAND(\((\d+)\))?/m', $value1, $match);
-                if($match[0]){
-
-                    $_index=$match[2][0];
-
-                    if(isset($_index)&&$_index!=''){ //获取已存的RAND数据
-                        $_rand=$_SESSION['_RAND'][$_index];
+                if($sysFun=='rand'||$sysFun=='_rand'){
+                    if($sysFun=='_rand'){//获取已存的SRAND数据
+                        $_param=@$_SESSION['_SRAND'][$sysParam[0]];
                     }else{
-                        $_len=count($_param);
-                        $_rand=rand(0,$_len-1);
-	
-                        //生成不重复随机数
-                        $_arr=range(0,$_len-1);
-                        $_sRand=$_SESSION['_RAND']?$_SESSION['_RAND']:array();
-                        $_arr=array_merge(array_diff($_arr,$_sRand),array_diff($_sRand,$_arr));
-                        $_len=count($_arr);
-                        $_rand=$_arr[rand(0,$_len-1)];
-
-                        array_push($_SESSION['_RAND'], $_rand);					
+                        $_param=$this -> _getUniqueRand($sysParam,'_SRAND');
                     }
-
-                    $_param=$_param[$_rand];
-                    continue;
+                }else{
+                    $_param=@call_user_func_array($sysFun,$sysParam);
                 }
 
-                $_param=@$_param[$value1];
-                if(empty($_param)){
-                    $_param='';
-                    break;
+            }else{
+
+                //获取用户数据系统变量
+                $_param=$apiData;
+                foreach ($_paramArr as $key1 => $value1) {
+                    //处理数据中的随机数
+                    preg_match_all('/^_?RAND(\((\d+)\))?/m', $value1, $match);
+                    if($match[0]){
+
+                        $_index=$match[2][0];
+
+                        if(isset($_index)&&$_index!=''){ //获取已存的RAND数据
+                            $_rand=$_SESSION['_RAND'][$_index];
+                        }else{
+                            $_len=count($_param);
+                            $_rand=$this ->_getUniqueRand(array(0,$_len),'_RAND');
+                        }
+
+                        $_param=$_param[$_rand];
+                        continue;
+                    }
+
+                    $_param=@$_param[$value1];
+                    if(empty($_param)){
+                        $_param='';
+                        break;
+                    }
                 }
             }
 
@@ -454,6 +467,7 @@ class ResultAction extends Action {
                 $_funArr=explode(';',$_fun);
 
                 foreach ($_funArr as $key2 => $value2) {
+
                     $_funSep=explode('=',$value2);
                     $_funParam=@$_funSep[1]?explode(',',$_funSep[1]):array();
 
@@ -463,6 +477,7 @@ class ResultAction extends Action {
                             $_funParam[$key3]=&$_param;
                         }
                     }
+
                     $_param=@call_user_func_array($_funSep[0],$_funParam);
                     unset($_funParam);
                 }
@@ -482,6 +497,23 @@ class ResultAction extends Action {
     private function _getStrParam($str){
         preg_match_all('/(\d+)/im', $str, $match);
         return $match[0];
+    }
+
+    //生成不重复随机数
+    private function _getUniqueRand($param,$SessionTag=''){
+        $min=$param[0];
+        $max=$param[1];
+
+        $_arr=range($min,$max);
+        $_sRand=$_SESSION[$SessionTag]?$_SESSION[$SessionTag]:array();
+
+        //var_dump($_arr);exit;
+        $_arr=array_merge(array_diff($_arr,$_sRand),array_diff($_sRand,$_arr));
+        $_len=count($_arr);
+        $_rand=@$_arr[rand(0,$_len-1)];
+
+        array_push($_SESSION[$SessionTag], $_rand);
+        return $_rand;
     }
 
 }

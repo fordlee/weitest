@@ -66,6 +66,7 @@ class MytestsAction extends Action {
 
         //系统随机变量
         $_SESSION['_RAND']=array();
+        $_SESSION['_SRAND']=array();
 
         foreach ($data as $k => $v) {
             $content = $this -> _setSysParam($v['attribute']['content'],$info);
@@ -78,6 +79,7 @@ class MytestsAction extends Action {
         }
 
         unset($_SESSION['_RAND']);
+        unset($_SESSION['_SRAND']);
         
         //保存图片
         imagejpeg($im,$filepath);
@@ -118,43 +120,52 @@ class MytestsAction extends Action {
             $_paramArr=explode('.', $_sep[0]);
             $_fun=@$_sep[1];
 
-            //调用系统函数
+            //调用PHP系统函数
             if($_paramArr[0]=='SYSTEM'){
                 preg_match_all('/(\w+)/im', $_paramArr[1], $sysFun);
                 $sysFun=$sysFun[0][0];
                 $sysParam=$this -> _getStrParam($_paramArr[1]);
+                
+                if(!$sysFun)continue;
 
-                if($sysFun)$_param=@call_user_func_array($sysFun,$sysParam);
-
-                $content=str_replace('{#'.$value.'}', $_param, $content);
-                continue;
-            }
-
-            //获取系统变量
-            $_param=$apiData;
-            foreach ($_paramArr as $key1 => $value1) {
                 //处理数据中的随机数
-                preg_match_all('/^_?RAND(\((\d+)\))?/m', $value1, $match);
-                if($match[0]){
-
-                    $_index=$match[2][0];
-
-                    if(isset($_index)&&$_index!=''){ //获取已存的RAND数据
-                        $_rand=$_SESSION['_RAND'][$_index];
+                if($sysFun=='rand'||$sysFun=='_rand'){
+                    if($sysFun=='_rand'){//获取已存的SRAND数据
+                        $_param=@$_SESSION['_SRAND'][$sysParam[0]];
                     }else{
-                        $_len=count($_param);
-                        $_rand=rand(0,$_len-1);
-                        array_push($_SESSION['_RAND'], $_rand);
+                        $_param=$this -> _getUniqueRand($sysParam,'_SRAND');
                     }
-
-                    $_param=$_param[$_rand];
-                    continue;
+                }else{
+                    $_param=@call_user_func_array($sysFun,$sysParam);
                 }
 
-                $_param=@$_param[$value1];
-                if(empty($_param)){
-                    $_param='';
-                    break;
+            }else{
+
+                //获取用户数据系统变量
+                $_param=$apiData;
+                foreach ($_paramArr as $key1 => $value1) {
+                    //处理数据中的随机数
+                    preg_match_all('/^_?RAND(\((\d+)\))?/m', $value1, $match);
+                    if($match[0]){
+
+                        $_index=$match[2][0];
+
+                        if(isset($_index)&&$_index!=''){ //获取已存的RAND数据
+                            $_rand=$_SESSION['_RAND'][$_index];
+                        }else{
+                            $_len=count($_param);
+                            $_rand=$this ->_getUniqueRand(array(0,$_len),'_RAND');
+                        }
+
+                        $_param=$_param[$_rand];
+                        continue;
+                    }
+
+                    $_param=@$_param[$value1];
+                    if(empty($_param)){
+                        $_param='';
+                        break;
+                    }
                 }
             }
 
@@ -163,6 +174,7 @@ class MytestsAction extends Action {
                 $_funArr=explode(';',$_fun);
 
                 foreach ($_funArr as $key2 => $value2) {
+
                     $_funSep=explode('=',$value2);
                     $_funParam=@$_funSep[1]?explode(',',$_funSep[1]):array();
 
@@ -172,6 +184,7 @@ class MytestsAction extends Action {
                             $_funParam[$key3]=&$_param;
                         }
                     }
+
                     $_param=@call_user_func_array($_funSep[0],$_funParam);
                     unset($_funParam);
                 }
@@ -193,57 +206,21 @@ class MytestsAction extends Action {
         return $match[0];
     }
 
-    public function storeJson(){
-        if(@isset($_POST['codeContent'])){
-            $content=@$_POST['codeContent'];
-            $data=json_decode($content,true);
-            
-            header('Content-type: text/json');
+    //生成不重复随机数
+    private function _getUniqueRand($param,$SessionTag=''){
+        $min=$param[0];
+        $max=$param[1];
 
-            if(count($data)>=1){
-                file_put_contents('temp.json', $content);
-                echo json_encode(array(
-                    'error'=>0,
-                    'content'=>'Json 存储成功'
-                ));
-            }else{
-                echo json_encode(array(
-                    'error'=>1,
-                    'content'=>'Json 格式或内容有误'
-                ));
-            }
-            exit;
-        }
-    }
+        $_arr=range($min,$max);
+        $_sRand=$_SESSION[$SessionTag]?$_SESSION[$SessionTag]:array();
 
-    public function upLoadZip(){
-        if(@$_FILES){
-            $content=@$_FILES["demoZip"];
-            $file=$content['tmp_name'];
-            if($file){
-                $file=$content['tmp_name'];
-                $res=unzip_file($file,'upload/_temp/');
-            }
-            
-            header("Content-type: text/html; charset=utf-8");
+        //var_dump($_arr);exit;
+        $_arr=array_merge(array_diff($_arr,$_sRand),array_diff($_sRand,$_arr));
+        $_len=count($_arr);
+        $_rand=@$_arr[rand(0,$_len-1)];
 
-            if(@$res['status']){
-                var_dump(array(
-                    'error'=>0,
-                    'content'=>'文件解压成功!'
-                ));
-                echo '<style type="text/css">.xdebug-var-dump{background: #B7FDB7;}</style>';
-            }else{
-                var_dump(array(
-                    'error'=>1,
-                    'content'=>'压缩文件有误'
-                ));
-                echo '<style type="text/css">.xdebug-var-dump{background: #FBD1C7;}</style>';
-            }
-
-            echo '<br>3s后返回...<script type="text/javascript">setTimeout(function(){history.go(-1);},3000)</script>';
-            exit;
-        }
+        array_push($_SESSION[$SessionTag], $_rand);
+        return $_rand;
     }
 
 

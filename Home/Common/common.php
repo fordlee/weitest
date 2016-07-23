@@ -1,15 +1,9 @@
 <?php
 
-function getAge($birthtime){
-	$nowtime = time();
-	$age = $nowtime - $birthtime;
-	return $age;
-}
-	
 function replaceLanguage($language){
 	switch ($language) {
 	    case 'zh':
-	        $arr = array(
+	        /*$arr = array(
 	            "login_txt" => "请登录Facebook以查看你的测试结果",
 	            "login" => "使用facebook登录",
 	            "share" => "分享到facebook",
@@ -18,6 +12,16 @@ function replaceLanguage($language){
 	            "facebook_like" => "https://www.facebook.com/Mytestsco-&#x4e2d;&#x56fd;-295349334145829",
 	            "description" => "点击这里！分享给你的小伙伴们围观！",
 	            "ogdescription" => "点击这里！分享给你的小伙伴们围观！",
+	        );*/
+			$arr = array(
+	            "login_txt" => "請登錄Facebook以查看你的測試結果",
+	            "login" => "使用facebook登錄",
+	            "share" => "分享到Facebook",
+	            "loading_txt" => "分析個人資料，正在計算您的結果...",
+	            "facebook_like_txt" => "請給我們點贊！" ,
+	            "facebook_like" => "https://www.facebook.com/Mytestsco-&#x4e2d;&#x56fd;-295349334145829",
+	            "description" => "點擊這裡！分享給你的小夥伴們圍觀！",
+	            "ogdescription" => "點擊這裡！分享給你的小夥伴們圍觀！",
 	        );
 	    break;
 	    case 'en':

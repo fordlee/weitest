@@ -148,5 +148,21 @@ class TestAction extends Action {
         var_dump($userInfo);
     }
 
+    public function getPokemon(){
+        $str = file_get_contents(UPLOADS_PATH.'/local/22/zh.txt');
+        $str = str_replace(PHP_EOL, ",", $str);
+        $arr = explode(",", $str);
+        $number = $_GET['num'];
+        var_dump($arr);
+        echo $arr[$number];
+    }
+
+    public function getConstellation(){
+        $info = file_get_contents(APP_PATH.'Conf/info.json');
+        $info = json_decode($info,true);
+        $birthday = date("m-d",strtotime($info['user_profile']['birthday']['date']));
+        echo $birthday;
+    }
+
 }
 ?>

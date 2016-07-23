@@ -2,7 +2,7 @@
 class FacebookPaint{
 
     //注入文字
-	public function injectText($im,$attribute,$content){
+	public function injectText($im,$attribute,$content=''){
 
 		$c=$this -> _parseColor($attribute['color']);
 		$font_color  = imagecolorallocate($im,$c[0],$c[1],$c[2]);
@@ -17,6 +17,13 @@ class FacebookPaint{
 				$im=$this -> _autoWrap($im,$attribute);
 				return $im;
 			}
+
+			if(preg_match('/bold/im', $value)>=1){//处理加粗
+				$attribute=$this->_setTextAxis($im,$attribute);//先处理文字位置
+				$im=$this -> _boldText($im,$attribute);
+				return $im;
+			}
+
 		}
 
 		//处理文字定位(center|right|bottom)
@@ -51,6 +58,8 @@ class FacebookPaint{
 				$_im=$this -> _colorPic($_im,$this -> _getStrParam($value));
 			}elseif(preg_match('/^emboss/im', $value)>=1){//改变浮雕
 				$_im=$this -> _emboss($_im);
+			}elseif(preg_match('/^bold/im', $value)>=1){//字体加粗
+				$_im=$this -> _boldText($_im,$this -> _getStrParam($value));
 			}
 		}
 
@@ -253,6 +262,35 @@ class FacebookPaint{
 		$b = $param[2];
 		imagefilter($im, IMG_FILTER_COLORIZE, $r, $g, $b);
 		return $im;
+	}
+
+	//字体加粗
+	private function _boldText($im,$attribute){
+		$_attribute=$attribute;
+		$_im=$im;
+
+		//Get the params
+		preg_match_all('/bold\(.*?\)/', $_attribute['func'], $match);
+		$match=$match[0][0];
+		$param=$this -> _getStrParam($match);
+
+		if(!$param[0])$param[0]=0;
+		if(!$param[1])$param[1]=0;
+
+		$_attribute['func']="";
+
+		$_im= $this -> injectText($_im,$_attribute,$_attribute['content']);
+
+		//reSet X,Y
+		$arr=array('x','y');
+		foreach ($arr as $key => $value) {
+			preg_match_all('/\d+/', $_attribute[$value], $matchs);
+			$_axis=$matchs[0][0]+$param[$key];
+			$_attribute[$value]=preg_replace('/\d+/', $_axis, $_attribute[$value]);
+		}
+
+		$_im=$this -> injectText($_im,$_attribute,$_attribute['content']);
+		return $_im;
 	}	
 
 	########################通用函数 START########################
@@ -282,7 +320,11 @@ class FacebookPaint{
 			$name=explode('?', $arr['basename']);
 			$name=$name[0];
 			$filename = $tmpHeader.'/'.$uid.'_'.$name;
-			if(!file_exists($filename)){
+
+			//将个人头像再次存储
+			$isRangeTime = $this -> _rangeTime(5*60*60);
+			$isUserPic = $this -> _is_UserPic($arr['dirname'],$isRangeTime);
+			if(!file_exists($filename) || $isUserPic){
 				$ret = file_get_contents($path);
         		$im=imagecreatefromstring($ret);
         		file_put_contents($filename, $ret);
@@ -296,6 +338,31 @@ class FacebookPaint{
 		
 		return $im;
 	}
+
+	private function _is_UserPic($url,$isRangeTime){
+		if(preg_match('/(p50x50)$/im', $url)){
+			return 0;
+		}else{
+			return $isRangeTime?1:0;
+		}
+	}
+
+	//返回时间间隔
+    private function _rangeTime($changeTime){
+        $currentTime = time();
+        if(isset($_SESSION['rangetime'])) {
+           if(($currentTime - $_SESSION['rangetime']) >= $changeTime) {
+                $_SESSION['rangetime'] = $currentTime;
+                return 1;
+           }else{
+           		$_SESSION['rangetime'] = $currentTime;
+           		return 0;
+           }
+        }else{
+            $_SESSION['rangetime'] = $currentTime;
+            return 1;
+        }
+    }
 
 	private function _createImgSource($path){
 		
@@ -438,7 +505,7 @@ class FacebookPaint{
 		$_attribute=$attribute;
 		foreach ($textArr as $key => $value) {
 			$_attribute['content']=$value;
-			$_attribute['func']='';
+			$_attribute['func']=preg_replace('/wrap\(.*?\)\|?/im', '', $_attribute['func']);
 			$textSize=$this -> _getTextSize($attribute);//获取文字大小
 			
 			preg_match_all('/\d+/', $_attribute['y'], $matchs);
@@ -451,6 +518,23 @@ class FacebookPaint{
 
 		unset($_attribute);
 		return $_im;
+	}
+
+	//生成不重复随机数
+	private function _getUniqueRand($param,$SessionTag=''){
+		$min=$param[0];
+		$max=$param[1];
+
+		$_arr=range($min,$max);
+		$_sRand=$_SESSION[$SessionTag]?$_SESSION[$SessionTag]:array();
+
+		//var_dump($_arr);exit;
+		$_arr=array_merge(array_diff($_arr,$_sRand),array_diff($_sRand,$_arr));
+		$_len=count($_arr);
+		$_rand=@$_arr[rand(0,$_len-1)];
+
+		array_push($_SESSION[$SessionTag], $_rand);
+		return $_rand;
 	}
 	
 }

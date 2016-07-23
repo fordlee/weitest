@@ -2,6 +2,7 @@
 return array(
 	//'配置项'=>'配置值'
 	'DEFAULT_MODULE' => 'Index', //默认模块
+	'LOAD_EXT_FILE'=>'age,pokemon',//载入自定义函数库
 	//URL不区分大小写
     'URL_CASE_INSENSITIVE' => true,
 	'DEFAULT_CHARSET' => 'utf-8', // 默认输出编码
