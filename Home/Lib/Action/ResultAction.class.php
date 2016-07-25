@@ -323,7 +323,7 @@ class ResultAction extends Action {
         unset($_SESSION['_SRAND']);
         
         //保存图片
-        imagejpeg($im,$filepath);
+        imagejpeg($im,$filepath,100);
         imagedestroy($im);
     }
 

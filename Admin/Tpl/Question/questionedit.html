@@ -22,6 +22,7 @@
 					<thead>
 						<tr>
 							<th class="center">ID</th>
+							<th class="center">语言</th>
 							<th class="center">题目标题</th>
 						</tr>
 					</thead>
@@ -30,14 +31,21 @@
 					<volist name="qitem" id="v">
 						<tr>
 							<td class="center">{$v.qid}</td>
-							<td >
-								<form action="{:U('Question/editquestionsave')}" method="post">
-									<input type="hidden" name="qdid" value="{$v.id}">
-									<input type="hidden" name="qid" value="{$v.qid}">
-									<input type="text" class="col-sm-10" name="content" value="{$v.content}">
-									<button type="submit" class="btn btn-xs btn-success">修改</button>
-								</form>
+							<form action="{:U('Question/editquestionsave')}" method="post">
+							<td class="center col-sm-1">
+								<select name="language">
+					                <option value="zh" <php>if($v['language'] == 'zh') echo "selected";</php>>中文</option>
+					                <option value="en" <php>if($v['language'] == 'en') echo "selected";</php>>English</option>
+					                <option value="pt" <php>if($v['language'] == 'pt') echo "selected";</php>>Portuguese</option>
+					            </select>
 							</td>
+							<td >
+								<input type="hidden" name="qdid" value="{$v.id}">
+								<input type="hidden" name="qid" value="{$v.qid}">
+								<input type="text" class="col-sm-10" name="content" value="{$v.content}">
+								<button type="submit" class="btn btn-xs btn-success">修改</button>
+							</td>
+							</form>
 						</tr>
 					</volist>
 					</tbody>

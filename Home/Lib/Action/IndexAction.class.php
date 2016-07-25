@@ -2,17 +2,21 @@
 // 本类由系统自动生成，仅供测试用途
 class IndexAction extends Action {
     public function index(){
-        //load('@.localLanJump');
-        //autoGo();
+        
     	$language = $this -> _getLanguage();
         $m = D('QuestionView');
         $where = array(
             'status' => 1,
             'language' => $language
         );
-        $item = $m -> order('id desc') -> where($where) -> limit(12) -> select();
-        var_dump($item);die();
-        //$item = $m -> where($where) -> limit(12) -> select();
+
+        $count = $m -> where($where) -> count();
+        import("ORG.Util.MyPage");//导入自定义分页类
+        $Page   = new Page($count, 12);
+        $item   = $m -> limit($Page->firstRow. ',' . $Page->listRows)->order('id desc')-> where($where)->select();        
+        $page = $Page->show();
+        
+        $this -> assign('page',$page);
         $this -> assign('language', $language);
 		$languageTp = replaceLanguage($language);
         $this -> assign('languageTp',$languageTp);
@@ -27,12 +31,14 @@ class IndexAction extends Action {
             'status' => 1,
             'language' => $language
         );
-        $count = $m -> where($where) -> count();
-        $start = rand(0,$count-12);
-        $item = $m -> order('id desc') -> where($where) -> limit($start,12) -> select();
-        //$item = $m -> where($where) -> limit($start,12) -> select();
 
-        $this -> assign('backflag',1);
+        $count = $m -> where($where) -> count();
+        import("ORG.Util.MyPage");//导入自定义分页类
+        $Page   = new Page($count, 12);
+        $item   = $m -> limit($Page->firstRow. ',' . $Page->listRows)-> where($where)->order('id desc')->select();       
+        $page = $Page->show();
+
+        $this -> assign('page',$page);
         $this -> assign('language', $language);
 		$languageTp = replaceLanguage($language);
         $this -> assign('languageTp',$languageTp);
@@ -44,27 +50,36 @@ class IndexAction extends Action {
 
         $qid = $_GET['id'];
 
-        //-------------
         if($questionId){
             $qid=$questionId;
             $this->assign('processTag',$processTag);
         }
         
     	$language = $this -> _getLanguage();
+
+        /*$sql = "select * from question order by rand() limit 18";
+        $m_q = M('question');
+        $m_q_d = M('question_detail');
+        $ret1 = $m_q -> query($sql);
+        foreach ($ret1 as $k => $v) {
+            if($v['status'] == 1){
+                $w = array(
+                    'language' => $language,
+                    'qid' => $v['id'] 
+                );
+                $ret2 = $m_q_d -> field(array('id' => 'qdid','qid','language','content')) -> where($w) -> find();
+                $item[$k] = array_merge($v,$ret2);
+            }
+        }var_dump($item);die(); */    
+
         $m = D('QuestionView');
 		$where = array(
             'status' => 1,
             'language' => $language
         );
-		$count = $m -> where($where) -> count();
-        $start = rand(0,$count-12);
-        $where = array(
-            'status' => 1,
-            'language' => $language
-        );
-        $item = $m -> order('id desc') -> where($where) -> limit(0,18) -> select();
+        
+        $item = $m -> order('id desc') -> where($where) -> limit(0,20) -> select();
 		shuffle($item);
-        //$item = $m -> where($where) -> limit(0,12) -> select();
         $w_q = array(
             'id' => $qid,
             'status' => 1,
@@ -108,5 +123,4 @@ class IndexAction extends Action {
         return $language;
     }
     
-
 }

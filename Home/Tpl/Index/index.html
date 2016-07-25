@@ -26,17 +26,9 @@
         <div id="container">
             <p class="as-title">Advertisement</p>
             <div id="middle-ad"></div>
-            <eq name="backflag" value="1">
-                <a href="javascript:void()" onclick="window.history.back(-1);" class="nextbtn">
-                    <img src="__PUBLIC__/mytests/img/arrowb1.png">
-                    <span>BACK</span>
-                </a>
-            </eq>
-            <a href="{:U('Index/next')}" class="nextbtn">
-                <span>NEXT</span>
-                <img src="__PUBLIC__/mytests/img/arrow1.png">
-            </a>
-            <br/>
+
+            <div>{$page}</div>
+
             <volist name="item" id="v">
                 <a href="{:U('Index/question')}/id/{$v.id}" class="container-box">
                     <img class="container-box-img" src="{:C('IMAGEQ_PATH')}/{$v.icon}">
@@ -51,16 +43,8 @@
                 <span></span>
             </div>
             <br/>
-            <eq name="backflag" value="1">
-            <a href="javascript:void()" onclick="window.history.back(-1);" class="nextbtn">
-                <img src="__PUBLIC__/mytests/img/arrowb1.png">
-                <span>BACK</span>
-            </a>
-            </eq>
-            <a href="{:U('Index/next')}" class="nextbtn" style="margin-bottom: 30px">
-                <span>NEXT</span>
-                <img src="__PUBLIC__/mytests/img/arrow1.png">
-            </a>
+            
+            <div>{$page}</div>
 
             <p class="as-title">Advertisement</p>
             <div id="bottom-ad" style="margin-bottom: 30px"></div>

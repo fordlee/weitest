@@ -14,7 +14,15 @@ class QuestionAction extends Action {
 
     public function questionlist(){
         $m_q = M('question');
-        $list = $m_q -> field('id,qcode,status') -> select();
+
+        import("ORG.Util.Page");//导入分页类
+        $count  = $m_q -> count();//计算总数
+        $Page   = new Page($count, 5);
+        $list   = $m_q -> limit($Page->firstRow. ',' . $Page->listRows)->order('id desc')-> field('id,qcode,status') -> select();
+        
+        // 设置分页显示
+        $Page->setConfig('header', '条数据');
+        $page = $Page->show();
 
         $m_q_d = M('question_detail');
         foreach ($list as $k => $v) {
@@ -22,6 +30,7 @@ class QuestionAction extends Action {
             $list[$k]['qd'] = $ret;
         }
         
+        $this -> assign('page', $page);
         $this -> assign('list', $list);
         $this -> display();
     }
@@ -67,8 +76,8 @@ class QuestionAction extends Action {
         $ret = $m_q -> add($item);
         
         if($ret != false){
-            //$this -> success('添加成功！','Question/questionlist');
-            $this -> success('添加成功！');
+            $this -> success('添加成功！','Question/questionlist');
+            //$this -> success('添加成功！');
         }else{
             $this -> error('添加失败！');
         }
@@ -230,12 +239,14 @@ class QuestionAction extends Action {
     public function editquestionsave(){
         $qdid = $_POST['qdid'];
         $qid = $_POST['qid'];
+        $language = $_POST['language'];
         $content = $_POST['content'];
 
         $m_q_d = M('question_detail');
         $newItem = array(
             "id" => $qdid,
             "qid" => $qid,
+            "language" => $language,
             "content" => $content
         );
 

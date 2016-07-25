@@ -68,7 +68,7 @@ class FacebookPaint{
 		}
 
 		//imagecopymerge($im, $_im, $attribute['x'], $attribute['y'], 0, 0, imagesx($_im), imagesy($_im), $attribute['alpha']); 
-		$this -> imagecopymerge_alpha($im, $_im, $attribute['x'], $attribute['y'], 0, 0, imagesx($_im), imagesx($_im), $attribute['alpha']);
+		$this -> imagecopymerge_alpha($im, $_im, $attribute['x'], $attribute['y'], 0, 0, imagesx($_im), imagesy($_im), $attribute['alpha']);
 		return $im;
 	}
 
@@ -173,7 +173,7 @@ class FacebookPaint{
 		$im_width = imagesx($im);
 		$im_height = imagesy($im);
 		//裁剪图宽高
-		$width = $im_width/$num;
+		$width = floor($im_width/$num);
 		$height = $im_height;
 		
 		//裁剪区域开始坐标
@@ -384,8 +384,8 @@ class FacebookPaint{
 
 	private function imagecopymerge_alpha($dst_im, $src_im, $dst_x, $dst_y, $src_x, $src_y, $src_w, $src_h, $pct){
 	    // creating a cut resource
-	    $cut = imagecreatetruecolor($src_w, $src_w);
-	    $cut = imagecreatetruecolor($src_w,$src_w);
+	    $cut = imagecreatetruecolor($src_w, $src_h);
+	    $cut = imagecreatetruecolor($src_w,$src_h);
 
 		$fff= imagecolorallocate($cut , 0 , 0 ,255);//拾取白色
 		imagecolortransparent($cut ,$fff );//把图片中白色设置为透明色
