@@ -9,7 +9,7 @@
 		<ul class="breadcrumb">
 			<li>
 				<i class="icon-home home-icon"></i>
-				<a href="#">题库管理</a>
+				<a href="{:U('Question/questionlist')}">题库管理</a>
 			</li>
 			<li class="active">详细设置</li>
 		</ul><!-- .breadcrumb -->
@@ -24,8 +24,10 @@
 					<thead>
 						<tr>
 							<th class="center">ID</th>
+							<th class="center">排序</th>
 							<th class="center">编号</th>
 							<th class="center">题目标题</th>
+							<th class="center">添加日期</th>
 							<th class="center">状态</th>
 						</tr>
 					</thead>
@@ -33,25 +35,34 @@
 					<tbody>
 						<volist name="list" id="v">
 						<tr>
-							<td class="center">{$v.id}</td>
-							<td class="center">{$v.qcode}</td>
+							<td class="center"><br>{$v.id}</td>
+							<td class="center" style="width:75px;">
+								<form action="{:U('setReorder')}" id="reorder_{$v.id}" method="post">
+									<input type="hidden" name="p" value="{$p}">
+									<input type = "hidden" name="qid" value="{$v.id}">
+									<br><input type="text" name="reorder" onchange="saveOrder('{$v.id}')" value="{$v.reorder}" style="width:50px;">
+								</form>
+							</td>
+							<td class="center"><br>{$v.qcode}</td>
 							<td >
 								<volist name="v['qd']" id="qdetail">
 									<font size="5">{$qdetail.content}</font>
-									[<a href="javascript:void()" onclick="addResult('{$qdetail.id}','{$qdetail.qid}', '{$qdetail.language}',&quot;{$qdetail.content}&quot;)">添加</a>&nbsp;<a href="{:U('Answer/editResult')}/qid/{$qdetail.qid}/qdid/{$qdetail.id}">修改</a>]
+									[<a href="javascript:void()" onclick="addResult('{$qdetail.id}','{$qdetail.qid}', '{$qdetail.language}',&quot;{$qdetail.content}&quot;)">添加</a>&nbsp;<a href="{:U('Answer/editResult')}/qid/{$qdetail.qid}/qdid/{$qdetail.id}/p/{$p}">修改</a>]
 									<br>
 								</volist>
 								<a href="javascript:void()" onclick="addQuestion('{$v.id}')" class="btn btn-xs btn-primary">添加标题</a>
-								<a href="{:U('Question/editQuestion')}/qid/{$v.id}" class="btn btn-xs btn-light">修改标题</a>
+								<a href="{:U('Question/editQuestion')}/qid/{$v.id}/p/{$p}" class="btn btn-xs btn-light">修改标题</a>
 							</td>
+							<td class="center"><br>{$v.date}</td>
 							<td class="center">
 								<form action="{:U('setStatus')}" method="post" >
+									<input type="hidden" name="p" value="{$p}">
 									<input type="hidden" name="qid" value="{$v.id}">
 									<input type="hidden" name="status" value="{$v.status}">
 									<if condition="$v.status eq 1">
-										<button type="submit" class="btn btn-sm btn-success">启用</button>
+										<br><button type="submit" class="btn btn-sm btn-success">启用</button>
 									<else/>
-										<button type="submit" class="btn btn-sm btn-danger">关闭</button>
+										<br><button type="submit" class="btn btn-sm btn-danger">关闭</button>
 									</if>
 								</form>
 							</td>
@@ -135,8 +146,8 @@
 								<div class="col-sm-2">
 									<select name="languageset">
 										<option value="zh">中文</option>
-										<option value="en">英语</option>
-										<option value="pt">葡语</option>
+										<option value="en">English</option>
+										<option value="pt">Portuguese</option>
 									</select>
 								</div>
 							</div>
@@ -176,6 +187,10 @@ $('.mask').click(function(e) {
 
 function addQuestionCode(){
 	window.location.href = "{:U('Question/questionentry')}";
+}
+
+function saveOrder(id){
+	$('#reorder_'+id).submit();
 }
 
 function addResult(qdid,qid,language,content){

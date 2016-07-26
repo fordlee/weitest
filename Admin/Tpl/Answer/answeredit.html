@@ -9,7 +9,7 @@
 		<ul class="breadcrumb">
 			<li>
 				<i class="icon-home home-icon"></i>
-				<a href="#">题库管理</a>
+				<a href="{:U('Question/questionlist')}">题库管理</a>
 			</li>
 			<li class="active">问题添加</li>
 		</ul><!-- .breadcrumb -->
@@ -29,10 +29,10 @@
 									中文
 								</option>
 								<option value="en" <php>if($qdItem['language'] == en)echo selected</php>>
-									英语
+									English
 								</option>
 								<option value="pt" <php>if($qdItem['language'] ==pt)echo selected</php>>
-									葡语
+									Portuguese
 								</option>
 							</select>
 						</div>

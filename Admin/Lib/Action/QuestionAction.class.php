@@ -14,14 +14,13 @@ class QuestionAction extends Action {
 
     public function questionlist(){
         $m_q = M('question');
+        
+        $p = $this -> _getp();
 
         import("ORG.Util.Page");//导入分页类
         $count  = $m_q -> count();//计算总数
         $Page   = new Page($count, 5);
-        $list   = $m_q -> limit($Page->firstRow. ',' . $Page->listRows)->order('id desc')-> field('id,qcode,status') -> select();
-        
-        // 设置分页显示
-        $Page->setConfig('header', '条数据');
+        $list   = $m_q -> limit($Page->firstRow. ',' . $Page->listRows)->order('id desc')-> field('id,reorder,qcode,status,date') -> select();
         $page = $Page->show();
 
         $m_q_d = M('question_detail');
@@ -30,6 +29,7 @@ class QuestionAction extends Action {
             $list[$k]['qd'] = $ret;
         }
         
+        $this -> assign('p', $p);
         $this -> assign('page', $page);
         $this -> assign('list', $list);
         $this -> display();
@@ -131,6 +131,16 @@ class QuestionAction extends Action {
         }
     }
 
+    private function _getp(){
+        if(isset($_GET['p']) && !empty($_GET['p'])){
+            $p = $_GET['p'];
+        }else{
+            $p = 1;
+        }
+
+        return $p;
+    }
+
     private function _getGeneralSet($data){
         $minechecked = $data['mine'];
         $friend1checked = $data['friend1'];
@@ -227,10 +237,12 @@ class QuestionAction extends Action {
 
     public function editQuestion(){
         $qid = $_GET['qid'];
-        
+        $p = $this -> _getp();
+
         $m_q_d = M('question_detail');
         $qitem = $m_q_d -> where(array("qid" => $qid)) -> select();
 
+        $this -> assign('p',$p);
         $this -> assign('qitem',$qitem);
         
         $this -> display('questionedit');
@@ -239,6 +251,7 @@ class QuestionAction extends Action {
     public function editquestionsave(){
         $qdid = $_POST['qdid'];
         $qid = $_POST['qid'];
+        $p = $_POST['p'];
         $language = $_POST['language'];
         $content = $_POST['content'];
 
@@ -255,7 +268,7 @@ class QuestionAction extends Action {
         if($ret == null){
             $ret1 = $m_q_d -> where(array("id" => $qdid)) -> save($newItem);
             if($ret1 != false){
-                $this -> success('修改成功！', 'questionlist');
+                $this -> success('修改成功！', 'questionlist/p/'.$p);
             }else{
                 $this -> error('修改失败！');
             }
@@ -267,6 +280,8 @@ class QuestionAction extends Action {
     public function setStatus(){
         $id = $_POST['qid'];
         $status = $_POST['status'];
+        $p = $_POST['p'];
+
         $m_q = M('question');
         if($status == 1){
             $item = array(
@@ -274,19 +289,44 @@ class QuestionAction extends Action {
                 'status' => 2
             );
 
-            $m_q -> save($item);
+            $ret = $m_q -> save($item);
+            if(!$ret){
+                $this -> error('设置失败！','questionlist/p/'.$p);
+            }
         }else{
             $item = array(
                 'id' => $id,
                 'status' => 1
             );
         
-            $m_q -> save($item);
+            $ret = $m_q -> save($item);
+            if(!$ret){
+                $this -> error('设置失败！','questionlist/p/'.$p);
+            }
         }
 
-        $this -> success('设置成功！','questionlist');
+        $this -> success('设置成功！','questionlist/p/'.$p);
     }
 
-    
+    public function setReorder(){
+        $id = $_POST['qid'];
+        $reorder = $_POST['reorder'];
+        $p = $_POST['p'];
+        
+        $m_q = M('question');
+        $item = array(
+            'id' => $id,
+            'reorder' => $reorder
+        );
+
+        $ret = $m_q -> where('id='.$id) -> save($item);
+
+        if($ret != false){
+            $this -> success('设置成功！','questionlist/p/'.$p);
+        }else{
+            $this -> error('设置失败！','questionlist/p/'.$p);
+        }
+
+    }
 
 }

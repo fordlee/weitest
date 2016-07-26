@@ -13,7 +13,7 @@ class IndexAction extends Action {
         $count = $m -> where($where) -> count();
         import("ORG.Util.MyPage");//导入自定义分页类
         $Page   = new Page($count, 12);
-        $item   = $m -> limit($Page->firstRow. ',' . $Page->listRows)->order('id desc')-> where($where)->select();        
+        $item   = $m -> limit($Page->firstRow. ',' . $Page->listRows)->order('reorder desc,id desc')-> where($where)->select();        
         $page = $Page->show();
         
         $this -> assign('page',$page);
@@ -35,7 +35,7 @@ class IndexAction extends Action {
         $count = $m -> where($where) -> count();
         import("ORG.Util.MyPage");//导入自定义分页类
         $Page   = new Page($count, 12);
-        $item   = $m -> limit($Page->firstRow. ',' . $Page->listRows)-> where($where)->order('id desc')->select();       
+        $item   = $m -> limit($Page->firstRow. ',' . $Page->listRows)-> where($where)->order('reorder desc,id desc')->select();       
         $page = $Page->show();
 
         $this -> assign('page',$page);
@@ -55,22 +55,7 @@ class IndexAction extends Action {
             $this->assign('processTag',$processTag);
         }
         
-    	$language = $this -> _getLanguage();
-
-        /*$sql = "select * from question order by rand() limit 18";
-        $m_q = M('question');
-        $m_q_d = M('question_detail');
-        $ret1 = $m_q -> query($sql);
-        foreach ($ret1 as $k => $v) {
-            if($v['status'] == 1){
-                $w = array(
-                    'language' => $language,
-                    'qid' => $v['id'] 
-                );
-                $ret2 = $m_q_d -> field(array('id' => 'qdid','qid','language','content')) -> where($w) -> find();
-                $item[$k] = array_merge($v,$ret2);
-            }
-        }var_dump($item);die(); */    
+    	$language = $this -> _getLanguage();   
 
         $m = D('QuestionView');
 		$where = array(
@@ -78,7 +63,7 @@ class IndexAction extends Action {
             'language' => $language
         );
         
-        $item = $m -> order('id desc') -> where($where) -> limit(0,20) -> select();
+        $item = $m -> order('reorder desc,id desc') -> where($where) -> limit(0,18) -> select();
 		shuffle($item);
         $w_q = array(
             'id' => $qid,

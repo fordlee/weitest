@@ -31,6 +31,10 @@ function getAgeYear($birthdate){
 	return $birthY;
 }
 
+function getYour($birthdate,$path){
 
+	$str = file_get_contents(UPLOADS_PATH.'/local/'.$path);
+	//$arr = 
+}
 
 ?>

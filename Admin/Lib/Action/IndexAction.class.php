@@ -41,25 +41,21 @@ class IndexAction extends Action {
         if(isset($_POST['language']) && !empty($_POST['language'])){
             $language = $_POST['language'];
         }else{
-            $language = 'zh';
+            $language = 'en';
         }
+
+        $m_q = M('Question');
         $m = D('QuestionView');
-        $item = $m -> where(array('language' => $language)) -> select();
 
-        $m_a = M('answer');
-        foreach ($item as $k => $v) {
-            $where = array(
-                'qid' => $v['qid'],
-                'qdid' => $v['qdid']
-            );
-            $results = $m_a -> where($where) -> select();
-            $item[$k]['results'] = $results;
-
-            $generalset = json_decode($v['generalset'],true);
-            $item[$k]['generalset'] = $generalset;
-        }
+        import("ORG.Util.Page");//导入分页类
+        $count  = $m_q -> count();//计算总数
+        $Page   = new Page($count, 12);
+        $item   = $m_q -> limit($Page->firstRow. ',' . $Page->listRows) -> order('reorder desc,id desc') -> where(array('language' => $language)) -> select();        
+        $page = $Page->show();
         
+        $this -> assign('page', $page);
         $this -> assign('item', $item);
+
         $this -> display();
     }
 

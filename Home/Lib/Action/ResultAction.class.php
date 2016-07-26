@@ -302,7 +302,7 @@ class ResultAction extends Action {
     private function _createSavePic($info,$data,$filepath){
         import('ORG.Util.Image.FacebookPaint');
         $image = new FacebookPaint();
-        $imgfile=IMAGE_PATH.'/test.jpg';
+        $imgfile=UPLOADS_PATH.'/local/white.jpg';
         $im=imagecreatefromjpeg($imgfile);
         
         //系统随机变量
