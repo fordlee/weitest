@@ -52,6 +52,7 @@ $(function(){
 
 		if(_this.hasClass('FBshare')){
 			action="FB_share";
+			id=id+"_"+_this.attr('fid');
 		}
 		sentEvent(cata,action,id);
 	});

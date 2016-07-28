@@ -16,7 +16,8 @@
 	</div>
 
 	<div class="page-content">
-		<button onclick="addQuestionCode()" class="btn btn-xs btn-success">添加编号</button><br><br>
+		<button onclick="addQuestionCode()" class="btn btn-xs btn-success">添加编号</button>&nbsp;&nbsp;
+		<button onclick="delpic()" class="btn btn-xs btn-light">删除答图</button><br><br>
 		<div>{$page}</div>
 		<div class="row">
 			<div class="col-xs-12">
@@ -77,6 +78,7 @@
 		            	<form action="{:U('Answer/answerentrysave')}" method="post" enctype="multipart/form-data" class="form-horizontal" >
 							<input type="hidden" name="qdid" id="qdid">
 							<input type="hidden" name="qid" id="qid">
+							<input type="hidden" name="p" value="{$p}">
 							<div class="form-group">
 								<label class="col-sm-2 control-label no-padding-right" for="languageset">语言：</label>
 								<div class="col-sm-2">
@@ -141,6 +143,7 @@
 	        		<div class="question_body">
 	        			<form action="{:U('Question/addQuestion')}" method="post" class="form-horizontal" >
 							<input type="hidden" name="qid" id="questionid">
+							<input type="hidden" name="p" value="{$p}">
 							<div class="form-group">
 								<label class="col-sm-2 control-label no-padding-right" for="languageset">语言：</label>
 								<div class="col-sm-2">
@@ -171,6 +174,34 @@
 	        		</div>
 	        	</div>
 
+	        	<div id="delpic_dialog" class="question_dialog" style="display:none">
+	        		<div class="mask"></div>
+	        		<div class="question_body">
+	        			<form action="{:U('Question/delpic')}" method="post" class="form-horizontal" >
+	        				<div class="form-group">
+								<label class="col-sm-2 control-label no-padding-right">uid:</label>
+								<div class="col-sm-10">
+									<input type="text" name="uid" placeholder="请输入用户uid" class="col-sm-6" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label no-padding-right">qid:</label>
+								<div class="col-sm-10">
+									<input type="text" name="qid" placeholder="请输入题号" class="col-sm-6" />
+								</div>
+							</div>
+							<span style="color:red">以上文本框至少有一个不为空<span>
+							<div class="form-group">
+								<div class="col-sm-2">
+									<input type="reset" class="btn btn-light pull-right" value="重置">
+								</div>
+								<div class="col-sm-7">
+									<input type="submit" class="btn btn-primary pull-right" value="确认">
+								</div>
+							</div>
+	        			</form>
+	        		</div>
+	        	</div>
 			</div>
 		</div>
 
@@ -182,6 +213,7 @@
 $('.mask').click(function(e) {
    $('#dialog').hide();
    $('#question_dialog').hide();
+   $('#delpic_dialog').hide();
    //window.location.reload();
 });
 
@@ -210,6 +242,10 @@ function addResult(qdid,qid,language,content){
 function addQuestion(qid){
 	$('#questionid').val(qid);
 	$('#question_dialog').show();
+}
+
+function delpic(){
+	$('#delpic_dialog').show();
 }
 
 function addAnswerPic(obj){

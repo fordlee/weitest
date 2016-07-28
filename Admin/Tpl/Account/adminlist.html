@@ -44,8 +44,12 @@
 								<td class="center">{$v.email}</td>
 								<td class="center">{$v.telephone}</td>
 								<td class="center">
+								<eq name="v.email" value="$_SESSION['email']">
 									<a href="{:U('edit')}/id/{$v.id}">编辑</a>&nbsp;
 									<a href="{:U('del')}/id/{$v.id}" onclick="return del()">删除</a>
+								<else/>
+									/
+								</eq>
 								</td>
 							</tr>
 						</volist>

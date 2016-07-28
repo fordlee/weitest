@@ -56,10 +56,10 @@ class AccountAction extends Action {
         if((isset($_POST['email']) && !empty($_POST['email']))
             &&(isset($_POST['password']) && !empty($_POST['password']))){
             $id = $_POST['id'];
-            $name = $_POST['fullname'];
+            $name = $_POST['name'];
             $email = $_POST['email'];
             $password = $_POST['password'];
-            $telephone = $_POST['tel'];
+            $telephone = $_POST['telphone'];
             $level = $_POST['level'];
             $item = array(
                 "id" => $id,
@@ -68,11 +68,16 @@ class AccountAction extends Action {
                 "password" => $password,
                 "telephone" => $telephone
             );
+            
             $m = M('admin');
             $ret = $m -> where($item) -> find();
             if($ret == null){
-                $m -> where('id='.$id) -> save($item);
-                $this -> success('修改成功！','adminlist');
+                $isSave = $m -> where(array("id" => $id,"email" => $_SESSION['email'])) -> save($item);
+                if($isSave){
+                    $this -> success('修改成功！','adminlist');
+                }else{
+                    $this -> error('你不能够修改他人信息！','adminlist');
+                }
             }else{
                 $this -> error('没有修改内容！');
             }
@@ -81,7 +86,6 @@ class AccountAction extends Action {
             $email = $_SESSION['email'];
             $m = M('admin');
             $ret = $m -> where('id='.$id) -> find();
-            
             $this -> assign('item',$ret);
             $this -> display();
             

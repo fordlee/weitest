@@ -60,6 +60,8 @@ class FacebookPaint{
 				$_im=$this -> _emboss($_im);
 			}elseif(preg_match('/^bold/im', $value)>=1){//字体加粗
 				$_im=$this -> _boldText($_im,$this -> _getStrParam($value));
+			}elseif(preg_match('/^bold/im', $value)>=1){//调节对比度
+				$_im=$this -> _contrastPic($_im,$this -> _getStrParam($value));
 			}
 		}
 
@@ -264,6 +266,13 @@ class FacebookPaint{
 		return $im;
 	}
 
+	//调节对比度
+	private function _contrastPic($im, $param){
+		$constrast = $param[0];
+		imagefilter($im, IMG_FILTER_CONTRAST,$constrast);
+		return $im;
+	}
+
 	//字体加粗
 	private function _boldText($im,$attribute){
 		$_attribute=$attribute;
@@ -304,9 +313,23 @@ class FacebookPaint{
 	    return $arr;
 	}
 	
+	private function getHTTPS($url) {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		curl_setopt($ch, CURLOPT_HEADER, false);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_REFERER, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		$result = curl_exec($ch);
+		curl_close($ch);
+		return $result;
+	}
+
 	//获取图片类型并创建相应图片资源 $im=getImgSource('test.jpg');
 	private function _getImgSource($path){
 		if(preg_match('/^(http|https)/im', $path)){
+
 			$uid =  $_SESSION['uid'];
 			$foldername = substr($uid,-2);
 	        $tmpHeader = UPLOADS_PATH.'/tmp/'.$foldername;
@@ -324,10 +347,11 @@ class FacebookPaint{
 			//将个人头像再次存储
 			$isRangeTime = $this -> _rangeTime(5*60*60);
 			$isUserPic = $this -> _is_UserPic($arr['dirname'],$isRangeTime);
+
 			if(!file_exists($filename) || $isUserPic){
-				$ret = file_get_contents($path);
+				$ret = $this->getHTTPS($path);
         		$im=imagecreatefromstring($ret);
-        		file_put_contents($filename, $ret);
+        		if($ret)file_put_contents($filename, $ret);
 			}else{
 				$im = $this -> _createImgSource($filename);
 			}

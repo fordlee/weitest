@@ -159,8 +159,50 @@ class TestAction extends Action {
     public function getConstellation(){
         $info = file_get_contents(APP_PATH.'Conf/info.json');
         $info = json_decode($info,true);
-        $birthday = date("m-d",strtotime($info['user_profile']['birthday']['date']));
-        echo $birthday;
+        $birthdayM = date("m",strtotime($info['user_profile']['birthday']['date']));
+        $birthdayD = date("d",strtotime($info['user_profile']['birthday']['date']));
+        $constellation_name = $this -> constellation(5,12);
+
+        echo $constellation_name;
+    }
+
+    public function constellation($month, $day) {
+        // 检查参数有效性 
+        if ($month < 1 || $month > 12 || $day < 1 || $day > 31) return false;
+
+        // 星座名称以及开始日期
+        $constellations = array(
+            array( "20" => "水瓶座"),
+            array( "19" => "双鱼座"),
+            array( "21" => "白羊座"),
+            array( "20" => "金牛座"),
+            array( "21" => "双子座"),
+            array( "22" => "巨蟹座"),
+            array( "23" => "狮子座"),
+            array( "23" => "处女座"),
+            array( "23" => "天秤座"),
+            array( "24" => "天蝎座"),
+            array( "23" => "射手座"),
+            array( "22" => "摩羯座")
+        );
+
+        list($constellation_start, $constellation_name) = each($constellations[(int)$month-1]);
+
+        if ($day < $constellation_start) list($constellation_start, $constellation_name) = each($constellations[($month -2 < 0) ? $month = 11: $month -= 2]);
+
+        return $constellation_name;
+    }
+
+    public function getFilemtime(){
+        $changetime = filemtime(UPLOADS_PATH."/2.txt");
+        $changetime = date("Y-m-d H:i:s",$changetime);
+        echo $changetime;
+    }
+
+    public function delfile(){
+        $file = './Uploads/image/01/231721203887791_3_7.jpg';
+
+        @unlink($file);
     }
 
 }

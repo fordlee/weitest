@@ -18,7 +18,7 @@
     <meta property="og:image:height" content="420"/>
 
     <title>{$qitem.content}</title>
-    <link href="__PUBLIC__/mytests/css/question.css?t=2" rel="stylesheet" type="text/css">
+    <link href="__PUBLIC__/mytests/css/question.css?t=9" rel="stylesheet" type="text/css">
 </head>
 <body>
 <div id="header" class="header">
@@ -53,7 +53,7 @@
             <h1>{$qitem.content}</h1>
             <neq name="Think.const.ACTION_NAME" value="analyze">
                 <if condition="$path neq NULL">
-                    <a href="javascript:;" class="FBshare" onclick="share('{$qid}','{$sharePath}')">
+                    <a href="javascript:;" class="FBshare" onclick="share('{$qid}','{$sharePath}')" fid="{$uid}">
                         <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
                         <span>{$languageTp.share}</span>
                         <div></div>
@@ -90,7 +90,7 @@
                 </a>
                 <else/>
                 <span>{$languageTp.description}</span><br>
-                <a href="javascript:;" class="CSS FBshare" onclick="share('{$qid}','{$sharePath}')">
+                <a href="javascript:;" class="CSS FBshare" onclick="share('{$qid}','{$sharePath}')" fid="{$uid}">
                     <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
                     <span>{$languageTp.share}</span>
                     <div></div>
@@ -175,10 +175,16 @@
 
 function share(qid,pic){
     var url=encodeURIComponent('http://'+location.host+'/index.php/index/question/id/'+qid+'?tag=share&pic='+pic);
+	var utm=getQueryString('utm');
+	if(utm)url=url+'&utm='+utm;
     openwindow('https://www.facebook.com/sharer/sharer.php?u='+url,'',800,500);
 
 }
-
+function getQueryString(name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]); return null;
+}
 function openwindow(url,name,iWidth,iHeight){
     var url;
     var name;
@@ -232,4 +238,4 @@ analyze();
 }(document, 'script', 'facebook-jssdk'));
 </script>
 </html>
-<script type="text/javascript" src="__PUBLIC__/mytests/js/common.js?t=3"></script>
+<script type="text/javascript" src="__PUBLIC__/mytests/js/common.js?t=5"></script>

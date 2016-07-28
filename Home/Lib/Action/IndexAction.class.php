@@ -67,7 +67,6 @@ class IndexAction extends Action {
 		shuffle($item);
         $w_q = array(
             'id' => $qid,
-            'status' => 1,
             'language' => $language
         );
         $qitem = $m -> where($w_q) -> find();

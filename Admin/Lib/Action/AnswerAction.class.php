@@ -12,15 +12,29 @@ class AnswerAction extends Action {
         }
     }
 
+    private function _getp(){
+        if(isset($_GET['p']) && !empty($_GET['p'])){
+            $p = $_GET['p'];
+        }else{
+            $p = 1;
+        }
+
+        return $p;
+    }
+
     public function answerentry(){
     	$qid = $_GET['id'];
-        
+
+        $p = $this -> _getp();
+
+        $this -> assign('p', $p);
     	$this -> assign('qid', $qid);
     	$this -> display();
     }
 
     public function answerentrysave(){
         $optionset = $_POST['optionset'];
+        $p = $_POST['p'];
         if(!in_array('', $optionset)){
             import('ORG.Net.UploadFile');
             $upload = new UploadFile();
@@ -56,10 +70,10 @@ class AnswerAction extends Action {
                     $m_a -> add($item);
                 }
             }
-
-            $this -> success('操作成功！', U('Question/questionlist'));
+            
+            $this -> success('操作成功！', U('Question/questionlist').'/p/'.$p);
         }else{
-            $this -> error('选项设置不能为空！',U('Question/questionlist'));
+            $this -> error('选项设置不能为空！',U('Question/questionlist').'/p/'.$p);
         }
         
     }
@@ -67,13 +81,14 @@ class AnswerAction extends Action {
     public function editResult(){
         $qid = $_GET['qid'];
         $qdid = $_GET['qdid'];
-
+        $p = $this -> _getp();
         $m_q_d = M('question_detail');
         $m_a = M('answer');
 
         $qdItem = $m_q_d -> where(array('id' => $qdid)) -> find();
         $aItem = $m_a -> where(array('qid' => $qid, 'qdid' => $qdid)) -> select();
         
+        $this -> assign('p', $p);
         $this -> assign('qdItem', $qdItem);
         $this -> assign('aItem', $aItem);
         
@@ -82,6 +97,7 @@ class AnswerAction extends Action {
 
     public function answereditsave(){
         $optionset = $_POST['optionset'];
+        $p = $_POST['p'];
         if(!in_array('', $optionset)){
             import('ORG.Net.UploadFile');
             $upload = new UploadFile();
@@ -113,9 +129,10 @@ class AnswerAction extends Action {
                 $item['optionresult'] = $option[$k];
                 $m_a -> where(array('id' => $aids[$k])) -> save($item);
             }
-            $this -> success('操作成功！', U('Question/questionlist'));
+            
+            $this -> success('操作成功！', U('Question/questionlist').'/p/'.$p);
         }else{
-            $this -> error('选项内容不能为空！',U('Question/questionlist'));
+            $this -> error('选项内容不能为空！',U('Question/questionlist').'/p/'.$p);
         }
     }
 

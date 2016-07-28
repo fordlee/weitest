@@ -165,8 +165,8 @@ class ResultAction extends Action {
         $info = file_get_contents(APP_PATH.'Conf/info.json');
         $info = json_decode($info,true);
 
-        $userInfo = $info['user_profile'];
-        $this -> _storeUserInfo($userInfo);
+        //$userInfo = $info['user_profile'];
+        //$this -> _storeUserInfo($userInfo);
 
         $this->paintResult($fb,$info,$accessToken,$qid,$tag);exit;
     }
@@ -223,7 +223,11 @@ class ResultAction extends Action {
 				'qdid' => $qitem['qdid']
 			);
 			$filepath = $this -> _getFilename($path,$filenameArr);
-			if(!file_exists($filepath)){
+
+            //获取图片修改时间
+            $isOverTime = $this -> _getAnswerPicLastChangeTime($filepath,24*60*60);
+
+			if(!file_exists($filepath) || $isOverTime){
 				$this -> _createSavePic($info,$data,$filepath);
 			}
 			
@@ -241,6 +245,7 @@ class ResultAction extends Action {
 			$this -> assign('qitem',$qitem);
 			$this -> assign('item',$item);
 			$this -> assign('qid',$qid);
+            $this -> assign('uid',$uid);
 
 			if($tag=='analyze'){//AJAX异步后台处理程序
             	header('Content-type:text/json');
@@ -268,6 +273,18 @@ class ResultAction extends Action {
 
         }	
 
+    }
+
+    private function _getAnswerPicLastChangeTime($filepath,$rangetime){
+        if(filemtime($filepath)){
+            $lastchangetime = filemtime($filepath);
+            $nowtime = time();
+            if(($nowtime - $lastchangetime) < $rangetime){
+                return 0;
+            }
+        }
+        
+        return 1; 
     }
 
     private function _getFilename($path, $filenameArr){

@@ -423,6 +423,7 @@ body,html{
     #header-hidden{
         display: block;
     }
+	.lan-switch{display:none;}
 }
 @media screen and (max-width: 750px){
     .container-patch-box,.container-vice-box{
@@ -456,6 +457,7 @@ body,html{
         width: auto;
         height: 100%;
     }
+	.header-home{display:none!important;}
 }
 @media screen and (max-width: 500px){
     .container-patch-box {
@@ -468,7 +470,6 @@ body,html{
     #container-content{
         height: 435px;
     }
-
 }
 @media screen and (max-width: 400px){
     .container-vice-box{
