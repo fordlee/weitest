@@ -15,10 +15,8 @@ class MytestsAction extends Action {
 
     public function paintResult(){
         $info = $this -> facebookLogin();
-        //var_dump($info);
         $data = file_get_contents(UPLOADS_PATH.'/answer.json');
         $data = json_decode($data,true);
-        //var_dump($data);die();
         $uid = $info['user_profile']['id'];
         $_SESSION['uid'] = $uid;
         $foldername = substr($uid,-2);
@@ -40,9 +38,9 @@ class MytestsAction extends Action {
         
 
         $filepath = $this -> _filepathSwap($filepath);
-        //$this -> assign('srcPath',$filepath);
-        //$this -> display('demo');
-        echo "<img src='$filepath'>";
+
+        echo json_encode(array("srcpath" => $filepath));
+        //echo "<img src='$filepath'>";
     }
 
     private function _getFilename($path, $filenameArr){
@@ -61,7 +59,7 @@ class MytestsAction extends Action {
     private function _createSavePic($info,$data,$filepath){
         import('ORG.Util.Image.FacebookPaint');
         $image = new FacebookPaint();
-        $imgfile=IMAGE_PATH.'/test.jpg';
+        $imgfile=UPLOADS_PATH.'/local/white.jpg';
         $im=imagecreatefromjpeg($imgfile);
 
         //系统随机变量
@@ -223,6 +221,79 @@ class MytestsAction extends Action {
         return $_rand;
     }
 
+    private function unzip_file($file, $destination){
+        $zip = new ZipArchive() ;
+        if ($zip->open($file) !== TRUE) {
+            return array(
+                'status'=>false,
+                'info'=>"无法打开压缩文件！(请检查压缩包)"
+            );
+        }
 
+        $zip->extractTo($destination);
+        $zip->close();
+        return array(
+            'status'=>true,
+            'info'=>"文件成功解压！"
+        );
+    }
+
+    public function upLoadZipFile(){
+        if(@$_FILES){
+            $content=@$_FILES["demoZip"];
+            $file=$content['tmp_name'];
+            if($file){
+                $file=$content['tmp_name'];
+                $res=$this -> unzip_file($file,UPLOADS_PATH.'/local/');
+            }
+            
+            header("Content-type: text/html; charset=utf-8");
+
+            if(@$res['status']){
+                var_dump(array(
+                    'error'=>0,
+                    'content'=>'文件解压成功!'
+                ));
+                echo '<style type="text/css">.xdebug-var-dump{background: #B7FDB7;}</style>';
+            }else{
+                var_dump(array(
+                    'error'=>1,
+                    'content'=>'压缩文件有误'
+                ));
+                echo '<style type="text/css">.xdebug-var-dump{background: #FBD1C7;}</style>';
+            }
+
+            echo '<br>3s后返回...<script type="text/javascript">setTimeout(function(){history.go(-1);},3000)</script>';
+            exit;
+        }
+    }
+
+    public function storeCodeContent(){
+        if(@isset($_POST['codeContent'])){
+            $content=@$_POST['codeContent'];
+            $data=json_decode($content,true);
+            
+            header('Content-type: text/json');
+
+            if(count($data)>=1){
+                file_put_contents(UPLOADS_PATH.'/answer.json', $content);
+                
+                $this -> paintResult();
+            }else{
+                $this -> error('输入为空！',U('Mytests/index'));
+            }
+            exit;
+        }
+
+        $this -> redirect('Mytests/index');
+    }
+
+    private function _getAdminId(){
+        $m = M('admin');
+        $email = $_SESSION['email'];
+        $item = $m -> where(array("email" => $email)) -> find();
+
+        return $item['id'];
+    }
 }
 ?>

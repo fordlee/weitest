@@ -32,5 +32,15 @@ return array(
 	'IMAGEA_PATH' => '/Uploads/imgA',
 	'LOG_RECORD' => true, // 开启日志记录    
 	'LOG_RECORD_LEVEL' => array('EMERG','ALERT','CRIT','ERR')
+
+	/*'TMPL_CACHE_ON' =>true, //是否开启模板编译缓存 
+	'HTML_CACHE_ON'=>true, // 开启静态缓存	
+	'HTML_PATH' => GROUP_NAME,//静态缓存文件目录，HTML_PATH可任意设置，此处设为当前项目下新建的html目录
+    'HTML_FILE_SUFFIX'  =>  '.html', // 设置静态缓存后缀为.shtml
+    'HTML_CACHE_RULES'=> array(
+		'index:index'=>array('{$_SERVER.HTTP_HOST}_{:group}_{:module}_{:action}_{id}_{p}','172800'),
+		//'index:question'=>array('{$_SERVER.HTTP_HOST}_{:group}_{:module}_{:action}_{id}','172800'),
+		'result:analyze'=>array('{$_SERVER.HTTP_HOST}_{:group}_{:module}_{:action}_{id}','172800')
+    )*/
 );
 ?>

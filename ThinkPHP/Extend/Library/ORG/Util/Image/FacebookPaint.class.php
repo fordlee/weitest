@@ -29,7 +29,11 @@ class FacebookPaint{
 		//处理文字定位(center|right|bottom)
 		$attribute=$this -> _setTextAxis($im,$attribute);
 		
-		ImageTTFText($im, $attribute['size'], 0, $attribute['x'], $attribute['y'], $font_color, $attribute['font'], $content);
+		if(empty($attribute['angle'])){
+			$attribute['angle'] = 0;
+		}
+
+		ImageTTFText($im, $attribute['size'], $attribute['angle'], $attribute['x'], $attribute['y'], $font_color, $attribute['font'], $content);
 		//header('Content-Type: image/png');imagepng($im);exit;
 		return $im;
 	}
@@ -60,8 +64,8 @@ class FacebookPaint{
 				$_im=$this -> _emboss($_im);
 			}elseif(preg_match('/^bold/im', $value)>=1){//字体加粗
 				$_im=$this -> _boldText($_im,$this -> _getStrParam($value));
-			}elseif(preg_match('/^bold/im', $value)>=1){//调节对比度
-				$_im=$this -> _contrastPic($_im,$this -> _getStrParam($value));
+			}elseif(preg_match('/^filter/im', $value)>=1){//调节对比度
+				$_im=$this -> _filterPic($_im,$this -> _getStrParam($value));
 			}
 		}
 
@@ -266,12 +270,72 @@ class FacebookPaint{
 		return $im;
 	}
 
-	//调节对比度
-	private function _contrastPic($im, $param){
-		$constrast = $param[0];
-		imagefilter($im, IMG_FILTER_CONTRAST,$constrast);
-		return $im;
+	//调节图像效果
+	/*IMG_FILTER_NEGATE：将图像中所有颜色反转。
+	IMG_FILTER_GRAYSCALE：将图像转换为灰度的。
+	IMG_FILTER_BRIGHTNESS：改变图像的亮度。用 arg1 设定亮度级别。
+	IMG_FILTER_CONTRAST：改变图像的对比度。用 arg1 设定对比度级别。
+	IMG_FILTER_COLORIZE：与 IMG_FILTER_GRAYSCALE 类似，不过可以指定颜色。用 arg1，arg2 和 arg3 分别指定 red，blue 和 green。每种颜色范围是 0 到 255。
+	IMG_FILTER_EDGEDETECT：用边缘检测来突出图像的边缘。
+	IMG_FILTER_EMBOSS：使图像浮雕化。
+	IMG_FILTER_GAUSSIAN_BLUR：用高斯算法模糊图像。
+	IMG_FILTER_SELECTIVE_BLUR：模糊图像。
+	IMG_FILTER_MEAN_REMOVAL：用平均移除法来达到轮廓效果。
+	IMG_FILTER_SMOOTH：使图像更柔滑。用 arg1 设定柔滑级别。*/
+	private function _filterPic($im,$param){
+		$effect = $param[0];
+		switch($effect){
+		    case 'negate'://将图像中所有颜色反转
+		        imagefilter($im , IMG_FILTER_NEGATE);
+		        return $im;
+		    break;
+		    case 'grayscale'://将图像转换为灰度的
+		        imagefilter($im , IMG_FILTER_GRAYSCALE);
+		        return $im;
+		    break;
+		    case 'brightness'://改变图像的亮度
+		    	$bright = $paran[1];
+		    	imagefilter($im, IMG_FILTER_BRIGHTNESS,$bright);
+		    	return $im;
+		    break;
+		    case 'contrast'://改变图像的对比度
+		    	$contrast = $param[1];
+		        imagefilter($im , IMG_FILTER_CONTRAST,$contrast);
+		        return $im;
+		    break;
+		    case 'colorize'://改变图片颜色
+		    	$r=$param[1];$g=$param[2];$b=$param[3];
+		        imagefilter($im , IMG_FILTER_COLORIZE,$r,$g,$b);
+		        return $im;
+		    break;
+		    case 'edgedetect'://用边缘检测来突出图像的边缘
+		    	imagefilter($im, IMG_FILTER_EDGEDETECT);
+		    	return $im;
+		    break;
+		    case 'emboss'://图像浮雕化
+		        imagefilter($im , IMG_FILTER_EMBOSS);
+		        return $im;
+		    break;    
+		    case 'gaussian'://高斯算法模糊图像
+		        imagefilter($im , IMG_FILTER_GAUSSIAN_BLUR);
+		        return $im;
+		    break; 
+		    case 'selective'://模糊图像
+		    	imagefilter($im, IMG_FILTER_SELECTIVE_BLUR);
+		    	return $im;
+		    break;
+		    case 'removal'://用平均移除法来达到轮廓效果
+		    	imagefilter($im, IMG_FILTER_MEAN_REMOVAL);
+		    	return $im;
+		    break;
+		    case 'smooth'://使图像更柔滑
+		    	$smooth = $param[1];
+		    	imagefilter($im, IMG_FILTER_SMOOTH);
+		    	return $im;
+		    break;
+		}
 	}
+
 
 	//字体加粗
 	private function _boldText($im,$attribute){
@@ -425,8 +489,13 @@ class FacebookPaint{
 	}
 
 	//获取函数参数列表
-	private function _getStrParam($str){
-		preg_match_all('/(\d+)/im', $str, $match);
+	private	function _getStrParam($str){
+		$pos=strpos($str,'(');
+		if($pos>=0){
+			$_str=explode('(', $str);
+			$str=$_str[1];
+		}
+		preg_match_all('/(\w+)/im', $str, $match);
 		return $match[0];
 	}
 

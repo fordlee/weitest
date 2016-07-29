@@ -13,7 +13,40 @@ class IndexAction extends Action {
         $count = $m -> where($where) -> count();
         import("ORG.Util.MyPage");//导入自定义分页类
         $Page   = new Page($count, 12);
-        $item   = $m -> limit($Page->firstRow. ',' . $Page->listRows)->order('reorder desc,id desc')-> where($where)->select();        
+        //添加广告参数调用
+        if(isset($_GET['aid']) && !empty($_GET['aid'])){
+            $arr = explode('_', $_GET['aid']);            
+            foreach ($arr as $k => $v) {
+                $w = array(
+                    'status' => 1,
+                    'language' => $language,
+                    'id' => $v
+                );
+                $notqid[$k] = $v;
+                if(!isset($_GET['p']) || $_GET['p'] == 1){
+                    $_item=$m -> limit($Page->firstRow.','. $Page->listRows)-> where($w)->find();
+                    if($_item){
+                        $aditem[$k] = $_item;
+                    }
+                }
+            }
+
+            //'id' => array(array('exp','NOT IN('.implode(',', $notqid).')'),array('exp',' is NOT NULL'),'AND')
+            $where = array(
+                'status' => 1,
+                'language' => $language,
+                'id' => array('not in',$notqid)
+            );
+        }
+        
+        $item = $m -> limit($Page->firstRow.','. $Page->listRows)->order('reorder desc,id desc')-> where($where)->select();        
+        
+        //添加广告参数调用
+        if(isset($_GET['aid']) && !empty($_GET['aid'])){
+            for($i=count($aditem)-1,$j=0;$i>=$j;$i--){
+                array_unshift($item, $aditem[$i]);
+            }
+        }
         $page = $Page->show();
         
         $this -> assign('page',$page);

@@ -18,23 +18,8 @@ class IndexAction extends Action {
     }
 
     public function test(){
-        $m = M('admin');
-        $email = $_SESSION['email'];
-        $item = $m -> where(array("email" => $email)) -> find();
-        switch ($item['id']) {
-            case 1:
-                header('Location:http://'.$_SERVER['HTTP_HOST'].'/test/demo1/demo.html');
-                break;
-            case 2:
-                header('Location:http://'.$_SERVER['HTTP_HOST'].'/test/demo2/demo.html');
-                break;
-            case 3:
-                header('Location:http://'.$_SERVER['HTTP_HOST'].'/test/demo3/demo.html');
-                break;
-            default:
-                header('Location:http://'.$_SERVER['HTTP_HOST'].'/test/demo/demo.html');
-                break;
-        }
+
+        $this -> display('Mytests/demo');
     }
 
     public function gallery(){

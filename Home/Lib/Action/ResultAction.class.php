@@ -374,7 +374,7 @@ class ResultAction extends Action {
         $location = $userInfo['location']['name'];
         $userInfo['location'] = $location;
 
-        $itemArr=array('uid','name','first_name','last_name','gender','email','gender','birthday','location','user_picture');
+        $itemArr=array('uid','name','first_name','last_name','gender','email','birthday','location','user_picture');
         foreach ($itemArr as $k => $v) {
             if(!$userInfo[$v]){
                 $item[$v] = '';
@@ -510,9 +510,15 @@ class ResultAction extends Action {
         return $content;
     }
 
+
     //获取函数参数列表
     private function _getStrParam($str){
-        preg_match_all('/(\d+)/im', $str, $match);
+        $pos=strpos($str,'(');
+        if($pos>=0){
+            $_str=explode('(', $str);
+            $str=$_str[1];
+        }
+        preg_match_all('/(\w+)/im', $str, $match);
         return $match[0];
     }
 
