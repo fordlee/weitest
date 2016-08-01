@@ -1,4 +1,5 @@
 <?php
+
 function getAgeSeconds($birthdate){
 	$birthtime = strtotime($birthdate);
 	$nowtime = time();
@@ -30,6 +31,10 @@ function getAgeYear($birthdate){
 	return $birthY;
 }
 
-
+function getYourLikeAge($birthdate){
+	$birthY = getAgeYear($birthdate);
+	$likeage = rand($birthY-5,$birthY+10);
+	return $likeage;
+}
 
 ?>

@@ -18,7 +18,7 @@
     <meta property="og:image:height" content="420"/>
 
     <title>{$qitem.content}</title>
-    <link href="__PUBLIC__/mytests/css/question.css?t=9" rel="stylesheet" type="text/css">
+    <link href="__PUBLIC__/mytests/css/question.css?t=20" rel="stylesheet" type="text/css">
 </head>
 <body>
 <div id="header" class="header">
@@ -44,7 +44,17 @@
 
 <div id="up-ad">
 <p>Advertisement</p>
-<div></div>
+<div>
+	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+	<!-- Mytest-970x90-top -->
+	<ins class="adsbygoogle"
+		 style="display:inline-block;width:970px;height:90px"
+		 data-ad-client="ca-pub-3961823097646209"
+		 data-ad-slot="5558272509"></ins>
+	<script>
+	(adsbygoogle = window.adsbygoogle || []).push({});
+	</script>	
+</div>
 </div>
 
 <div id="container">
@@ -57,7 +67,11 @@
                         <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
                         <span>{$languageTp.share}</span>
                         <div></div>
-                    </a>
+                    </a>&nbsp;&nbsp;
+					<div class="fb-share">
+						<div class="fb-like" data-href="{$languageTp.facebook_like}" data-layout="button_count" data-action="like" data-size="large" data-show-faces="false" data-share="false">
+						</div>
+					</div>
                 </if>
             </neq>
             <div class="fb-banner">
@@ -67,17 +81,17 @@
                         <span>{$languageTp.loading_txt}</span><br>
                         <span style='margin-top: 15px;display: inline-block;font-weight: bold;position: relative;bottom: -20px;'>{$languageTp.facebook_like_txt}</span>
                     <else/>
-                        <img alt="{$qitem.content}" src="{:C('IMAGEQ_PATH')}/{$qitem.bgpic}" id="resultpic" style="width:100%">
+                        <img alt="{$qitem.content}" src="{:C('IMAGEQ_PATH')}/{$qitem.bgpic}" id="resultpic" style="width:100%;cursor:pointer"  onclick="share('{$qid}','{$sharePath}')" fid="{$uid}">
                     </eq>
                 <else/>
-                <img src="{$path}"  alt="{$qitem.content}" id="resultpic" style="width:100%">
+                <img src="{$path}"  alt="{$qitem.content}" id="resultpic" style="width:100%;cursor:pointer" onclick="share('{$qid}','{$sharePath}')" fid="{$uid}">
                 </if>
             </div>
             <div id="FbLogin">
                 <div class="fb-share">
-                    <div class="fb-like" data-href="{$languageTp.facebook_like}" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="false">
+                    <div class="fb-like" data-href="{$languageTp.facebook_like}" data-layout="button_count" data-action="like" data-size="large" data-show-faces="false" data-share="false">
                     </div>
-                </div>
+                </div><br>
                 <eq name="Think.const.ACTION_NAME" value="analyze">
                 <img src="__PUBLIC__/mytests/img/loadarrow.gif"/>
                 </eq>
@@ -89,7 +103,7 @@
                     <span>{$languageTp.login}</span>
                 </a>
                 <else/>
-                <span>{$languageTp.description}</span><br>
+                <span style="display:block;">{$languageTp.description}</span>
                 <a href="javascript:;" class="CSS FBshare" onclick="share('{$qid}','{$sharePath}')" fid="{$uid}">
                     <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
                     <span>{$languageTp.share}</span>
@@ -107,7 +121,17 @@
     <div id="container-vice">
         <div class="as_336x280" style="margin-top:-12px">
             <p class="as-title">Advertisement</p>
-            <div class="as-content"></div>
+            <div class="as-content">
+				<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+				<!-- Mytest-question-336x280-right -->
+				<ins class="adsbygoogle"
+					 style="display:inline-block;width:336px;height:280px"
+					 data-ad-client="ca-pub-3961823097646209"
+					 data-ad-slot="2465205302"></ins>
+				<script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+				</script>
+			</div>
         </div>
 
         <volist name="item" id="v" offset="12" length="6">
@@ -124,7 +148,17 @@
     <div id="container-patch">
         <div class="as_600x300">
             <p class="as-title">Advertisement</p>
-            <div class="ad-content"></div>
+            <div class="ad-content">
+				<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+				<!-- Mytest-question-600x300 -->
+				<ins class="adsbygoogle"
+					 style="display:inline-block;width:600px;height:300px"
+					 data-ad-client="ca-pub-3961823097646209"
+					 data-ad-slot="6895404901"></ins>
+				<script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+				</script>
+			</div>
         </div>
 
         <div id="title">You May Like</div>
@@ -144,7 +178,17 @@
 
             <div class="as_336x280">
                 <p class="as-title">Advertisement</p>
-                <div class="as-content"></div>
+                <div class="as-content">
+					<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+					<!-- Mytest-question-336x280-bot -->
+					<ins class="adsbygoogle"
+						 style="display:inline-block;width:336px;height:280px"
+						 data-ad-client="ca-pub-3961823097646209"
+						 data-ad-slot="9988472102"></ins>
+					<script>
+					(adsbygoogle = window.adsbygoogle || []).push({});
+					</script>
+				</div>
             </div>
 
             <div class="patch-list patch-list_bottom">
@@ -174,9 +218,10 @@
 <script type="text/javascript">
 
 function share(qid,pic){
-    var url=encodeURIComponent('http://'+location.host+'/index.php/index/question/id/'+qid+'?tag=share&pic='+pic);
+    var url=encodeURIComponent('http://'+location.host+'/index/question/id/'+qid+'?tag=share&pic='+pic);
 	var utm=getQueryString('utm');
 	if(utm)url=url+'&utm='+utm;
+
     openwindow('https://www.facebook.com/sharer/sharer.php?u='+url,'',800,500);
 
 }
@@ -205,13 +250,13 @@ function analyze(){
             location.href=response.loginUrl;
         }else{
             var timeNow=new Date().getTime(),diff=(timeNow-timeFlag)/1000;
-            if(diff>6){
+            if(diff>7){
                 location.href=resultUrl;
             }else{
                 console.log(diff);
                 setTimeout(function(){
                     location.href=resultUrl;
-                },(6-diff)*1000);
+                },(7-diff)*1000);
             }
         }
     });
@@ -233,9 +278,9 @@ analyze();
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) return;
   js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/zh_CN/sdk.js#xfbml=1&version=v2.7";
+  js.src = "//connect.facebook.net/{$languageTp.code}/sdk.js#xfbml=1&version=v2.7&appId=1053226548106670";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));
 </script>
 </html>
-<script type="text/javascript" src="__PUBLIC__/mytests/js/common.js?t=5"></script>
+<script type="text/javascript" src="__PUBLIC__/mytests/js/common.js?t=15"></script>

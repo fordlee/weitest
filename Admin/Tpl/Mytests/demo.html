@@ -31,6 +31,9 @@
 		width: 150px;height: 50px;line-height: 50px;color: #fff;background: #3B5998;border:solid 1px #29487D;border-radius: 4px;font-size: 16px;font-weight: bold;
 	}
 	#demoArea button:hover{background:#29487D;cursor: pointer; }
+	#demoArea a{
+		width: 150px;height: 50px;line-height: 50px;color: #fff;background: #3B5998;border:solid 1px #29487D;border-radius: 4px;font-size: 16px;font-weight: bold;
+	}
 	#demoArea form{
 		margin-top: 20px;
 	}
@@ -56,7 +59,8 @@
 			<form action="{:U('Mytests/upLoadZipFile')}" method="post" enctype="multipart/form-data" class="wj">
 				<input type="file" name="demoZip"/>
 				<input type="hidden" name="file" value="demoZip"/>
-				<button>上传文件(.zip)</button>
+				<button>上传文件(.zip)</button><br><br>
+				<a href="{:U('Question/questionlist')}" >返回</a>
 			</form>
 		</div>
 	</div>	
@@ -65,10 +69,9 @@
 	$('#demoArea button:eq(0)').click(function(){
 		var content=$('#codeContent').val();
 		$.post("{:U('Mytests/storeCodeContent')}",{codeContent:content},function(response){
-			//console.log(response);
 			if(response.srcpath){
 				$('#demoImg').hide();
-				$('#demoImg').attr('src','http://'+location.host+'/'+response.srcpath);
+				$('#demoImg').attr('src','http://'+location.host+'/'+response.srcpath+'?t='+Math.floor(Math.random()*100+1));
 				$('#demoImg').fadeIn();
 			}else{
 				alert(response.content);

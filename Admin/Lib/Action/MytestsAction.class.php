@@ -15,7 +15,9 @@ class MytestsAction extends Action {
 
     public function paintResult(){
         $info = $this -> facebookLogin();
-        $data = file_get_contents(UPLOADS_PATH.'/answer.json');
+        $filepath = $this -> _getAdminFilePath();
+        //$data = file_get_contents(UPLOADS_PATH.'/answer.json');
+        $data = file_get_contents($filepath.'/answer.json');
         $data = json_decode($data,true);
         $uid = $info['user_profile']['id'];
         $_SESSION['uid'] = $uid;
@@ -26,12 +28,12 @@ class MytestsAction extends Action {
         if(!is_dir($path)){
             mkdir($path,0777,true);
         }
-
+        $adminInfo = $this -> _getAdminInfo();
         //判断本地文件
         $filenameArr = array(
             'uid'  => $info['user_profile']['id'],
-            'qid'  => 'qt',
-            'qdid' => 'qdt'
+            'qid'  => $adminInfo['id'],
+            'qdid' => $adminInfo['name']
         );
         $filepath = $this -> _getFilename($path,$filenameArr);
         $this -> _createSavePic($info,$data,$filepath);
@@ -200,7 +202,12 @@ class MytestsAction extends Action {
 
     //获取函数参数列表
     private function _getStrParam($str){
-        preg_match_all('/(\d+)/im', $str, $match);
+        $pos=strpos($str,'(');
+        if($pos>=0){
+            $_str=explode('(', $str);
+            $str=$_str[1];
+        }
+        preg_match_all('/(\w+)/im', $str, $match);
         return $match[0];
     }
 
@@ -276,7 +283,20 @@ class MytestsAction extends Action {
             header('Content-type: text/json');
 
             if(count($data)>=1){
-                file_put_contents(UPLOADS_PATH.'/answer.json', $content);
+                $filepath = $this -> _getAdminFilePath();
+                
+                //生成文件夹
+                if(!is_dir($filepath)){
+                    mkdir($filepath,0777,true);
+                }
+
+                $filename = $filepath.'/answer.json';
+                if(!file_exists($filename)){
+                     $fp=fopen($filename,"w");
+                     fclose($fp);
+                }
+
+                file_put_contents($filename, $content);
                 
                 $this -> paintResult();
             }else{
@@ -288,12 +308,19 @@ class MytestsAction extends Action {
         $this -> redirect('Mytests/index');
     }
 
-    private function _getAdminId(){
+    private function _getAdminFilePath(){
+        $item = $this -> _getAdminInfo();
+        $filepath = UPLOADS_PATH.'/json/'.$item['name'].'_'.$item['id'];
+        
+        return $filepath;
+    }
+
+    private function  _getAdminInfo(){
         $m = M('admin');
         $email = $_SESSION['email'];
         $item = $m -> where(array("email" => $email)) -> find();
 
-        return $item['id'];
+        return $item;
     }
 }
 ?>

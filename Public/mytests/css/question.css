@@ -1,6 +1,6 @@
 body,html{
     font-family:'Helvetica Neue', 'Hiragino Sans GB', 'Segoe UI', 'Microsoft Yahei', 微软雅黑, Tahoma, Arial, STHeiti, sans-serif;
-    background-color: #e6eaef;
+    background-color: #e6eaef;overflow-x:hidden;
 }
 *{
     margin:0px;
@@ -149,7 +149,7 @@ body,html{
 #up-ad div{
     max-width: 1000px;
     height: 90px;
-    background: #c242f1;
+    background: #f3f5f7;
     margin: 0px auto;
 }
 #container-content{
@@ -168,12 +168,19 @@ body,html{
 }
 .fb-banner{
     width: 100%;
-    margin: 30px auto;
+    margin: 8px auto;
     max-width: 650px;
 }
 .fb-share{
     margin-top: 10px;
     margin-bottom: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: inline-block;
+    border: solid 9px #FFFFE4;
+    border-radius: 8px;
+    overflow: hidden;
+	vertical-align: middle;
 }
 #container-content p{
     font-size: 21px;
@@ -207,7 +214,7 @@ body,html{
 .as_600x300 div{
     max-width: 600px;
     height: 300px;
-    background: #c242f1;
+    background: #f3f5f7;
     margin: 0px auto;
     margin-bottom: 20px;
 }
@@ -267,7 +274,7 @@ body,html{
 #bottom-ad{
     max-width: 336px;
     height: 280px;
-    background: #c242f1;
+    background: #f3f5f7;
     margin: 0px auto;
     margin-bottom: 20px;
 }
@@ -306,7 +313,7 @@ body,html{
 .as_336x280 div{
     max-width: 336px;
     height: 280px;
-    background: #c242f1;
+    background: #f3f5f7;
     margin: 5px auto;
 }
 #container-vice{
@@ -467,9 +474,6 @@ body,html{
         width: 100%;
         height: auto;
     }
-    #container-content{
-        height: 435px;
-    }
 }
 @media screen and (max-width: 400px){
     .container-vice-box{
@@ -498,7 +502,7 @@ body,html{
         height: 100%;
     }
 }
-.as-title,#middle-ad,#right-ad,#bottom-ad,#up-ad,.as_336x280,.as_600x300{display:none!important;}
+.as-title,#middle-ad,#right-ad,#bottom-ad,#up-ad,.as_336x280,.as_600x300{__display:none!important;}
 .container-box-btn,#header,.container-box-btn:hover,.container-vice-box-btn{__background-color: #067f94!important;__border-color:#067f94!important;}
 
 .FBshare{position:relative;}

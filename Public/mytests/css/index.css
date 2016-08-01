@@ -1,6 +1,6 @@
 body,html{
     font-family:'Helvetica Neue', 'Hiragino Sans GB', 'Segoe UI', 'Microsoft Yahei', 微软雅黑, Tahoma, Arial, STHeiti, sans-serif;
-    background-color: #e6eaef;
+    background-color: #e6eaef;overflow-x:hidden;
 }
 *{
     margin:0px;
@@ -75,7 +75,7 @@ body,html{
     width: 90%;
     max-width: 970px;
     height: 90px;
-    background-color: #c242f1;
+    background-color: #f3f5f7;
     position: relative;
     margin: 0px auto;
 }
@@ -157,19 +157,19 @@ body,html{
 }
 #right-ad{
     position: absolute;
-    right: -100px;
+    right: -90px;
     top: 170px;
 }
 #right-ad span{
-    background: #c242f1;
-    width: 150px;
-    height: 900px;
+    background: #f3f5f7;
+    width: 160px;
+    height: 600px;
     display: inline-block;
 }
 #bottom-ad{
-    width: 300px;
-    height: 250px;
-    background: #c242f1;
+    width: 336px;
+    height: 280px;
+    background: #f3f5f7;
     margin: 0px auto;
 }
 #footer{
@@ -261,7 +261,7 @@ body,html{
     }
 }
 
-.as-title,#middle-ad,#right-ad,#bottom-ad,#up-ad,.as_336x280,.as_600x300{display:none!important;}
+.as-title,#middle-ad,#right-ad,#bottom-ad,#up-ad,.as_336x280,.as_600x300{__display:none!important;}
 .container-box-btn,#header,.container-box-btn:hover{__background-color: #067f94!important;__border-color:#067f94!important;}
 
 

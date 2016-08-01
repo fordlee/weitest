@@ -118,10 +118,34 @@ function getCharacter($birthdate,$language){
     $constellation_no = getConstellation($birthdate);
     $str = file_get_contents(UPLOADS_PATH.'/local/27/'.$language.'/'.$constellation_no.".txt");
     $arr = explode("|", $str);
-    $number = rand(0,count($arr));
     
+    //$number = rand(0,count($arr)-1);
+    $_len=count($arr);
+    $number = getUniqueRand(array(0,$_len-1),'num');
+
     return $arr[$number];
 } 
 
+function getUniqueRand($param,$SessionTag=''){
+    if(!$_SESSION[$SessionTag]){
+        $_SESSION[$SessionTag]=array();
+    }
+    $min=$param[0];
+    $max=$param[1];
 
+    $_arr=range($min,$max);
+    $_sRand=$_SESSION[$SessionTag]?$_SESSION[$SessionTag]:array();
+    $_arr=array_merge(array_diff($_arr,$_sRand),array_diff($_sRand,$_arr));
+
+    $_len=count($_arr);
+    $_rand=$_arr[rand(0,$_len-1)];
+
+    array_push($_SESSION[$SessionTag], $_rand);
+
+    if(count($_SESSION[$SessionTag])>=17){
+        unset($_SESSION[$SessionTag]);
+    }
+    
+    return $_rand;
+}
 ?>
