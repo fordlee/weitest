@@ -194,6 +194,13 @@ class ResultAction extends Action {
 			$item = $m -> where($where) -> limit(20) -> select();
 			
 			$qitem = $m -> where(array('id' => $qid,'language' => $language)) -> find();
+
+            if($_GET['tag']=='share'){
+                $qitem['title']=$qitem['content'];
+            }else{
+                $qitem['title']=$qitem['content'].' - '.$languageTp['index_title'];
+            }
+
 			$where = array(
 				'qdid' => $qitem['qdid'],
 				'qid'  => $qitem['qid']
@@ -234,8 +241,8 @@ class ResultAction extends Action {
 			$filepath = $this -> _filepathSwap($filepath,$optionresult);
 			$sharePath = $this -> _getSharePath($filepath);
 			$shareUrl = $this -> _getShareUrl($sharePath,$qid);
-			
 			$ogimage = 'http://'.$_SERVER['HTTP_HOST'].$filepath;
+
 			$this -> assign('ogimage',$ogimage);
 			$this -> assign('path',$filepath);
 			$this -> assign('sharePath',$sharePath);
@@ -311,8 +318,7 @@ class ResultAction extends Action {
 
     private function _filepathSwap($filepath,$optionresult){
         $filepath = str_replace('./', '/', $filepath);
-        //$filepath = json_encode(array('path' => $filepath.'?t='.rand(1,100), 'result' => $optionresult));
-		$filepath = $filepath.'?t='.rand(1,100);
+        
         return $filepath;
     }
 

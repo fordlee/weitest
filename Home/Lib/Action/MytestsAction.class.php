@@ -37,11 +37,9 @@ class MytestsAction extends Action {
         );
         $filepath = $this -> _getFilename($path,$filenameArr);
         $this -> _createSavePic($info,$data,$filepath);
-        
 
         $filepath = $this -> _filepathSwap($filepath);
-        //$this -> assign('srcPath',$filepath);
-        //$this -> display('demo');
+        
         echo "<img src='$filepath'>";
     }
 
@@ -61,7 +59,7 @@ class MytestsAction extends Action {
     private function _createSavePic($info,$data,$filepath){
         import('ORG.Util.Image.FacebookPaint');
         $image = new FacebookPaint();
-        $imgfile=IMAGE_PATH.'/test.jpg';
+        $imgfile=UPLOADS_PATH.'/local/white.jpg';
         $im=imagecreatefromjpeg($imgfile);
 
         //系统随机变量

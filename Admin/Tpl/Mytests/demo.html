@@ -57,10 +57,10 @@
 			<button>刷新图片</button>
 
 			<form action="{:U('Mytests/upLoadZipFile')}" method="post" enctype="multipart/form-data" class="wj">
-				<input type="file" name="demoZip"/>
+				<input type="file" name="demoZip" />
 				<input type="hidden" name="file" value="demoZip"/>
-				<button>上传文件(.zip)</button><br><br>
-				<a href="{:U('Question/questionlist')}" >返回</a>
+				<button type="submit">上传文件(.zip)</button><br><br>
+				<a href="{:U('Question/questionlist')}">返回</a>
 			</form>
 		</div>
 	</div>	
@@ -79,7 +79,7 @@
 		})
 	})
 
-	$('#demoArea button:eq(1)').click(function(){
+	/*$('#demoArea button:eq(1)').click(function(){
 		return;
 		var data=new FormData($("form[name='demoZip']")[0]);
 
@@ -101,7 +101,7 @@
 		}).fail(function(response) {
 			console.log(response);
 		});
-	})
+	})*/
 
 </script>
 </html>

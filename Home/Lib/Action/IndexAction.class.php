@@ -89,6 +89,7 @@ class IndexAction extends Action {
         }
         
     	$language = $this -> _getLanguage();   
+        $languageTp = replaceLanguage($language);
 
         $m = D('QuestionView');
 		$where = array(
@@ -104,6 +105,12 @@ class IndexAction extends Action {
         );
         $qitem = $m -> where($w_q) -> find();
 
+        if($_GET['tag']=='share'){
+            $qitem['title']=$qitem['content'];
+        }else{
+            $qitem['title']=$qitem['content'].' - '.$languageTp['index_title'];
+        }
+        
 		$ogimage = 'http://'.$_SERVER['HTTP_HOST'].C('IMAGEQ_PATH').'/'.$qitem['bgpic'];
         $pic=$_GET['pic'];
         if($pic){
@@ -114,7 +121,6 @@ class IndexAction extends Action {
         $this -> assign('ogimage',$ogimage);     
         $this -> assign('qid', $qid);
         $this -> assign('language', $language);
-		$languageTp = replaceLanguage($language);
         $this -> assign('languageTp',$languageTp);
         $this -> assign('item', $item);
         $this -> assign('qitem', $qitem);

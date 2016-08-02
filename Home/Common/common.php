@@ -1,4 +1,10 @@
 <?php
+function defaults($data,$default){
+	if(!$data){
+		return $default;
+	}
+	return $data;
+}
 
 function replaceLanguage($language){
 	switch ($language) {
