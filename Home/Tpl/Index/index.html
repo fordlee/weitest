@@ -11,6 +11,30 @@
 </head>
 <body>
 <div id="all">
+<eq name="Think.server.HTTP_HOST" value="pt.mytests.co">
+<style type="text/css">
+#header {
+    background: #3d5d99 url(/Public/mytests/img/header_bg_top.png) center repeat-x;
+}
+body{background: #e6eaef url(/Public/mytests/img/header_bg_bot.png) center bottom repeat-x;}
+.container-vice-box-btn {
+    background: #078FD2;
+    border: 1px solid #00699E;
+    box-shadow: 0px 1px 1px 1px #0C6B94;
+}
+#footer-img {
+    height: 10px;
+    background: #2E73C0;
+}
+.nextbtn:hover {
+    background-color: #FFE935;
+}
+.nextbtn {
+    background-color: #F8DD03;
+}
+</style>
+<div style="height: 4px;background: #078FD3;"></div>
+</eq>
     <div id="header">
         <div id="header-box">
             <form action="{:U('Index/index')}" id="filterform" method="post">
@@ -47,7 +71,7 @@
                     <img class="container-box-img" src="{:C('IMAGEQ_PATH')}/{$v.icon}">
                     <div class="container-box-mask">
                         <div class="container-box-title">{$v.content}</div>
-                        <div class="container-box-btn">NEXT</div>
+                        <div class="container-box-btn">{$languageTp.test_btn}</div>
                     </div>
                 </a>
             </volist>

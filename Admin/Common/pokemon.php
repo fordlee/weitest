@@ -10,6 +10,7 @@ function getPokemon($number,$language='en'){
 function getRandomText($number,$path){
 	$str = file_get_contents(UPLOADS_PATH.'/local/'.$path);
 	$arr = explode("|", $str);
+	//header("Content-type:text/html;charset=utf-8");
 	
 	return $arr[$number];
 }

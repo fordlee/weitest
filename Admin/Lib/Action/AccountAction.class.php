@@ -84,8 +84,16 @@ class AccountAction extends Action {
         }else{
             $id = $_GET['id'];
             $email = $_SESSION['email'];
+            $w = array(
+                'email' => $email
+            );
             $m = M('admin');
-            $ret = $m -> where('id='.$id) -> find();
+            if($_GET['id']){
+                $ret = $m -> where('id='.$id) -> find();
+            }else{
+                $ret = $m -> where($w) -> find();
+            }
+            
             $this -> assign('item',$ret);
             $this -> display();
             

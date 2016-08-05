@@ -66,6 +66,8 @@ class FacebookPaint{
 				$_im=$this -> _boldText($_im,$this -> _getStrParam($value));
 			}elseif(preg_match('/^filter/im', $value)>=1){//调节对比度
 				$_im=$this -> _filterPic($_im,$this -> _getStrParam($value));
+			}elseif(preg_match('/^rotate/im', $value)>=1){//旋转图片
+				$_im=$this -> _rotate($_im,$this -> _getStrParam($value));
 			}
 		}
 
@@ -73,7 +75,7 @@ class FacebookPaint{
 			$attribute['alpha'] = 100;
 		}
 
-		//imagecopymerge($im, $_im, $attribute['x'], $attribute['y'], 0, 0, imagesx($_im), imagesy($_im), $attribute['alpha']); 
+		$attribute=$this -> _setTextAxis($im,$attribute,$_im);
 		$this -> imagecopymerge_alpha($im, $_im, $attribute['x'], $attribute['y'], 0, 0, imagesx($_im), imagesy($_im), $attribute['alpha']);
 		return $im;
 	}
@@ -196,7 +198,7 @@ class FacebookPaint{
 	}
 
 	//不失真缩小图片
-	private function smallPic($im,$param){
+	private function _smallPic($im,$param){
 		$maxwidth = $param[0];
 		$maxheight = $param[1];
 
@@ -213,33 +215,41 @@ class FacebookPaint{
 				$heightratio = $maxheight/$pic_height;
 				$resizeheight_tag = true;
 			}
-
-			if($resizewidth_tag && $resizeheight_tag){
-				if($widthratio<$heightratio){
-					$ratio = $widthratio;
-				}else{
-					$ratio = $heightratio;
-				}
-			}
-
-			if($resizewidth_tag && !$resizeheight_tag)$ratio = $widthratio;
-			if($resizeheight_tag && !$resizewidth_tag)$ratio = $heightratio;
-
-			$newwidth = $pic_width * $ratio;
-			$newheight = $pic_height * $ratio;
-
-			if(function_exists("imagecopyresampled")){
-				$newim = imagecreatetruecolor($newwidth,$newheight);//PHP系统函数
-				imagecopyresampled($newim,$im,0,0,0,0,$newwidth,$newheight,$pic_width,$pic_height);//PHP系统函数
-			}else{
-				$newim = imagecreate($newwidth,$newheight);
-				imagecopyresized($newim,$im,0,0,0,0,$newwidth,$newheight,$pic_width,$pic_height);
-			}
-
-			return $newim;
 		}else{
-			return $im;
+			if($maxwidth && $pic_width<=$maxwidth){
+				$widthratio = $maxwidth/$pic_width;
+				$resizewidth_tag = true;
+			}
+
+			if($maxheight && $pic_height<=$maxheight){
+				$heightratio = $maxheight/$pic_height;
+				$resizeheight_tag = true;
+			}
 		}
+
+		if($resizewidth_tag && $resizeheight_tag){
+			if($widthratio<$heightratio){
+				$ratio = $widthratio;
+			}else{
+				$ratio = $heightratio;
+			}
+		}
+
+		if($resizewidth_tag && !$resizeheight_tag)$ratio = $widthratio;
+		if($resizeheight_tag && !$resizewidth_tag)$ratio = $heightratio;
+
+		$newwidth = $pic_width * $ratio;
+		$newheight = $pic_height * $ratio;
+
+		if(function_exists("imagecopyresampled")){
+			$newim = imagecreatetruecolor($newwidth,$newheight);//PHP系统函数
+			imagecopyresampled($newim,$im,0,0,0,0,$newwidth,$newheight,$pic_width,$pic_height);//PHP系统函数
+		}else{
+			$newim = imagecreate($newwidth,$newheight);
+			imagecopyresized($newim,$im,0,0,0,0,$newwidth,$newheight,$pic_width,$pic_height);
+		}
+			
+		return $newim;
 	}
 
 	//图像黑白处理
@@ -357,15 +367,23 @@ class FacebookPaint{
 		//reSet X,Y
 		$arr=array('x','y');
 		foreach ($arr as $key => $value) {
-			preg_match_all('/\d+/', $_attribute[$value], $matchs);
+			preg_match_all('/-?\d+/', $_attribute[$value], $matchs);
 			$_axis=$matchs[0][0]+$param[$key];
-			$_attribute[$value]=preg_replace('/\d+/', $_axis, $_attribute[$value]);
+			$_attribute[$value]=preg_replace('/-?\d+/', $_axis, $_attribute[$value]);
 		}
 
 		$_im=$this -> injectText($_im,$_attribute,$_attribute['content']);
 		return $_im;
-	}	
+	}
 
+	//旋转图片
+	private function _rotate($im,$param){
+	    $bgcolor= imagecolorallocatealpha($im,0,0,255,0);// 图像的背景  
+		$im = imagerotate($im, (int)$param[0],$bgcolor, 0);
+		
+		return $im;
+	}
+	
 	########################通用函数 START########################
 	//解析颜色
 	private function _parseColor($color){
@@ -407,7 +425,7 @@ class FacebookPaint{
 			$name=explode('?', $arr['basename']);
 			$name=$name[0];
 			$filename = $tmpHeader.'/'.$uid.'_'.$name;
-
+			
 			//将个人头像再次存储
 			$isRangeTime = $this -> _rangeTime(5*60*60);
 			$isUserPic = $this -> _is_UserPic($arr['dirname'],$isRangeTime);
@@ -495,7 +513,7 @@ class FacebookPaint{
 			$_str=explode('(', $str);
 			$str=$_str[1];
 		}
-		preg_match_all('/(\w+)/im', $str, $match);
+		preg_match_all('/(-?\w+)/im', $str, $match);
 		return $match[0];
 	}
 
@@ -538,7 +556,7 @@ class FacebookPaint{
 		$param_sizeImg=$type=='x'?$im_width:$im_height;
 		$param_sizeText=$type=='x'?$textSize['width']:$textSize['height'];
 
-		preg_match_all('/(\w+)/im', $param_attr, $match);
+		preg_match_all('/(-?\w+)/im', $param_attr, $match);
 		$match=$match[0];
 
 		$axis=count($match)>=2?($match[1]-$param_sizeText/2):($param_sizeImg-$param_sizeText)/2;
@@ -547,13 +565,20 @@ class FacebookPaint{
 
 
 	//设置文本的坐标轴
-	private function _setTextAxis($im,$attribute){
+	private function _setTextAxis($im,$attribute,$_im=''){
 		//获取画板长宽
 		$im_width = imagesx($im);
-	    $im_height = imagesy($im);	
+	    $im_height = imagesy($im);
 
-		//获取文字大小
-		$textSize=$this -> _getTextSize($attribute);
+	    if(@$attribute['color']!=''){
+			//获取文字大小
+			$textSize=$this -> _getTextSize($attribute);
+	    }else{//获取图片文本大小
+	    	$textSize=array(
+	    		'width'=>imagesx($_im),
+	    		'height'=>imagesy($_im)
+	    	);
+	    }
 
 		$axisArr=array(
 			'x'=>$attribute['x'],
@@ -561,7 +586,7 @@ class FacebookPaint{
 		);
 
 		foreach ($axisArr as $key => $value) {
-			preg_match_all('/(center|right|bottom)\(?(\d+)?\)?/', $value, $match);
+			preg_match_all('/(center|right|bottom)\(?(-?\d+)?\)?/', $value, $match);
 			
 			$axisName=$key;
 			$fun=@$match[1][0];
@@ -585,27 +610,46 @@ class FacebookPaint{
 			}
 			$attribute[$axisName]=$axis;
 		}
-		
+
 		return $attribute;
 	}
 
-	//自动换行
+	#自动换行
 	private function _autoWrap($im,$attribute){
 		$param=$this -> _getStrParam($attribute['func']);
 		$textArr=preg_split('/[;\r\n]+/s', $attribute['content']);
+		
+		$im_height = imagesy($im);
 
 		$_im=$im;
 		$_attribute=$attribute;
+
+		//计算换行后的TextBox的高度
+		$_tBoxHeight=count($textArr)*$param[0];
+
 		foreach ($textArr as $key => $value) {
 			$_attribute['content']=$value;
 			$_attribute['func']=preg_replace('/wrap\(.*?\)\|?/im', '', $_attribute['func']);
+
 			$textSize=$this -> _getTextSize($attribute);//获取文字大小
 			
-			preg_match_all('/\d+/', $_attribute['y'], $matchs);
-			$_y=$matchs[0][0]+$key*($param[0]);
-			$_attribute['y']=preg_replace('/\d+/', $_y, $_attribute['y']);
+			preg_match_all('/-?\d+/', $_attribute['y'], $matchs);
+			$_paramY=@$matchs[0][0];
+			if(!isset($_paramY)){
+				$_paramY=floor($im_height/2);
+			}
 
-			$_im= $this -> injectText($_im,$_attribute,$_attribute['content']);
+			//处理换行文本框的居中
+			if(preg_match('/center/im', $_attribute['y'])>=1){
+				$_attribute['y']=$_attribute['y']=='center'?'center('.$_paramY.')':$_attribute['y'];
+				$_y=-$_tBoxHeight/2+($key+1)*($param[0])+$_paramY;
+			}else{
+				$_y=$_paramY+$key*($param[0]);
+			}
+
+			$_attribute['y']=preg_replace('/-?\d+/', $_y, $_attribute['y']);
+
+			$_im=$this -> injectText($_im,$_attribute,$_attribute['content']);
 			$_attribute=$attribute;
 		}
 

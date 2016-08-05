@@ -41,7 +41,24 @@
 							<input type="text" id="qcode" name="qcode" placeholder="类型_编号码" />(只需输入类型，例如：test1)
 						</div>
 					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="user">选择设置：</label>
+						<div class="col-sm-4">
+							<volist name="profile" id="v">
+								<label class="position-relative">
+									<eq name="v.default" value="1">
+										<input type="checkbox" name="profile[]" value="{$v.profile}" class="ace" checked/>
+									<else/>
+										<input type="checkbox" name="profile[]" value="{$v.profile}" class="ace" />
+									</eq>
+									<span class="lbl">{$v.profile}</span>&nbsp;&nbsp;
+								</label>
+							</volist>
+						</div>
+					</div>
+					
 				<else/>
+
 				<form action="{:U('questionentryedit')}" method="post" enctype="multipart/form-data" class="form-horizontal" >
 					<div class="form-group">
 						<label class="col-sm-2 control-label no-padding-right" for="qcode">题目编号选择：</label>
@@ -54,207 +71,6 @@
 						</div>
 					</div>
 				</if>
-					
-					<!-- <div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right" for="user">选择设置：</label>
-						<div class="col-sm-4">
-							<label class="position-relative">
-								<input type="checkbox" id="checkmine" name="mine" class="ace" checked/>
-								<span class="lbl">mine</span>
-							</label>
-							<label class="position-relative">
-								<input type="checkbox" id="checkfriend1" name="friend1" class="ace" />
-								<span class="lbl">friend1</span>
-							</label>
-							<label class="position-relative">
-								<input type="checkbox" id="checkfried2" name="friend2" class="ace" />
-								<span class="lbl">friend2</span>
-							</label>
-							<label class="position-relative">
-								<input type="checkbox" id="checkfriend3" name="friend3" class="ace" />
-								<span class="lbl">friend3</span>
-							</label>
-							<label class="position-relative">
-								<input type="checkbox" id="checkfriend4" name="friend4" class="ace" />
-								<span class="lbl">friend4</span>
-							</label>
-						</div>
-					</div>
-					<div id="mine" style="display:block">
-					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right" >mine头像位置：</label>
-						<div class="col-sm-1">
-							<input type="text" id="portraitLocal" placeholder="X*Y" name="mineportraitLocal" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >mine头像大小：</label>
-						<div class="col-sm-1">
-							<input type="text" id="portrailSize" placeholder="X*Y" name="mineportraitSize" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >mine头像底图关系：</label>
-						<div class="col-sm-2" >
-							<input type="radio" name="relmine" value="1" >上
-							<input type="radio" name="relmine" value="2" checked>下
-						</div>
-					</div>
-
-					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right" >mine名字位置：</label>
-						<div class="col-sm-1">
-							<input type="text" placeholder="X*Y" name="minenameLocal" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >mine名字字体：</label>
-						<div class="col-sm-2">
-							<select  name="minenamesize">
-								<option value="1">1</option>
-								<option value="2">2</option>
-								<option value="3">3</option>
-								<option value="4">4</option>
-								<option value="5">5</option>
-							</select>
-						</div>
-					</div>
-					</div>
-
-					<div id="friend1" style="display:none">
-					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right" >friend1头像位置：</label>
-						<div class="col-sm-1">
-							<input type="text" id="portraitLocal" placeholder="X*Y" name="friend1portraitLocal" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >friend1头像大小：</label>
-						<div class="col-sm-1">
-							<input type="text" id="portrailSize" placeholder="X*Y" name="friend1portraitSize" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >friend1头像底图关系：</label>
-						<div class="col-sm-2" >
-							<input type="radio" name="relfriend1" value="1" >上
-							<input type="radio" name="relfriend1" value="2" checked>下
-						</div>
-					</div>
-
-					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right" >friend1名字位置：</label>
-						<div class="col-sm-1">
-							<input type="text" placeholder="X*Y" name="friend1nameLocal" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >friend1名字字体：</label>
-						<div class="col-sm-2">
-							<select  name="friend1namesize">
-								<option value="1">1</option>
-								<option value="2">2</option>
-								<option value="3">3</option>
-								<option value="4">4</option>
-								<option value="5">5</option>
-							</select>
-						</div>
-					</div>
-					</div>
-
-					<div id="friend2" style="display:none">
-					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right" >friend2头像位置：</label>
-						<div class="col-sm-1">
-							<input type="text" id="portraitLocal" placeholder="X*Y" name="friend2portraitLocal" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >friend2头像大小：</label>
-						<div class="col-sm-1">
-							<input type="text" id="portrailSize" placeholder="X*Y" name="friend2portraitSize" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >friend2头像底图关系：</label>
-						<div class="col-sm-2" >
-							<input type="radio" name="relfriend2" value="1" >上
-							<input type="radio" name="relfriend2" value="2" checked>下
-						</div>
-					</div>
-
-					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right" >friend2名字位置：</label>
-						<div class="col-sm-1">
-							<input type="text" placeholder="X*Y" name="friend2nameLocal" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >friend2名字字体：</label>
-						<div class="col-sm-2">
-							<select  name="friend2namesize">
-								<option value="1">1</option>
-								<option value="2">2</option>
-								<option value="3">3</option>
-								<option value="4">4</option>
-								<option value="5">5</option>
-							</select>
-						</div>
-					</div>
-					</div>
-
-					<div id="friend3" style="display:none">
-					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right" >friend3头像位置：</label>
-						<div class="col-sm-1">
-							<input type="text" id="portraitLocal" placeholder="X*Y" name="friend3portraitLocal" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >friend3头像大小：</label>
-						<div class="col-sm-1">
-							<input type="text" id="portrailSize" placeholder="X*Y" name="friend3portraitSize" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >friend3头像底图关系：</label>
-						<div class="col-sm-2" >
-							<input type="radio" name="relfriend3" value="1" >上
-							<input type="radio" name="relfriend3" value="2" checked>下
-						</div>
-					</div>
-
-					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right" >friend3名字位置：</label>
-						<div class="col-sm-1">
-							<input type="text" placeholder="X*Y" name="firend3nameLocal" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >friend3名字字体：</label>
-						<div class="col-sm-2">
-							<select  name="friend3namesize">
-								<option value="1">1</option>
-								<option value="2">2</option>
-								<option value="3">3</option>
-								<option value="4">4</option>
-								<option value="5">5</option>
-							</select>
-						</div>
-					</div>
-					</div>
-
-					<div id="friend4" style="display:none">
-					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right" >friend4头像位置：</label>
-						<div class="col-sm-1">
-							<input type="text" id="portraitLocal" placeholder="X*Y" name="friend4portraitLocal" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >friend4头像大小：</label>
-						<div class="col-sm-1">
-							<input type="text" id="portrailSize" placeholder="X*Y" name="friend4portraitSize" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >friend4头像底图关系：</label>
-						<div class="col-sm-2" >
-							<input type="radio" name="relfriend4" value="1" >上
-							<input type="radio" name="relfriend4" value="2" checked>下
-						</div>
-					</div>
-
-					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right" >friend4名字位置：</label>
-						<div class="col-sm-1">
-							<input type="text" placeholder="X*Y" name="friend4nameLocal" />
-						</div>
-						<label class="col-sm-2 control-label no-padding-right" >friend4名字字体：</label>
-						<div class="col-sm-2">
-							<select  name="friend4namesize">
-								<option value="1">1</option>
-								<option value="2">2</option>
-								<option value="3">3</option>
-								<option value="4">4</option>
-								<option value="5">5</option>
-							</select>
-						</div>
-					</div>
-					</div> -->
-
 
 					<div class="form-group">
 						<label class="col-sm-2 control-label no-padding-right" >上传Icon图片：</label>
@@ -309,49 +125,6 @@ $('#iconfile, #backfile').ace_file_input({
 	//console.log($(this).data('ace_input_method'));
 });
 
-$('#checkmine').click(function(){
-	var ischecked = $('#checkmine').is(':checked');
-	if (ischecked){
-		$('#mine').show();
-	}else{
-		$('#mine').hide();
-	}
-});
 
-$('#checkfriend1').click(function(){
-	var ischecked = $('#checkfriend1').is(':checked');
-	if (ischecked){
-		$('#friend1').show();
-	}else{
-		$('#friend1').hide();
-	}
-});
-
-$('#checkfried2').click(function(){
-	var ischecked = $('#checkfried2').is(':checked');
-	if (ischecked){
-		$('#friend2').show();
-	}else{
-		$('#friend2').hide();
-	}
-});
-
-$('#checkfriend3').click(function(){
-	var ischecked = $('#checkfriend3').is(':checked');
-	if (ischecked){
-		$('#friend3').show();
-	}else{
-		$('#friend3').hide();
-	}
-});
-
-$('#checkfriend4').click(function(){
-	var ischecked = $('#checkfriend4').is(':checked');
-	if (ischecked){
-		$('#friend4').show();
-	}else{
-		$('#friend4').hide();
-	}
-});
 
 </script>

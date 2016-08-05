@@ -10,6 +10,8 @@ class MytestsAction extends Action {
 
         $info = file_get_contents(APP_PATH.'Conf/info.json');
         $info = json_decode($info,true);
+        //{#user_albums.albums.0.photos.0.images.1.source}
+        //var_dump($info['user_albums']['albums'][0]['photos'][0]['images']);
         return $info;
     }
 

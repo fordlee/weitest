@@ -1,24 +1,30 @@
 <?php
 // 本类由系统自动生成，仅供测试用途
 class ResultAction extends Action {
-	
-	public function analyze(){
-		$id=$_GET['id'];
-		R('Index/question', array($id,'analyze'));
-	}
+    
+    public function analyze(){
+        $id=$_GET['id'];
+        R('Index/question', array($id,'analyze'));
+    }
+
+    private function _getProfile(){
+        $m = M('question');
+        
+    }
 
     public function show(){
+        $profile = $this -> _getProfile();
         /*require_once './Facebook/autoload.php';
-
-		$qid = $_GET['id'];
+        
+        $qid = $_GET['id'];
         $tag=$_POST['tag'];
 
         if($tag=='analyze'){
-        	$qid = $_POST['id'];
+            $qid = $_POST['id'];
         }
 
-		//if($_SESSION['facebook_access_token']=='')unset($_SESSION['facebook_access_token']);
-		
+        //if($_SESSION['facebook_access_token']=='')unset($_SESSION['facebook_access_token']);
+        
         $fb = new Facebook\Facebook([
           'app_id' => C('FACEBOOK_APP_ID'),
           'app_secret' => C('FACEBOOK_APP_SECRET'),
@@ -26,174 +32,121 @@ class ResultAction extends Action {
         ]);
         
         $helper = $fb->getRedirectLoginHelper();
-        $permissions = ['email','user_birthday','user_location','user_website','user_friends'];
-		
-		try {
-			if (isset($_SESSION['facebook_access_token'])) {
-				$accessToken = $_SESSION['facebook_access_token'];
-			} else {
-				$accessToken = $helper->getAccessToken();
-			}
-		} catch(Facebook\Exceptions\FacebookResponseException $e) {
-			// When Graph returns an error
-			echo 'Graph returned an error: ' . $e->getMessage();
-			unset($_SESSION['facebook_access_token']);
-			exit;
-		} catch(Facebook\Exceptions\FacebookSDKException $e) {
-			// When validation fails or other local issues
-			echo 'Facebook SDK returned an error: ' . $e->getMessage();
-			unset($_SESSION['facebook_access_token']);
-			exit;
-		}		
-		
+        $permissions = ['email','public_profile','user_birthday','user_location','user_website','user_friends','user_photos','user_relationships','user_relationship_details'];
+        
+        try {
+            if (isset($_SESSION['facebook_access_token'])) {
+                $accessToken = $_SESSION['facebook_access_token'];
+            } else {
+                $accessToken = $helper->getAccessToken();
+            }
+        } catch(Facebook\Exceptions\FacebookResponseException $e) {
+            // When Graph returns an error
+            echo 'Graph returned an error: ' . $e->getMessage();
+            unset($_SESSION['facebook_access_token']);
+            exit;
+        } catch(Facebook\Exceptions\FacebookSDKException $e) {
+            // When validation fails or other local issues
+            echo 'Facebook SDK returned an error: ' . $e->getMessage();
+            unset($_SESSION['facebook_access_token']);
+            exit;
+        }       
+        
 
         if (isset($accessToken)) {
-			if (isset($_SESSION['facebook_access_token'])) {
-				$fb->setDefaultAccessToken($_SESSION['facebook_access_token']);
-			} else {
-				// getting short-lived access token
-				$_SESSION['facebook_access_token'] = (string) $accessToken;
+            if (isset($_SESSION['facebook_access_token'])) {
+                $fb->setDefaultAccessToken($_SESSION['facebook_access_token']);
+            } else {
+                // getting short-lived access token
+                $_SESSION['facebook_access_token'] = (string) $accessToken;
 
-				// OAuth 2.0 client handler
-				$oAuth2Client = $fb->getOAuth2Client();
+                // OAuth 2.0 client handler
+                $oAuth2Client = $fb->getOAuth2Client();
 
-				// Exchanges a short-lived access token for a long-lived one
-				$longLivedAccessToken = $oAuth2Client->getLongLivedAccessToken($_SESSION['facebook_access_token']);
+                // Exchanges a short-lived access token for a long-lived one
+                $longLivedAccessToken = $oAuth2Client->getLongLivedAccessToken($_SESSION['facebook_access_token']);
 
-				if((string) $longLivedAccessToken!='')$_SESSION['facebook_access_token'] = (string) $longLivedAccessToken;
+                if((string) $longLivedAccessToken!='')$_SESSION['facebook_access_token'] = (string) $longLivedAccessToken;
 
-				// setting default access token to be used in script
-				$fb->setDefaultAccessToken($_SESSION['facebook_access_token']);
-			}
+                // setting default access token to be used in script
+                $fb->setDefaultAccessToken($_SESSION['facebook_access_token']);
+            }
 
-			// redirect the user back to the same page if it has "code" GET variable
-			if (isset($_GET['code'])) {
-				//header('Location: ./');
-			}
-
-			// getting basic info about user
-			try {
-				$profile_request = $fb->get('/me?fields=id,name,first_name,last_name,email,birthday,website,location');
-				$profile = $profile_request->getGraphNode()->asArray();
-			} catch(Facebook\Exceptions\FacebookResponseException $e) {
-				// When Graph returns an error
-				echo 'Graph returned an error: ' . $e->getMessage();
-				session_destroy();
-				// redirecting user back to app login page
-				header("Location: ./");
-				exit;
-			} catch(Facebook\Exceptions\FacebookSDKException $e) {
-				// When validation fails or other local issues
-				echo 'Facebook SDK returned an error: ' . $e->getMessage();
-				unset($_SESSION['facebook_access_token']);
-				exit;
-			}
-
-			$info['user_profile'] = $profile;
-
-			// getting profile picture of the user
-			try {
-				$requestPicture = $fb->get('/me/picture?redirect=false&height=300'); //getting user picture
-				$picture = $requestPicture->getGraphUser();
-			} catch(Facebook\Exceptions\FacebookResponseException $e) {
-				// When Graph returns an error
-				echo 'Graph returned an error: ' . $e->getMessage();
-				unset($_SESSION['facebook_access_token']);
-				exit;
-			} catch(Facebook\Exceptions\FacebookSDKException $e) {
-				// When validation fails or other local issues
-				echo 'Facebook SDK returned an error: ' . $e->getMessage();
-				unset($_SESSION['facebook_access_token']);
-				exit;
-			}
-
-			$info['user_profile']['user_picture'] = $picture['url'];
-
-			try {
-				$requestFriends = $fb->get('/me/invitable_friends?fields=id,name,picture');
-				$friends = $requestFriends->getGraphEdge();
-			} catch(Facebook\Exceptions\FacebookResponseException $e) {
-				// When Graph returns an error
-				echo 'Graph returned an error: ' . $e->getMessage();
-				unset($_SESSION['facebook_access_token']);
-				exit;
-			} catch(Facebook\Exceptions\FacebookSDKException $e) {
-				// When validation fails or other local issues
-				echo 'Facebook SDK returned an error: ' . $e->getMessage();
-				unset($_SESSION['facebook_access_token']);
-				exit;
-			}
-
-			if ($fb->next($friends)) {
-				$allFriends = array();
-				$friendsArray = $friends->asArray();
-				$allFriends = array_merge($friendsArray, $allFriends);
-				while ($friends = $fb->next($friends)) {
-					$friendsArray = $friends->asArray();
-					$allFriends = array_merge($friendsArray, $allFriends);
-				}
-			} else {
-				$allFriends = $friends->asArray();
-			}
-
-			$info['allFriends'] = $allFriends;
-
+            // redirect the user back to the same page if it has "code" GET variable
+            if (isset($_GET['code'])) {
+                //header('Location: ./');
+            }
+            $info = array();
+            //获取个人基本信息
+            $userProfile = $this -> _getUserProfile($fb);
+            
+            //获取好友列表信息
+            $allFriends = $this -> _getAllFriends($fb);
+            
+            //获取个人相册
+            $userAlbums = $this -> _getUserAlbums($fb);
+            
+            //获取个人性取向，感情状态，家庭成员信息
+            $userRelationships = $this -> _getUserRelationships($fb);
+            
+            $info = array_merge($userProfile,$allFriends,$userAlbums,$userRelationships);
+            
             $userInfo = $info['user_profile'];
-			$userInfo = json_decode(json_encode($userInfo),true);
+            $userInfo = json_decode(json_encode($userInfo),true);
             $this -> _storeUserInfo($userInfo);
-		
-			$info = json_decode(json_encode($info),true);
-			$this->paintResult($fb,$info,$accessToken,$qid,$tag);exit;
+            
+            $info = json_decode(json_encode($info),true);
+            $this->paintResult($fb,$info,$accessToken,$qid,$tag);exit;
         } else {
             $loginUrl = $helper->getLoginUrl('http://'.$_SERVER['SERVER_NAME'].'/Result/show'.($qid?'/id/'.$qid:''), $permissions);
 
             if($tag=='analyze'){ //AJAX异步后台处理程序
-            	header('Content-type:text/json');
-            	echo json_encode(array(
-            		'login'=>false,
-            		'loginUrl'=>$loginUrl
-            	));
-            	exit;
+                header('Content-type:text/json');
+                echo json_encode(array(
+                    'login'=>false,
+                    'loginUrl'=>$loginUrl
+                ));
+                exit;
             }else{
-				usleep(500000);
-				header('Location:'.$loginUrl);
+                usleep(500000);
+                header('Location:'.$loginUrl);
             }
 
         }*/
-		
+        
         $accessToken = 1;
         $info = file_get_contents(APP_PATH.'Conf/info.json');
         $info = json_decode($info,true);
 
-        //$userInfo = $info['user_profile'];
-        //$this -> _storeUserInfo($userInfo);
+        $userInfo = $info['user_profile'];
+        $this -> _storeUserInfo($userInfo);
 
         $this->paintResult($fb,$info,$accessToken,$qid,$tag);exit;
     }
 
     public function paintResult($fb,$info,$accessToken,$questionId='',$tag=''){
 
-	
-		$qid = $_GET['id'];
+    
+        $qid = $_GET['id'];
         
-		if($tag=='analyze'){//AJAX异步后台处理程序
-			$qid=$questionId;
-		}
+        if($tag=='analyze'){//AJAX异步后台处理程序
+            $qid=$questionId;
+        }
 
         if (isset($accessToken)) {
-			
-			$language = $this -> _getLanguage();
-			$languageTp = replaceLanguage($language);
             
-			$m = D('QuestionView');
-			$m_a = M('answer');
-			$where = array(
-				'status' => 1,
-				'language' => $language
-			);
-			$item = $m -> where($where) -> limit(20) -> select();
-			
-			$qitem = $m -> where(array('id' => $qid,'language' => $language)) -> find();
+            $language = $this -> _getLanguage();
+            $languageTp = replaceLanguage($language);
+            
+            $m = D('QuestionView');
+            $m_a = M('answer');
+            $where = array(
+                'status' => 1,
+                'language' => $language
+            );
+            $item = $m -> where($where) -> limit(20) -> select();
+            
+            $qitem = $m -> where(array('id' => $qid,'language' => $language)) -> find();
 
             if($_GET['tag']=='share'){
                 $qitem['title']=$qitem['content'];
@@ -201,84 +154,84 @@ class ResultAction extends Action {
                 $qitem['title']=$qitem['content'].' - '.$languageTp['index_title'];
             }
 
-			$where = array(
-				'qdid' => $qitem['qdid'],
-				'qid'  => $qitem['qid']
-			);
-			$aitem = $m_a -> where($where) -> select();
-			
-			//随机获取答案
-			$randnum = $this -> _myrand(count($aitem)-1);
-			
-			$optionresult = $aitem[$randnum]['optionresult'];
-			$data = json_decode($aitem[$randnum]['optionset'],true);
+            $where = array(
+                'qdid' => $qitem['qdid'],
+                'qid'  => $qitem['qid']
+            );
+            $aitem = $m_a -> where($where) -> select();
+            
+            //随机获取答案
+            $randnum = $this -> _myrand(count($aitem)-1);
+            
+            $optionresult = $aitem[$randnum]['optionresult'];
+            $data = json_decode($aitem[$randnum]['optionset'],true);
 
-			$uid = $info['user_profile']['id'];
-			$_SESSION['uid'] = $uid;
-			$foldername = substr($uid,-2);
-			$path = IMAGE_PATH.'/'.$foldername;
+            $uid = $info['user_profile']['id'];
+            $_SESSION['uid'] = $uid;
+            $foldername = substr($uid,-2);
+            $path = IMAGE_PATH.'/'.$foldername;
 
-			//生成文件夹
-			if(!is_dir($path)){
-				mkdir($path,0777,true);
-			}
+            //生成文件夹
+            if(!is_dir($path)){
+                mkdir($path,0777,true);
+            }
 
-			//判断本地文件
-			$filenameArr = array(
-				'uid'  => $info['user_profile']['id'],
-				'qid'  => $qitem['qid'],
-				'qdid' => $qitem['qdid']
-			);
-			$filepath = $this -> _getFilename($path,$filenameArr);
+            //判断本地文件
+            $filenameArr = array(
+                'uid'  => $info['user_profile']['id'],
+                'qid'  => $qitem['qid'],
+                'qdid' => $qitem['qdid']
+            );
+            $filepath = $this -> _getFilename($path,$filenameArr);
 
             //获取图片修改时间
             $isOverTime = $this -> _getAnswerPicLastChangeTime($filepath,24*60*60);
 
-			if(!file_exists($filepath) || $isOverTime){
-				$this -> _createSavePic($info,$data,$filepath);
-			}
-			
-			$filepath = $this -> _filepathSwap($filepath,$optionresult);
-			$sharePath = $this -> _getSharePath($filepath);
-			$shareUrl = $this -> _getShareUrl($sharePath,$qid);
-			$ogimage = 'http://'.$_SERVER['HTTP_HOST'].$filepath;
+            if(!file_exists($filepath) || $isOverTime){
+                $this -> _createSavePic($info,$data,$filepath);
+            }
+            
+            $filepath = $this -> _filepathSwap($filepath,$optionresult);
+            $sharePath = $this -> _getSharePath($filepath);
+            $shareUrl = $this -> _getShareUrl($sharePath,$qid);
+            $ogimage = 'http://'.$_SERVER['HTTP_HOST'].$filepath;
 
-			$this -> assign('ogimage',$ogimage);
-			$this -> assign('path',$filepath);
-			$this -> assign('sharePath',$sharePath);
-			$this -> assign('shareUrl',$shareUrl);
-			$this -> assign('language',$language);
-			$this -> assign('languageTp',$languageTp);
-			$this -> assign('qitem',$qitem);
-			$this -> assign('item',$item);
-			$this -> assign('qid',$qid);
+            $this -> assign('ogimage',$ogimage);
+            $this -> assign('path',$filepath);
+            $this -> assign('sharePath',$sharePath);
+            $this -> assign('shareUrl',$shareUrl);
+            $this -> assign('language',$language);
+            $this -> assign('languageTp',$languageTp);
+            $this -> assign('qitem',$qitem);
+            $this -> assign('item',$item);
+            $this -> assign('qid',$qid);
             $this -> assign('uid',$uid);
 
-			if($tag=='analyze'){//AJAX异步后台处理程序
-            	header('Content-type:text/json');
-            	echo json_encode(array(
-            		'login'=>true,
-            		'paint'=>true
-            	));
-            	exit;
-			}else{
-				$this -> display('Index/question');	
-			}
+            if($tag=='analyze'){//AJAX异步后台处理程序
+                header('Content-type:text/json');
+                echo json_encode(array(
+                    'login'=>true,
+                    'paint'=>true
+                ));
+                exit;
+            }else{
+                $this -> display('Index/question'); 
+            }
             
         } else {
 
-			if($tag=='analyze'){//AJAX异步后台处理程序
-            	header('Content-type:text/json');
-            	echo json_encode(array(
-            		'login'=>true,
-            		'paint'=>false
-            	));
-            	exit;
-			}else{
-				echo $accessToken;exit;
-			}
+            if($tag=='analyze'){//AJAX异步后台处理程序
+                header('Content-type:text/json');
+                echo json_encode(array(
+                    'login'=>true,
+                    'paint'=>false
+                ));
+                exit;
+            }else{
+                echo $accessToken;exit;
+            }
 
-        }	
+        }   
 
     }
 
@@ -300,8 +253,8 @@ class ResultAction extends Action {
 
         return $filepath;
     }
-	
-	private function _getSharePath($filepath){
+    
+    private function _getSharePath($filepath){
         //91+231721203887791_1_2.jpg
         $path = str_replace('/Uploads/image/', '', $filepath);
         $sharePath = str_replace('/', '-', $path);
@@ -346,7 +299,7 @@ class ResultAction extends Action {
         unset($_SESSION['_SRAND']);
         
         //保存图片
-        imagejpeg($im,$filepath,100);
+        imagejpeg($im,$filepath,85);
         imagedestroy($im);
     }
 
@@ -524,7 +477,7 @@ class ResultAction extends Action {
             $_str=explode('(', $str);
             $str=$_str[1];
         }
-        preg_match_all('/(\w+)/im', $str, $match);
+        preg_match_all('/(-?\w+)/im', $str, $match);
         return $match[0];
     }
 
@@ -543,6 +496,127 @@ class ResultAction extends Action {
 
         array_push($_SESSION[$SessionTag], $_rand);
         return $_rand;
+    }
+
+
+    //获取个人基本信息，需要public_profile权限
+    private function _getUserProfile($fb){
+        // getting basic info about user, need public_profile
+        try {
+            $profile_request = $fb->get('/me?fields=id,name,first_name,last_name,email,birthday,website,location');
+            $profile = $profile_request->getGraphNode()->asArray();
+        } catch(Facebook\Exceptions\FacebookResponseException $e) {
+            // When Graph returns an error
+            echo 'Graph returned an error: ' . $e->getMessage();
+            session_destroy();
+            // redirecting user back to app login page
+            header("Location: ./");
+            exit;
+        } catch(Facebook\Exceptions\FacebookSDKException $e) {
+            // When validation fails or other local issues
+            echo 'Facebook SDK returned an error: ' . $e->getMessage();
+            unset($_SESSION['facebook_access_token']);
+            exit;
+        }
+
+        $info['user_profile'] = $profile;
+
+        // getting profile picture of the user, need public_profile
+        try {
+            $requestPicture = $fb->get('/me/picture?redirect=false&height=300&width=300'); //getting user picture
+            $picture = $requestPicture->getGraphUser();
+        } catch(Facebook\Exceptions\FacebookResponseException $e) {
+            // When Graph returns an error
+            echo 'Graph returned an error: ' . $e->getMessage();
+            unset($_SESSION['facebook_access_token']);
+            exit;
+        } catch(Facebook\Exceptions\FacebookSDKException $e) {
+            // When validation fails or other local issues
+            echo 'Facebook SDK returned an error: ' . $e->getMessage();
+            unset($_SESSION['facebook_access_token']);
+            exit;
+        }
+
+        $info['user_profile']['user_picture'] = $picture['url'];
+        
+        return $info;
+    }
+
+    //获取好友列表信息，需要public_profile,user_friends权限
+    private function _getAllFriends($fb){
+        //get list of friends information, need user_friends profile
+        try {
+            $requestFriends = $fb->get('/me/invitable_friends?fields=id,name,first_name,last_name,picture');
+            $friends = $requestFriends->getGraphEdge();
+        } catch(Facebook\Exceptions\FacebookResponseException $e) {
+            // When Graph returns an error
+            echo 'Graph returned an error: ' . $e->getMessage();
+            unset($_SESSION['facebook_access_token']);
+            exit;
+        } catch(Facebook\Exceptions\FacebookSDKException $e) {
+            // When validation fails or other local issues
+            echo 'Facebook SDK returned an error: ' . $e->getMessage();
+            unset($_SESSION['facebook_access_token']);
+            exit;
+        }
+
+        if ($fb->next($friends)) {
+            $allFriends = array();
+            $friendsArray = $friends->asArray();
+            $allFriends = array_merge($friendsArray, $allFriends);
+            while ($friends = $fb->next($friends)) {
+                $friendsArray = $friends->asArray();
+                $allFriends = array_merge($friendsArray, $allFriends);
+            }
+        } else {
+            $allFriends = $friends->asArray();
+        }
+
+        $info['allFriends'] = $allFriends;
+
+        return $info;
+    }
+
+    //获取个人相册信息，需要user_photos权限
+    public function _getUserAlbums($fb){
+        //get user albums,need user_photos profile
+        try {
+            $requestAlbum = $fb->get('/me?fields=albums.limit(5){name,photos.limit(10){name,comments.limit(5),images}}');
+            $album = $requestAlbum->getGraphNode()->asArray();
+        } catch(Facebook\Exceptions\FacebookResponseException $e) {
+            // When Graph returns an error
+            echo 'Graph returned an error: ' . $e->getMessage();
+            exit;
+        } catch(Facebook\Exceptions\FacebookSDKException $e) {
+            // When validation fails or other local issues
+            echo 'Facebook SDK returned an error: ' . $e->getMessage();
+            exit;
+        }
+        
+        $info['user_albums'] = $album;
+
+        return $info;
+    }
+
+    //获取个人性取向，感情状态，家庭成员信息
+    public function _getUserRelationships($fb){
+        //get user interested_in relationship_status family,need user_relationships user_relationship_details
+        try {
+            $requestFamily = $fb->get('/me?fields=interested_in,relationship_status,family.limit(10){name,first_name,last_name,birthday,gender,albums.limit(5){picture,photos.limit(10){name,images,comments.limit(5)}}}');
+            $relationship = $requestFamily->getGraphNode()->asArray();
+        } catch(Facebook\Exceptions\FacebookResponseException $e) {
+            // When Graph returns an error
+            echo 'Graph returned an error: ' . $e->getMessage();
+            exit;
+        } catch(Facebook\Exceptions\FacebookSDKException $e) {
+            // When validation fails or other local issues
+            echo 'Facebook SDK returned an error: ' . $e->getMessage();
+            exit;
+        }
+        
+        $info['user_relationships'] = $relationship;
+
+        return $info;
     }
 
 }

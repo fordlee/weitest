@@ -273,7 +273,7 @@ class MytestsAction extends Action {
             echo '<br>3s后返回...<script type="text/javascript">setTimeout(function(){history.go(-1);},3000)</script>';
             exit;
         }else{
-            $this -> error('输入为空！',U('Mytests/index'));
+            $this -> error('输入错误！',U('Mytests/index'));
         }
     }
 

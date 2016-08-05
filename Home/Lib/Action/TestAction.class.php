@@ -205,5 +205,12 @@ class TestAction extends Action {
         @unlink($file);
     }
 
+    public function getProfile(){
+        $profile = file_get_contents(APP_PATH.'Conf/profile.json');
+        $profile = json_decode($profile,true);
+
+        var_dump($profile);
+    }
+
 }
 ?>

@@ -1,0 +1,38 @@
+[
+    {
+        "profile": "public_profile",
+        "default": 1
+    },
+    {
+        "profile": "email",
+        "default": 1
+    },
+    {
+        "profile": "user_birthday",
+        "default": 1
+    },
+    {
+        "profile": "user_friends",
+        "default": 1
+    },
+    {
+        "profile": "user_photos",
+        "default": 0
+    },
+    {
+        "profile": "user_relationships",
+        "default": 0
+    },
+    {
+        "profile": "user_relationship_details",
+        "default": 0
+    },
+    {
+        "profile": "user_location",
+        "default": 0
+    },
+    {
+        "profile": "user_website",
+        "default": 0
+    }
+]

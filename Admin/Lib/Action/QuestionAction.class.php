@@ -36,7 +36,9 @@ class QuestionAction extends Action {
     }
 
     public function questionentry(){
-        
+        $profile = $this -> _getProfile();
+        $this -> assign('profile',$profile);
+
         $this -> display('questionentry');
     }
 
@@ -54,17 +56,17 @@ class QuestionAction extends Action {
         }
         
         $qcode = $_POST['qcode'].'_'.uniqid();
-
-        //$data = $_POST;
-        //$generalset = $this -> _getGeneralSet($data);
-        //$generalsetjson = json_encode($generalset);
         $generalsetjson = '';
+
+        $profile = $_POST['profile'];
+        $profileStr=implode(',',$profile);
 
         $icon = $info[0]['savename'];
         $bgpic = $info[1]['savename'];
 
         $item = array(
             'qcode' => $qcode,
+            'profileset'=> $profileStr,
             'icon'  => $icon,
             'bgpic' => $bgpic,
             'generalset' => $generalsetjson,
@@ -77,7 +79,6 @@ class QuestionAction extends Action {
         
         if($ret != false){
             $this -> success('添加成功！','Question/questionlist');
-            //$this -> success('添加成功！');
         }else{
             $this -> error('添加失败！');
         }
@@ -105,10 +106,6 @@ class QuestionAction extends Action {
         }
         
         $qcode = $_POST['qcode'];
-
-        //$data = $_POST;
-        //$generalset = $this -> _getGeneralSet($data);
-        //$generalsetjson = json_encode($generalset);
         $generalsetjson = '';
 
         $icon = $info[0]['savename'];
@@ -141,75 +138,11 @@ class QuestionAction extends Action {
         return $p;
     }
 
-    private function _getGeneralSet($data){
-        $minechecked = $data['mine'];
-        $friend1checked = $data['friend1'];
-        $friend2checked = $data['friend2'];
-        $friend3checked = $data['friend3'];
-        $friend4checked = $data['friend4'];
+    private function _getProfile(){
+        $profile = file_get_contents(APP_PATH.'Conf/profile.json');
+        $profile = json_decode($profile,true);
 
-        $generalset = array();
-        if($minechecked == 'on'){
-            $mine = array(
-                'portraitLocal' => $data['mineportraitLocal'],
-                'portraitSize'  => $data['mineportraitSize'],
-                'rel'           => $data['relmine'],
-                'nameLocal'     => $data['minenameLocal'],
-                'namesize'      => $data['minenamesize']
-            );
-
-            $generalset['mine'] = $mine;
-        }
-
-        if($friend1checked == 'on'){
-            $friend1 = array(
-                'portraitLocal' => $data['friend1portraitLocal'],
-                'portraitSize'  => $data['friend1portraitSize'],
-                'rel'           => $data['relfriend1'],
-                'nameLocal'     => $data['friend1nameLocal'],
-                'namesize'      => $data['friend1namesize']
-            );
-
-            $generalset['friend1'] = $friend1;
-        }
-
-        if($friend2checked == 'on'){
-            $friend2 = array(
-                'portraitLocal' => $data['friend2portraitLocal'],
-                'portraitSize'  => $data['friend2portraitSize'],
-                'rel'           => $data['relfriend2'],
-                'nameLocal'     => $data['friend2nameLocal'],
-                'namesize'      => $data['friend2namesize']
-            );
-
-            $generalset['friend2'] = $friend2;
-        }
-
-        if($friend3checked == 'on'){
-            $friend3 = array(
-                'portraitLocal' => $data['friend3portraitLocal'],
-                'portraitSize'  => $data['friend3portraitSize'],
-                'rel'           => $data['relfriend3'],
-                'nameLocal'     => $data['friend3nameLocal'],
-                'namesize'      => $data['friend3namesize']
-            );
-
-            $generalset['friend3'] = $friend3;
-        }
-
-        if($friend4checked == 'on'){
-            $friend4 = array(
-                'portraitLocal' => $data['friend4portraitLocal'],
-                'portraitSize'  => $data['friend4portraitSize'],
-                'rel'           => $data['relfriend4'],
-                'nameLocal'     => $data['friend4nameLocal'],
-                'namesize'      => $data['friend4namesize']
-            );
-
-            $generalset['friend4'] = $friend4;
-        }
-
-        return $generalset;
+        return $profile;
     }
 
     public function addQuestion(){
