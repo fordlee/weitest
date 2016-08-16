@@ -1,6 +1,7 @@
 <include file="Public:header" />
 <include file="Public:sidenav" />
 <link rel="stylesheet" href="__PUBLIC__/static/css/mask.css">
+<link rel="stylesheet" href="__PUBLIC__/ace/assets/css/daterangepicker.css" />
 <div class="main-content">
 	<div class="breadcrumbs" id="breadcrumbs">
 		<script type="text/javascript">
@@ -16,14 +17,48 @@
 	</div>
 
 	<div class="page-content">
-		<button onclick="addQuestionCode()" class="btn btn-xs btn-success">添加编号</button>&nbsp;&nbsp;
-		<button onclick="delpic()" class="btn btn-xs btn-light">删除答图</button><br><br>
+		<div class="col-xs-2">
+			<button onclick="addQuestionCode()" class="btn btn-xs btn-success">添加编号</button>&nbsp;&nbsp;
+			<button onclick="delpic()" class="btn btn-xs btn-light">删除答图</button>
+		</div>
+		<div class="col-xs-10">
+			<div class="pull-left col-xs-5">
+				<form action="{:U('datesort')}" method="post">
+					<div class="input-group">
+						<label>时间：</label>
+						<span class="input-group-addon">
+							<i class="icon-calendar"></i>
+						</span>
+
+						<input type="text" name="date_range" id="id-date-range-picker-1" value ="{$dateRange}" />
+						<input type="submit" class="btn btn-xs btn-light" value="确认">
+					</div>
+				</form>
+			</div>
+			<div class="pull-right col-xs-5">
+				<label>分类：</label>
+				<select name="category_name" id="category_name" class="chosen-select" style="width:120px;">
+					<volist name="categories" id="v">
+						<option value="{$v.id}" <php>if($cid == $v['id']) echo "selected";</php>>{$v.category_name}</option>
+					</volist>
+				</select>
+				<button onclick="setCategory()" class="btn btn-xs btn-default">确认分类</button>
+				<button onclick="delCategory()" class="btn btn-xs btn-light">删除分类</button>
+				<button onclick="showCategory()" class="btn btn-xs btn-primary">查看分类</button>
+			</div>
+		</div>
 		<div>{$page}</div>
 		<div class="row">
 			<div class="col-xs-12">
 				<table id="sample-table-1" class="table table-striped table-bordered table-hover">
 					<thead>
 						<tr>
+							<th class="center">
+								<label>
+									<input type="checkbox" class="ace" />
+									<span class="lbl"></span> 
+								</label>
+							</th>
 							<th class="center">ID</th>
 							<th class="center">排序</th>
 							<th class="center">编号</th>
@@ -36,6 +71,12 @@
 					<tbody>
 						<volist name="list" id="v">
 						<tr>
+							<td class="center">
+								<label>
+									<br><input type="checkbox" name="category" value="{$v.id}" class="ace" />
+									<span class="lbl"></span>
+								</label>
+							</td>
 							<td class="center"><br>{$v.id}</td>
 							<td class="center" style="width:75px;">
 								<form action="{:U('setReorder')}" id="reorder_{$v.id}" method="post">
@@ -51,8 +92,8 @@
 									[<a href="javascript:void()" onclick="addResult('{$qdetail.id}','{$qdetail.qid}', '{$qdetail.language}',&quot;{$qdetail.content}&quot;)">添加</a>&nbsp;<a href="{:U('Answer/editResult')}/qid/{$qdetail.qid}/qdid/{$qdetail.id}/p/{$p}">修改</a>]
 									<br>
 								</volist>
-								<a href="javascript:void()" onclick="addQuestion('{$v.id}')" class="btn btn-xs btn-primary">添加标题</a>
-								<a href="{:U('Question/editQuestion')}/qid/{$v.id}/p/{$p}" class="btn btn-xs btn-light">修改标题</a>
+								<a href="javascript:void()" onclick="addQuestion('{$v.id}')" class="btn btn-xs btn-primary">添加标题</a>&nbsp;&nbsp;
+								<a href="{:U('Question/editQuestion')}/qid/{$v.id}/p/{$p}" class="btn btn-xs btn-light">修改标题及权限</a>
 							</td>
 							<td class="center"><br>{$v.date}</td>
 							<td class="center">
@@ -209,6 +250,8 @@
 
 </div><!-- /.main-content -->
 <include file="Public:footer" />
+<script src="__PUBLIC__/ace/assets/js/date-time/moment.min.js"></script>
+<script src="__PUBLIC__/ace/assets/js/date-time/daterangepicker.min.js"></script>
 <script type="text/javascript">
 $('.mask').click(function(e) {
    $('#dialog').hide();
@@ -217,8 +260,94 @@ $('.mask').click(function(e) {
    //window.location.reload();
 });
 
+$(".chosen-select").chosen(); 
+
+$('table th input:checkbox').on('click' , function(){
+	var that = this;
+	$(this).closest('table').find('tr > td:first-child input:checkbox')
+	.each(function(){
+		this.checked = that.checked;
+		$(this).closest('tr').toggleClass('selected');
+	});
+		
+});
+
+$('input[name=date_range]').daterangepicker().prev().on(ace.click_event, function(){
+	$(this).next().focus();
+});
+
+$('#category_sort').change(function(e) {
+	$('#form_sort').submit();
+});
+
 function addQuestionCode(){
 	window.location.href = "{:U('Question/questionentry')}";
+}
+
+function showCategory(){
+	window.location.href = "{:U('Question/showCategory')}";
+}
+
+function setCategory(){
+	chk_qid = [];
+	$('input[name="category"]:checked').each(function(){ 
+		chk_qid.push($(this).val()); 
+	}); 
+	cid = $("#category_name").val();
+
+	if(chk_qid.length == 0){
+		//alert('你还没有选择任何内容！');
+		window.location.href = "{:U('Question/categorysort')}/cid/"+cid;
+	}else{
+		$.ajax({
+		    url: "{:U('Question/categorysave')}",
+		    type: 'post',
+		    cache: false,
+		    data: {
+		    	'cid':cid,
+		    	'qids':chk_qid
+		    }
+		}).done(function(response) {
+			if(response == 1){
+				alert('分类成功！');
+			}else{
+				alert('分类失败！请重试！');
+			}
+		}).fail(function(response) {
+			console.log(response);
+		});
+	}
+}
+
+function delCategory(){
+	chk_qid = [];
+	$('input[name="category"]:checked').each(function(){ 
+		chk_qid.push($(this).val()); 
+	}); 
+	cid = $("#category_name").val();
+
+	if(chk_qid.length == 0){
+		alert('你还没有选择任何内容！');
+	}else{
+		$.ajax({
+		    url: "{:U('Question/delCategoryQid')}",
+		    type: 'post',
+		    cache: false,
+		    data: {
+		    	'cid':cid,
+		    	'qids':chk_qid
+		    }
+		}).done(function(response) {
+			if(response == 1){
+				alert('删除该题分类成功！');
+				window.location.reload();
+			}else{
+				alert('删除该题分类失败！请重试！');
+			}
+		}).fail(function(response) {
+			console.log(response);
+		});
+	}
 }
 
 function saveOrder(id){

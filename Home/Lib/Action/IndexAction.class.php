@@ -1,6 +1,16 @@
 <?php
 // 本类由系统自动生成，仅供测试用途
 class IndexAction extends Action {
+    //构造函数
+    public function __construct() {
+        parent::__construct();
+        $utm=$_GET['utm'];
+        $utm=$utm?'?utm='.$utm:'';
+        $_utm=$utm?'&utm='.$utm:'';
+        $this->assign('utm',$utm);
+        $this->assign('_utm',$_utm);
+    }
+
     public function index(){
         
     	$language = $this -> _getLanguage();
@@ -12,7 +22,7 @@ class IndexAction extends Action {
 
         $count = $m -> where($where) -> count();
         import("ORG.Util.MyPage");//导入自定义分页类
-        $Page   = new Page($count, 12);
+        $Page   = new Page($count, 15);
         //添加广告参数调用
         if(isset($_GET['aid']) && !empty($_GET['aid'])){
             $arr = explode('_', $_GET['aid']);            
@@ -45,6 +55,7 @@ class IndexAction extends Action {
         if(isset($_GET['aid']) && !empty($_GET['aid'])){
             for($i=count($aditem)-1,$j=0;$i>=$j;$i--){
                 array_unshift($item, $aditem[$i]);
+                array_pop($item);
             }
         }
         $page = $Page->show();
@@ -67,7 +78,7 @@ class IndexAction extends Action {
 
         $count = $m -> where($where) -> count();
         import("ORG.Util.MyPage");//导入自定义分页类
-        $Page   = new Page($count, 12);
+        $Page   = new Page($count, 15);
         $item   = $m -> limit($Page->firstRow. ',' . $Page->listRows)-> where($where)->order('reorder desc,id desc')->select();       
         $page = $Page->show();
 
@@ -105,6 +116,11 @@ class IndexAction extends Action {
         );
         $qitem = $m -> where($w_q) -> find();
 
+        if($qitem == NULL){
+            header("Location: http://".$_SERVER['HTTP_HOST']."/Public/404/index.html");
+            die();
+        }
+        
         if($_GET['tag']=='share'){
             $qitem['title']=$qitem['content'];
         }else{

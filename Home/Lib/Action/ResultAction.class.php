@@ -7,22 +7,29 @@ class ResultAction extends Action {
         R('Index/question', array($id,'analyze'));
     }
 
-    private function _getProfile(){
-        $m = M('question');
-        
+    private function _getProfile($qid){
+        $m_q = M('question');
+        $qitem = $m_q -> where(array("id" => $qid)) -> find();
+
+        if($qitem['profileset'] == NULL){
+            $qitem['profileset'] = 'public_profile,email,user_birthday,user_friends';
+        }
+
+        $permissions = explode(",",$qitem['profileset']);
+
+        return $permissions;
     }
 
     public function show(){
-        $profile = $this -> _getProfile();
         /*require_once './Facebook/autoload.php';
         
         $qid = $_GET['id'];
         $tag=$_POST['tag'];
-
+        
         if($tag=='analyze'){
             $qid = $_POST['id'];
         }
-
+        
         //if($_SESSION['facebook_access_token']=='')unset($_SESSION['facebook_access_token']);
         
         $fb = new Facebook\Facebook([
@@ -32,8 +39,9 @@ class ResultAction extends Action {
         ]);
         
         $helper = $fb->getRedirectLoginHelper();
-        $permissions = ['email','public_profile','user_birthday','user_location','user_website','user_friends','user_photos','user_relationships','user_relationship_details'];
-        
+        //$permissions = ['email','public_profile','user_birthday','user_location','user_website','user_friends','user_photos','user_relationships','user_relationship_details'];
+        $permissions = $this -> _getProfile($qid);
+
         try {
             if (isset($_SESSION['facebook_access_token'])) {
                 $accessToken = $_SESSION['facebook_access_token'];
@@ -77,16 +85,16 @@ class ResultAction extends Action {
                 //header('Location: ./');
             }
             $info = array();
-            //获取个人基本信息
+            //获取个人基本信息，需要public_profile权限
             $userProfile = $this -> _getUserProfile($fb);
             
-            //获取好友列表信息
+            //获取好友列表信息，需要public_profile,user_friends权限
             $allFriends = $this -> _getAllFriends($fb);
             
-            //获取个人相册
+             //获取个人相册信息，需要user_photos权限
             $userAlbums = $this -> _getUserAlbums($fb);
             
-            //获取个人性取向，感情状态，家庭成员信息
+            //获取个人性取向，感情状态，家庭成员信息，需要user_photos权限user_relationships,user_relationship_details
             $userRelationships = $this -> _getUserRelationships($fb);
             
             $info = array_merge($userProfile,$allFriends,$userAlbums,$userRelationships);
@@ -207,6 +215,15 @@ class ResultAction extends Action {
             $this -> assign('qid',$qid);
             $this -> assign('uid',$uid);
 
+            if($qitem['front'] == 1){
+                $frontcontent = $qitem['frontcontent'];
+                $generalset = json_decode($qitem['generalset'],true);
+                $user = $this -> _getFielterUserInfo($info,$generalset);
+                $this->assign('user',json_encode($user));
+                $this->assign('frontcontent',$frontcontent);
+                $this->assign('front',$qitem['front']);
+            }
+
             if($tag=='analyze'){//AJAX异步后台处理程序
                 header('Content-type:text/json');
                 echo json_encode(array(
@@ -320,6 +337,61 @@ class ResultAction extends Action {
         }
 
         return $language;
+    }
+
+    private function _getFielterUserInfo($info,$generalset){
+        $userBirthday = $info['user_profile']['birthday']['date'];
+        $info['user_profile']['birthday'] = date("Y-m-d",strtotime($userBirthday));
+
+        $itemArr=array('name','first_name','last_name','gender','birthday','user_picture','allFriends','user_albums');
+        foreach ($itemArr as $k => $v) {
+            if(!$info['user_profile'][$v]){
+                $item[$v] = '';
+            }else{
+                $item[$v] = $info['user_profile'][$v];
+            }
+        }
+        
+        foreach ($generalset as $k => $v) {
+            if($v['friends']){
+                $friendsnum = $v['num'];
+                $friendslen = count($info['allFriends']);
+                if($friendsnum != ''){
+                    for($i=0;$i<$friendsnum;$i++){
+                        $randnum = $this -> _getUniqueRand(array(0,$friendslen-1), 'friendsnum');
+                        unset($info['allFriends'][$randnum]['id']);
+                        $item['allFriends'][] = $info['allFriends'][$randnum];
+                    }
+                }else{
+                    for($i=0;$i<$friendslen;$i++){
+                        unset($info['allFriends'][$randnum]['id']);
+                        $item['allFriends'] = $info['allFriends'];
+                    } 
+                }
+
+            }
+            
+            /*if($v['photos']){
+                $photosnum = $v['num'];
+                $albumslen = count($info['user_albums']['albums']);
+               if($photosnum != ''){
+                    for($i=0;$i<$albumslen;$i++){
+                        $randnum = $this -> _getUniqueRand(array(0,$albumslen-1), 'photosnum');
+                        $item['user_albums'][] = $info['user_albums']['albums'][$randnum];
+                    }    
+                }else{
+                    $item['user_albums'] = $info['user_albums']['albums'];
+                }
+
+                if($albumslen){
+                    $item['user_albums'] = $info['user_albums']['albums'];
+                }
+
+            }*/
+                        
+        }
+
+        return $item;
     }
 
     private function _storeUserInfo($userInfo){
@@ -472,12 +544,17 @@ class ResultAction extends Action {
 
     //获取函数参数列表
     private function _getStrParam($str){
+        //$str='layer(HardMix,[37/bottom1.png])';
         $pos=strpos($str,'(');
         if($pos>=0){
             $_str=explode('(', $str);
             $str=$_str[1];
         }
-        preg_match_all('/(-?\w+)/im', $str, $match);
+        preg_match_all('/(\w+|\[(.*?)\])/im', $str, $match);
+        foreach ($match as $key => $value) {
+            $match[$key]=preg_replace('/(\[|\])/im', '', $value);
+        }
+        
         return $match[0];
     }
 

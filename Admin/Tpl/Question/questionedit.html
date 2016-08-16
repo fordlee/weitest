@@ -10,7 +10,7 @@
 				<i class="icon-home home-icon"></i>
 				<a href="{:U('Question/questionlist')}">题库管理</a>
 			</li>
-			<li class="active">修改标题</li>
+			<li class="active">修改标题及权限</li>
 		</ul><!-- .breadcrumb -->
 	</div>
 
@@ -28,7 +28,7 @@
 					</thead>
 
 					<tbody>
-					<volist name="qitem" id="v">
+					<volist name="qditem" id="v">
 						<tr>
 							<td class="center">{$v.qid}</td>
 							<form action="{:U('Question/editquestionsave')}" method="post">
@@ -51,7 +51,73 @@
 					</volist>
 					</tbody>
 				</table>
+				<hr>
+				<form action="{:U('editprofilesave')}" method="post" class="form-horizontal" >
+					<input type="hidden" name="p" value="{$p}">
+					<input type="hidden" name="qid" value="{$qid}">
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="user">权限设置：</label>
+						<div class="col-sm-4">
+							<volist name="profile" id="v">
+								<label class="position-relative">
+									<eq name="v.default" value="1">
+										<input type="checkbox" name="profile[]" value="{$v.profile}" class="ace" checked/>
+									<else/>
+										<input type="checkbox" name="profile[]" value="{$v.profile}" class="ace" />
+									</eq>
+									<span class="lbl">{$v.profile}</span>&nbsp;&nbsp;
+								</label>
+							</volist>
+						</div>
+					</div>
 
+					<div class="form-group">
+						<div class="col-sm-2">
+							<input type="submit" class="btn btn-primary pull-right" value="修改">
+						</div>
+						<div class="col-sm-7">
+							<input type="button" onclick="window.history.go(-1)" class="btn btn-light pull-right" value="返回">
+						</div>
+					</div>
+				</form>
+				<hr>
+				<eq name="front" value="1">
+				<form action="{:U('editfrontsave')}" method="post" class="form-horizontal">
+					<input type="hidden" name="p" value="{$p}">
+					<input type="hidden" name="qid" value="{$qid}">
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" for="user">Front处理设置：</label>
+						<div class="col-sm-8">
+							<div class="form-group" id="frontdiv">
+								<div class="col-sm-6">
+									<label class="position-relative">
+										<input type="checkbox" name="userdefault" value="{$generalset.userdefault.default}" class="ace" <php>if($generalset['userdefault']['default'] == 1)echo "checked";</php>>
+										<span class="lbl">默认个人</span>&nbsp;&nbsp;
+										<input type="checkbox" name="userfriends" value="{$generalset.userfriends.friends}" class="ace" <php>if($generalset['userfriends']['friends'] == 1)echo "checked";</php>>
+										<span class="lbl">好友头像数</span>
+										<input type="text" class="input-mini spinner-input" name="numfriends" value="{$generalset.userfriends.num}">&nbsp;&nbsp;
+										<input type="checkbox" name="userphotos" value="{$generalset.userphotos.photos}" class="ace" <php>if($generalset['userphotos']['photos'] == 1)echo "checked";</php>>
+										<span class="lbl">相册图片数</span>
+										<input type="text" class="input-mini spinner-input" name="numphotos" value="{$generalset.userphotos.num}">&nbsp;&nbsp;
+									</label>
+									Front内容:
+									<textarea name="frontcontent" style="margin:0px;width:450px;height:200px;">{$frontcontent}
+									</textarea>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-sm-2">
+							<input type="submit" class="btn btn-primary pull-right" value="修改">
+						</div>
+						<div class="col-sm-7">
+							<input type="button" onclick="window.history.go(-1)" class="btn btn-light pull-right" value="返回">
+						</div>
+					</div>
+				</form>
+			</eq>
 			</div>
 		</div>
 

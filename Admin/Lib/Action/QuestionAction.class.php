@@ -28,11 +28,100 @@ class QuestionAction extends Action {
             $ret = $m_q_d -> where(array('qid'=>$v['id'])) -> select();
             $list[$k]['qd'] = $ret;
         }
+
+        $m_c = M('category');
+        $categories = $m_c -> select();
         
         $this -> assign('p', $p);
         $this -> assign('page', $page);
         $this -> assign('list', $list);
+        $this -> assign('categories', $categories);
         $this -> display();
+    }
+
+    public function categorysort(){
+        $cid = $_GET['cid'];
+        $m_q_c = M('question_category');
+        $p = $this -> _getp();
+
+        import("ORG.Util.Page");//导入分页类
+        $count  = $m_q_c -> where(array('cid' => $cid)) -> count();//计算总数 
+
+        $Page   = new Page($count, 5);
+        $list = $m_q_c -> join('question on question.id = question_category.qid') 
+                       -> limit($Page->firstRow. ',' . $Page->listRows)
+                       -> order('reorder desc,id desc')
+                       -> field('question.id,question.reorder,question.qcode,question.status,question.date')
+                       -> where(array('question_category.cid' => $cid))
+                       -> select();
+        $page = $Page->show();
+
+        $m_q_d = M('question_detail');
+        foreach ($list as $k => $v) {
+            $ret = $m_q_d -> where(array('qid'=>$v['id'])) -> select();
+            $list[$k]['qd'] = $ret;
+        }
+
+        $m_c = M('category');
+        $categories = $m_c -> select();
+        
+        $this -> assign('p', $p);
+        $this -> assign('cid',$cid);
+        $this -> assign('page', $page);
+        $this -> assign('list', $list);
+        $this -> assign('categories', $categories);
+
+        $this -> display('questionlist');
+    }
+
+    public function datesort(){
+        $date = $_POST['date_range'];
+        $dateRange = $this -> _getDateSwap($date);
+        $p = $this -> _getp();
+
+        $m_q = M('question');
+        $dateW = array(
+            'question.date' => array('between', array($dateRange['begin'], $dateRange['end']))
+        );
+        
+        $list   = $m_q -> order('reorder desc,id desc')
+                       -> field('id,reorder,qcode,status,date')
+                       -> where($dateW)
+                       -> select();
+
+        $m_q_d = M('question_detail');
+        foreach ($list as $k => $v) {
+            $ret = $m_q_d -> where(array('qid'=>$v['id'])) -> select();
+            $list[$k]['qd'] = $ret;
+        }
+        
+
+        $m_c = M('category');
+        $categories = $m_c -> select();
+        
+        $this -> assign('p', $p);
+        $this -> assign('dateRange',$date);
+        $this -> assign('list', $list);
+        $this -> assign('categories', $categories);
+
+        $this -> display('questionlist');
+
+    }
+
+    private function _getDateSwap($dateRange){
+        if(is_array($dateRange)){
+            //将数组时间转为字符串时间
+            $dateRange['begin'] = date("m/d/Y",strtotime($dateRange['begin']));
+            $dateRange['end'] = date("m/d/Y",strtotime($dateRange['end']));
+            $dateRange = implode(' - ',$dateRange);
+        }else{
+            //将字符串03/01/2016 - 03/25/2016转为数组
+            $date = explode(' - ', $dateRange);
+            $dateRange = array();
+            $dateRange['begin'] = date('Y-m-d',strtotime($date[0]));
+            $dateRange['end'] = date('Y-m-d',strtotime($date[1]));
+        }
+        return $dateRange;
     }
 
     public function questionentry(){
@@ -40,6 +129,53 @@ class QuestionAction extends Action {
         $this -> assign('profile',$profile);
 
         $this -> display('questionentry');
+    }
+
+    private function _getGeneralset($front){
+        if($front){
+            $generalset = array();
+            $userdefault = $_POST['userdefault'];
+            if($userdefault){
+                $generalset['userdefault'] = array(
+                    "default" => 1,
+                    "num"     => "1"
+                );
+            }
+            $userfriends = $_POST['userfriends'];
+            if($userfriends){
+                $generalset['userfriends'] = array(
+                    "friends" => 1,
+                    "num"     => $_POST['numfriends']
+                );
+            }
+            $userphotoes = $_POST['userphotos'];
+            if($userphotoes){
+                $generalset['userphotos'] = array(
+                    "photos" => 1,
+                    "num"     => $_POST['numphotos']
+                );
+            }
+        }else{
+            $generalset = NULL;
+        }
+
+        return $generalset;
+    }
+
+    private function _getFront($front){
+        $front ? $front = 1 : $front = 0;
+
+        return $front;
+    }
+
+    private function _getFrontcontent($front){
+        if($front){
+            $frontcontent = $_POST['frontcontent'];
+        }else{
+            $frontcontent = NULL;
+        }
+
+        return $frontcontent;
     }
 
     public function questionentrysave(){
@@ -56,7 +192,12 @@ class QuestionAction extends Action {
         }
         
         $qcode = $_POST['qcode'].'_'.uniqid();
-        $generalsetjson = '';
+        
+        $front = 1;
+        $front = $this -> _getFront($front);
+        $frontcontent = $this -> _getFrontcontent($front);
+        $generalset = $this -> _getGeneralset($front);
+        $generalset = json_encode($generalset);
 
         $profile = $_POST['profile'];
         $profileStr=implode(',',$profile);
@@ -69,7 +210,9 @@ class QuestionAction extends Action {
             'profileset'=> $profileStr,
             'icon'  => $icon,
             'bgpic' => $bgpic,
-            'generalset' => $generalsetjson,
+            'generalset' => $generalset,
+            'frontcontent' => $frontcontent,
+            'front' => $front,
             'status' => 0,
             'date' => date('Y-m-d')
         );
@@ -78,7 +221,7 @@ class QuestionAction extends Action {
         $ret = $m_q -> add($item);
         
         if($ret != false){
-            $this -> success('添加成功！','Question/questionlist');
+            $this -> success('添加成功！','questionlist');
         }else{
             $this -> error('添加失败！');
         }
@@ -106,7 +249,12 @@ class QuestionAction extends Action {
         }
         
         $qcode = $_POST['qcode'];
-        $generalsetjson = '';
+
+        $front = $_POST['front'];
+        $front = $this -> _getFront($front);
+        $frontcontent = $this -> _getFrontcontent($front);
+        $generalset = $this -> _getGeneralset($front);
+        $generalset = json_encode($generalset);
 
         $icon = $info[0]['savename'];
         $bgpic = $info[1]['savename'];
@@ -115,16 +263,24 @@ class QuestionAction extends Action {
             'qcode' => $qcode,
             'icon'  => $icon,
             'bgpic' => $bgpic,
-            'generalset' => $generalsetjson
+            'generalset' => $generalset,
+            'frontcontent' => $frontcontent,
+            'front' => $front
         );
         
         $m_q = M('question');
+        $qitem = $m_q -> where(array('qcode' => $qcode)) -> find();
+        if($qitem){
+            $imgQ = UPLOADS_PATH."/imgQ/";
+            unlink($imgQ.$qitem['icon']);
+            unlink($imgQ.$qitem['bgpic']);
+        }
         $ret = $m_q -> where(array('qcode' => $qcode)) -> save($item);
         
         if($ret != false){
-            $this -> success('添加成功！','Question/questionlist');
+            $this -> success('修改成功！','questionlist');
         }else{
-            $this -> error('添加失败！');
+            $this -> error('修改失败！');
         }
     }
 
@@ -175,10 +331,28 @@ class QuestionAction extends Action {
         $p = $this -> _getp();
 
         $m_q_d = M('question_detail');
-        $qitem = $m_q_d -> where(array("qid" => $qid)) -> select();
+        $qditem = $m_q_d -> where(array("qid" => $qid)) -> select();
+
+        $m_q = M('question');
+        $item = $m_q -> where(array("id" => $qid)) -> find();       
+        $selProfile = explode(',', $item['profileset']);
+        $allProfile = $this -> _getProfile();
+        $profile = $allProfile;
+        foreach ($allProfile as $k => $v) {
+            if(in_array($v['profile'], $selProfile)){
+                $profile[$k]['default'] = 1;
+            }else{
+                $profile[$k]['default'] = 0;
+            }
+        }
 
         $this -> assign('p',$p);
-        $this -> assign('qitem',$qitem);
+        $this -> assign('qditem',$qditem);
+        $this -> assign('profile',$profile);
+        $this -> assign('qid', $item['id']);
+        $this -> assign('front',$item['front']);
+        $this -> assign('frontcontent',$item['frontcontent']);
+        $this -> assign('generalset',json_decode($item['generalset'],true));
         
         $this -> display('questionedit');
     }
@@ -209,6 +383,52 @@ class QuestionAction extends Action {
             }
         }else{
             $this -> error('未修改内容！');
+        }
+    }
+
+    public function editprofilesave(){
+        $p = $_POST['p'];
+        $qid = $_POST['qid'];
+        $profile = $_POST['profile'];
+        $profileStr=implode(',',$profile);
+
+        $item = array(
+            'profileset' => $profileStr
+        );
+        
+        $m_q = M('question');
+        $ret = $m_q -> where('id='.$qid) -> save($item);
+        
+        if($ret){
+            $this -> success("修改成功！","questionlist/p/".$p);
+        }else{
+            $this -> error("修改失败！");
+        }
+    }
+
+    public function editfrontsave(){
+        $p = $_POST['p'];
+        $qid = $_POST['qid'];
+
+        $front = 1;
+        $front = $this -> _getFront($front);
+        $frontcontent = $this -> _getFrontcontent($front);
+        $generalset = $this -> _getGeneralset($front);
+        $generalset = json_encode($generalset);
+
+        $item = array(
+            'generalset' => $generalset,
+            'frontcontent' => $frontcontent,
+            'front' => $front
+        );
+        
+        $m_q = M('question');
+        $ret = $m_q -> where('id='.$qid) -> save($item);
+
+        if($ret){
+            $this -> success("修改成功！","questionlist/p/".$p);
+        }else{
+            $this -> error("修改失败！");
         }
     }
 
@@ -310,12 +530,8 @@ class QuestionAction extends Action {
                 }
             }
 
-            if($ret){
-                $newpage = $page+1;
-                $this -> success('第'.$page.'次删除成功！',U('Question/delqid').'/qid/'.$qid.'/page/'.$newpage);
-            }else{
-                $this -> error('此题不存在或已删除！',U('Question/questionlist'));
-            }
+            $newpage = $page+1;
+            $this -> success('第'.$page.'次删除成功！',U('Question/delqid').'/qid/'.$qid.'/page/'.$newpage);
         }else{
             $this -> success('全部删除成功！',U('question/questionlist'));
         }
@@ -354,8 +570,178 @@ class QuestionAction extends Action {
         }else{
             $this -> error('此人不存在或已删除！',U('Question/questionlist'));
         }
-
-
     }
+
+    public function categorysave(){
+        $qids = $_POST['qids'];
+        $cid = $_POST['cid'];
+
+        $m_q_c = M('question_category');
+        foreach ($qids as $k => $v) {
+            $data = array(
+                "qid" => $v,
+                "cid" => $cid
+            );
+            $qcitem = $m_q_c -> where($data) -> find();
+            if($qcitem == NULL){
+                $ret = $m_q_c -> add($data);
+            }
+        }
+
+        if($ret){
+            echo 1;
+        }else{
+            echo 0;
+        }
+    }
+
+    public function delCategoryQid(){
+        $qids = $_POST['qids'];
+        $cid = $_POST['cid'];
+
+        $m_q_c = M('question_category');
+        foreach ($qids as $k => $v) {
+            $data = array(
+                "qid" => $v,
+                "cid" => $cid
+            );
+            $qcitem = $m_q_c -> where($data) -> find();
+            if($qcitem !== NULL){
+                $ret = $m_q_c -> where($data) -> delete();
+            }
+        }
+
+        if($ret){
+            echo 1;
+        }else{
+            echo 0;
+        }
+    }
+
+    public function showCategory(){
+        $m_c =M('category');
+        $m_q_c = M('question_category');
+
+        $categories = $m_c -> select();
+        foreach ($categories as $k1 => $v1) {
+            $qcitem = $m_q_c -> where(array('cid' => $v1['id'])) -> select();
+            foreach ($qcitem as $k2 => $v2) {
+                $qids[$k1][$k2] = $v2['qid'];
+            }
+
+            $categories[$k1]['qids'] = implode(',', $qids[$k1]);
+        }
+
+        //var_dump($categories);die();
+        $this -> assign('categories', $categories);
+        $this -> display();
+    }
+
+    public function addCategory(){
+        $m_c = M('category');
+        $category = $_POST['category'];
+        $data['category_name'] = $category;
+        $ret = $m_c -> add($data);
+        if($ret){
+            $this -> redirect('showCategory');
+        }else{
+            $this -> error('添加失败！','showCategory');
+        }
+    }
+
+    public function categoryedit(){
+        $cid = $_POST['cid'];
+        $category_name = $_POST['category_name'];
+        $oqids = $_POST['oqids'];
+        $nqids = $_POST['nqids'];
+
+        $m_c = M('category');
+        $m_q_c = M('question_category');
+
+        $ret1 = $m_c -> where(array('id' => $cid,'category_name' => $category_name)) -> find();
+        if($ret1 == NULL){
+            $ret = $m_c -> where(array('id' => $cid)) -> save(array('category_name' => $category_name));
+        }
+
+        $oarr = explode(',', $oqids);
+        foreach ($oarr as $k => $v) {
+            $qcids[] = $m_q_c -> where(array('cid' => $cid,'qid' => $v)) -> find();
+        }
+
+        $narr = explode(',', $nqids);
+        if(count($oarr) <= count($narr)){
+            foreach ($narr as $k => $v) {
+                $ret2 = $m_q_c -> where(array('cid' => $cid,'qid' => $v)) -> find();
+                if($ret2 == NULL){
+                    $ret = $m_q_c -> where(array('id' => $qcids[$k]['id'],'cid' => $cid)) -> save(array('qid' => $v));
+                    if($ret == false){
+                        $data = array('qid' => $v,'cid' => $cid);
+                        $ret = $m_q_c -> add($data);
+                    }
+                }
+            }
+        }
+
+        if($ret){
+            echo 1;
+        }else{
+            echo 0;
+        }
+        
+    }
+
+    public function categorydel(){
+        $cid = $_POST['cid'];
+        $category_name = $_POST['category_name'];
+        $qids = $_POST['qids'];
+
+        $m_c = M('category');
+        $m_q_c = M('question_category');
+
+        $ret = $m_c -> where(array('id' => $cid)) -> delete();
+
+        $arr = explode(',', $qids);
+        foreach ($arr as $k => $v) {
+            $ret = $m_q_c -> where(array('cid' => $cid, 'qid' => $v)) -> delete();
+        }
+
+        if($ret){
+            echo 1;
+        }else{
+            echo 0;
+        }
+    }
+
+    public function setCategoryStatus(){
+        $qids = $_POST['qids'];
+        $cid = $_POST['cid'];
+        $category_status = $_POST['category_status'];
+
+        $m_q = M('question');
+        $m_c = M('category');
+        $arr = explode(',', $qids);
+        
+        foreach ($arr as $k => $v) {
+            if($category_status == 0){
+                $ret = $m_q -> where('id='.$v) -> save(array('status' => 1));
+            }else{
+                $ret = $m_q -> where('id='.$v) -> save(array('status' => 0));
+            }
+        }
+
+        if($category_status == 0){
+            $ret1 = $m_c -> where('id='.$cid) -> save(array('category_status' => 1));
+        }else{
+            $ret1 = $m_c -> where('id='.$cid) -> save(array('category_status' => 0));
+        }
+
+        if($ret1){
+            $this -> redirect('showCategory');
+        }else{
+            $this -> error('设置失败！','showCategory');
+        }
+    }
+
+
 
 }

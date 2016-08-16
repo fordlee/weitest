@@ -42,7 +42,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right" for="user">选择设置：</label>
+						<label class="col-sm-2 control-label no-padding-right" for="user">权限设置：</label>
 						<div class="col-sm-4">
 							<volist name="profile" id="v">
 								<label class="position-relative">
@@ -88,6 +88,38 @@
 					</div>
 
 					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" >Front处理设置：</label>
+						<div class="col-sm-4">
+							<label>
+								<input name="front" id="switchbtn" value="1" class="ace ace-switch ace-switch-3" type="checkbox">
+								<span class="lbl"></span>
+							</label>
+						</div>
+					</div>
+
+					<div class="form-group" id="frontdiv" style="display:none">
+						<label class="col-sm-2 control-label no-padding-right" ></label>
+						<div class="col-sm-4">
+							<label class="position-relative">
+								<input type="checkbox" name="userdefault" value="1" class="ace" />
+								<span class="lbl">默认个人</span>&nbsp;&nbsp;
+							</label>
+							<label class="position-relative">
+								<input type="checkbox" name="userfriends" value="1" class="ace" />
+								<span class="lbl">好友头像数</span>
+								<input type="text" class="input-mini spinner-input " name="numfriends" >&nbsp;&nbsp;
+							</label>
+							<label class="position-relative">
+								<input type="checkbox" name="userphotos" value="1" class="ace" />
+								<span class="lbl">相册图片数</span>
+								<input type="text" class="input-mini spinner-input " name="numphotos">&nbsp;&nbsp;
+							</label>
+							Front内容:
+							<textarea name="frontcontent" style="margin:0px;width:450px;height:200px;"></textarea>
+						</div>
+					</div>
+
+					<div class="form-group">
 						<div class="col-sm-2">
 							<input type="button" onclick="window.location.reload()" class="btn btn-light pull-right" value="重置">
 						</div>
@@ -125,6 +157,16 @@ $('#iconfile, #backfile').ace_file_input({
 	//console.log($(this).data('ace_input_method'));
 });
 
+$('#switchbtn').click(function(){
 
+	if($('#switchbtn').is(':checked')){
+		$('#frontdiv').show();
+	}else{
+		$('#frontdiv').hide();
+	}
+	
+	$('input[name="userdefault"]').attr("checked","true");
+	$('input[name="userfriends"]').attr("checked","true");
+});
 
 </script>

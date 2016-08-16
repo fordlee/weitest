@@ -68,6 +68,12 @@ class FacebookPaint{
 				$_im=$this -> _filterPic($_im,$this -> _getStrParam($value));
 			}elseif(preg_match('/^rotate/im', $value)>=1){//旋转图片
 				$_im=$this -> _rotate($_im,$this -> _getStrParam($value));
+			}elseif(preg_match('/^equal/im', $value)>=1){//图片等比处理
+				$_im=$this -> _equalResizePic($_im,$this -> _getStrParam($value));
+			}elseif(preg_match('/^layer/im', $value)>=1){//图层叠加
+				$_im=$this -> layerBlending($_im,$this -> _getStrParam($value));
+			}elseif(preg_match('/^gdfilter/im', $value)>=1){//图片滤镜
+				$_im=$this -> gd_filter_image($_im,$this -> _getStrParam($value));
 			}
 		}
 
@@ -129,23 +135,62 @@ class FacebookPaint{
 
 	//调整图片大小(等比缩放裁切)
 	private function _resizePic($im, $param){
+	    //原图长宽、比例
+	    $im_width = imagesx($im);
+	    $im_height = imagesy($im);
 
-		$width=$param[0];
-		$height=$param[1];
-	    $im_width=imagesx($im);//大图宽度
-	    $im_height=imagesy($im);//大图高度
-	    $thumb = imagecreatetruecolor($width,$height);
+	    //裁剪长宽、比例
+		$width=(int)$param[0];
+		$height=(int)$param[1];
 
-		$fff= imagecolorallocate($thumb , 0 , 0 ,255);//拾取白色
-		imagecolortransparent($thumb ,$fff );//把图片中白色设置为透明色
+		$im_ratio=$im_width/$im_height;
+		$ratio=$width/$height;
 
-		/**/
-		imagealphablending($thumb,false);
-		imagesavealpha($thumb,true);
-		/**/
+		if($ratio>=$im_ratio){
+			//等比缩放参数
+			$tmp_param=array(
+				$width,
+				$im_height*($width/$im_width)
+			);
+			$cut_area=array(
+				0,
+				($tmp_param[1]-$height)/2
+			);
+		}else{
+			$tmp_param=array(
+				$im_width*($height/$im_height),
+				$height
+			);
+			$cut_area=array(
+				($tmp_param[0]-$width)/2,
+				0
+			);
+		}
 
-	    imagecopyresampled($thumb,$im,0,0,0,0,$width,$height,$im_width,$im_height);
-	    return $thumb;
+		#---处理等比缩放---#
+		$ratioResizedThumb= imagecreatetruecolor($tmp_param[0],$tmp_param[1]);
+		
+		//透明处理
+		$fff= imagecolorallocate($ratioResizedThumb , 0 , 0 ,255);//拾取白色
+		imagecolortransparent($ratioResizedThumb ,$fff );//把图片中白色设置为透明色
+		imagealphablending($ratioResizedThumb,false);
+		imagesavealpha($ratioResizedThumb,true);
+
+		imagecopyresampled($ratioResizedThumb,$im,0,0,0,0,$tmp_param[0],$tmp_param[1],$im_width,$im_height);
+		#------------------#
+
+		#---处理裁剪并生成结果图---#
+		$resultThumb=imagecreatetruecolor($width,$height);
+		
+		//透明处理
+		$fff= imagecolorallocate($resultThumb , 0 , 0 ,255);//拾取白色
+		imagecolortransparent($resultThumb ,$fff );//把图片中白色设置为透明色
+		imagealphablending($resultThumb,false);
+		imagesavealpha($resultThumb,true);
+
+		imagecopyresampled($resultThumb,$ratioResizedThumb,0,0,$cut_area[0],$cut_area[1],$width,$height,$width,$height);
+
+	    return $resultThumb;
 	}
 
 	//裁剪图片
@@ -198,7 +243,7 @@ class FacebookPaint{
 	}
 
 	//不失真缩小图片
-	private function _smallPic($im,$param){
+	private function _equalResizePic($im,$param){
 		$maxwidth = $param[0];
 		$maxheight = $param[1];
 
@@ -346,6 +391,61 @@ class FacebookPaint{
 		}
 	}
 
+	//图片滤镜效果
+	public function gd_filter_image($src_im, $param){
+		$filter_name = $param[0];
+		$filter = 'gd_filter_'.$filter_name;
+		
+		$width = imagesx($src_im);
+		$height = imagesy($src_im);
+
+		$im = imagecreatetruecolor($width, $height);
+		$src = $src_im;
+		imagecopyresampled($im, $src_im, 0, 0, 0, 0, $width, $height, $width, $height);
+		
+		import('ORG.Util.Image.GDFilter');
+		$gdfilter = new GDFilter();
+		$im = $gdfilter -> $filter($im);
+		
+		return $im;
+	}
+
+	//图层叠加效果处理
+	public function layerBlending($im,$param){
+
+		$mode = $param[0];
+		$imgPath = $param[1];
+ 		$bottomPath = UPLOADS_PATH.'/local/'.$imgPath;
+		$bottom = imagecreatefrompng($bottomPath);
+		$top = $im;
+		import('ORG.Util.Image.Blenging');
+	    $handler = 'Blending::layer'.$mode;
+	    
+	    $width = imagesx($top);
+	    $height = imagesy($top);
+	    $layer = imagecreatetruecolor($width, $height);
+	    for ($x = 0; $x < $width; $x++) {
+	        for ($y = 0; $y < $height; $y++) {
+	            $color = imagecolorat($top, $x, $y);
+	            $tR = ($color >> 16) & 0xFF;
+	            $tG = ($color >> 8) & 0xFF;
+	            $tB = $color & 0xFF;
+	            $color = imagecolorat($bottom, $x, $y);
+	            $bR = ($color >> 16) & 0xFF;
+	            $bG = ($color >> 8) & 0xFF;
+	            $bB = $color & 0xFF;
+	            imagesetpixel($layer, $x, $y, imagecolorallocate($layer, 
+	                call_user_func($handler, $tR, $bR),
+	                call_user_func($handler, $tG, $bG),
+	                call_user_func($handler, $tB, $bB)
+	            ));
+	        }
+	    }
+	    //header('Content-Type: image/png');
+	    //imagepng($layer);
+
+	    return $layer;
+	}
 
 	//字体加粗
 	private function _boldText($im,$attribute){
@@ -507,13 +607,18 @@ class FacebookPaint{
 	}
 
 	//获取函数参数列表
-	private	function _getStrParam($str){
+	private function _getStrParam($str){
+		//$str='layer(HardMix,[37/ttom1.png])';
 		$pos=strpos($str,'(');
 		if($pos>=0){
 			$_str=explode('(', $str);
 			$str=$_str[1];
 		}
-		preg_match_all('/(-?\w+)/im', $str, $match);
+		preg_match_all('/(\w+|\[(.*?)\])/im', $str, $match);
+		foreach ($match as $key => $value) {
+			$match[$key]=preg_replace('/(\[|\])/im', '', $value);
+		}
+		
 		return $match[0];
 	}
 

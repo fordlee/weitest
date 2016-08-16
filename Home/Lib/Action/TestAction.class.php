@@ -212,5 +212,26 @@ class TestAction extends Action {
         var_dump($profile);
     }
 
+    public function getPermissions(){
+        $qid = 1;
+        $m_q = M('question');
+        $qpItem = $m_q -> where(array("id" => $qid)) -> find();
+
+        if($qpItem['profileset'] == NULL){
+            $qpItem['profileset'] = 'public_profile,email,user_birthday,user_friends';
+        }
+
+        $arr = explode(",",$qpItem['profileset']);
+        foreach ($arr as $k => $v) {
+            $permissions .= '\''.$v.'\''.",";
+        }
+        $permissions='['.substr($permissions, 0, -1).']';
+        
+        echo $permissions;
+        //$permissions = ['email','public_profile','user_birthday','user_location','user_website','user_friends','user_photos','user_relationships','user_relationship_details'];
+        var_dump($permissions);
+    }
+
+
 }
 ?>
