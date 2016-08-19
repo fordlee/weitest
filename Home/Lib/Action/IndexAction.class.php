@@ -93,6 +93,7 @@ class IndexAction extends Action {
     public function question($questionId='',$processTag=''){
 
         $qid = $_GET['id'];
+        $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
 
         if($questionId){
             $qid=$questionId;
@@ -117,7 +118,7 @@ class IndexAction extends Action {
         $qitem = $m -> where($w_q) -> find();
 
         if($qitem == NULL){
-            header("Location: http://".$_SERVER['HTTP_HOST']."/Public/404/index.html");
+            header("Location: ".$protocol.$_SERVER['HTTP_HOST']."/Public/404/index.html");
             die();
         }
         
@@ -127,11 +128,11 @@ class IndexAction extends Action {
             $qitem['title']=$qitem['content'].' - '.$languageTp['index_title'];
         }
         
-		$ogimage = 'http://'.$_SERVER['HTTP_HOST'].C('IMAGEQ_PATH').'/'.$qitem['bgpic'];
+		$ogimage = $protocol.$_SERVER['HTTP_HOST'].C('IMAGEQ_PATH').'/'.$qitem['bgpic'];
         $pic=$_GET['pic'];
         if($pic){
             $_path=str_replace('-', '/', $pic);
-            $ogimage='http://'.$_SERVER['HTTP_HOST'].'/Uploads/image/'.$_path;
+            $ogimage=$protocol.$_SERVER['HTTP_HOST'].'/Uploads/image/'.$_path;
         }
         
         $this -> assign('ogimage',$ogimage);     
@@ -146,9 +147,10 @@ class IndexAction extends Action {
 	private function _getLanguage(){
         if(isset($_POST['language']) && !empty($_POST['language'])){
             $language = $_POST['language'];
-            $url = "http://".$language.".mytests.co";
+            $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
+            $url = $protocol.$language.".mytests.co";
             //$qid = $_POST['id'];
-            //$url = "http://".$language.".mytests.co/question/id/".$qid;
+            //$url =  $protocol.$language.".mytests.co/question/id/".$qid;
             header("Location:".$url);
         }else{
             //$server_name = $_SERVER['SERVER_NAME'];

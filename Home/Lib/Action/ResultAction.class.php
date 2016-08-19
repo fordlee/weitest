@@ -106,7 +106,10 @@ class ResultAction extends Action {
             $info = json_decode(json_encode($info),true);
             $this->paintResult($fb,$info,$accessToken,$qid,$tag);exit;
         } else {
-            $loginUrl = $helper->getLoginUrl('http://'.$_SERVER['SERVER_NAME'].'/Result/show'.($qid?'/id/'.$qid:''), $permissions);
+            //$loginUrl = $helper->getLoginUrl('http://'.$_SERVER['SERVER_NAME'].'/Result/show'.($qid?'/id/'.$qid:''), $permissions);
+            
+            $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
+            $loginUrl = $helper->getLoginUrl($protocol.$_SERVER['SERVER_NAME'].'/Result/show'.($qid?'/id/'.$qid:''), $permissions);
 
             if($tag=='analyze'){ //AJAX异步后台处理程序
                 header('Content-type:text/json');
@@ -134,9 +137,9 @@ class ResultAction extends Action {
 
     public function paintResult($fb,$info,$accessToken,$questionId='',$tag=''){
 
-    
         $qid = $_GET['id'];
-        
+        $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
+
         if($tag=='analyze'){//AJAX异步后台处理程序
             $qid=$questionId;
         }
@@ -167,6 +170,11 @@ class ResultAction extends Action {
                 'qid'  => $qitem['qid']
             );
             $aitem = $m_a -> where($where) -> select();
+
+            if($aitem == NULL){
+                header("Location: ".$protocol.$_SERVER['HTTP_HOST']."/Public/404/index.html");
+                die();
+            }
             
             //随机获取答案
             $randnum = $this -> _myrand(count($aitem)-1);

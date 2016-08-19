@@ -91,7 +91,7 @@
 						<label class="col-sm-2 control-label no-padding-right" >Front处理设置：</label>
 						<div class="col-sm-4">
 							<label>
-								<input name="front" id="switchbtn" value="1" class="ace ace-switch ace-switch-3" type="checkbox">
+								<input name="front" id="switchbtn" value="0" class="ace ace-switch ace-switch-3" type="checkbox">
 								<span class="lbl"></span>
 							</label>
 						</div>
@@ -160,8 +160,10 @@ $('#iconfile, #backfile').ace_file_input({
 $('#switchbtn').click(function(){
 
 	if($('#switchbtn').is(':checked')){
+		$('#switchbtn').val(1);
 		$('#frontdiv').show();
 	}else{
+		$('#switchbtn').val(0);
 		$('#frontdiv').hide();
 	}
 	

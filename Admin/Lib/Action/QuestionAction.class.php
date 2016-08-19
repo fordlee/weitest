@@ -155,6 +155,8 @@ class QuestionAction extends Action {
                     "num"     => $_POST['numphotos']
                 );
             }
+            
+            $generalset = json_encode($generalset);
         }else{
             $generalset = NULL;
         }
@@ -179,6 +181,7 @@ class QuestionAction extends Action {
     }
 
     public function questionentrysave(){
+
         import('ORG.Net.UploadFile');
         $upload = new UploadFile();
         $upload->maxSize  = 3145728;
@@ -193,12 +196,11 @@ class QuestionAction extends Action {
         
         $qcode = $_POST['qcode'].'_'.uniqid();
         
-        $front = 1;
+        $front = $_POST['front'];
         $front = $this -> _getFront($front);
         $frontcontent = $this -> _getFrontcontent($front);
         $generalset = $this -> _getGeneralset($front);
-        $generalset = json_encode($generalset);
-
+        
         $profile = $_POST['profile'];
         $profileStr=implode(',',$profile);
 
@@ -236,6 +238,7 @@ class QuestionAction extends Action {
     }
 
     public function questionentryedit(){
+
         import('ORG.Net.UploadFile');
         $upload = new UploadFile();
         $upload->maxSize  = 3145728;
@@ -254,11 +257,10 @@ class QuestionAction extends Action {
         $front = $this -> _getFront($front);
         $frontcontent = $this -> _getFrontcontent($front);
         $generalset = $this -> _getGeneralset($front);
-        $generalset = json_encode($generalset);
 
         $icon = $info[0]['savename'];
         $bgpic = $info[1]['savename'];
-
+        
         $item = array(
             'qcode' => $qcode,
             'icon'  => $icon,
@@ -267,7 +269,7 @@ class QuestionAction extends Action {
             'frontcontent' => $frontcontent,
             'front' => $front
         );
-        
+
         $m_q = M('question');
         $qitem = $m_q -> where(array('qcode' => $qcode)) -> find();
         if($qitem){
