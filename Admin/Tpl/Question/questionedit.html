@@ -82,6 +82,7 @@
 				</form>
 				<hr>
 				<eq name="front" value="1">
+				<input type="button" value="关闭Front" onclick="setFront('{$qid}','{$front}')" class="btn btn-xs btn-danger">
 				<form action="{:U('editfrontsave')}" method="post" class="form-horizontal">
 					<input type="hidden" name="p" value="{$p}">
 					<input type="hidden" name="qid" value="{$qid}">
@@ -93,9 +94,13 @@
 									<label class="position-relative">
 										<input type="checkbox" name="userdefault" value="{$generalset.userdefault.default}" class="ace" <php>if($generalset['userdefault']['default'] == 1)echo "checked";</php>>
 										<span class="lbl">默认个人</span>&nbsp;&nbsp;
+									</label>
+									<label class="position-relative">
 										<input type="checkbox" name="userfriends" value="{$generalset.userfriends.friends}" class="ace" <php>if($generalset['userfriends']['friends'] == 1)echo "checked";</php>>
 										<span class="lbl">好友头像数</span>
 										<input type="text" class="input-mini spinner-input" name="numfriends" value="{$generalset.userfriends.num}">&nbsp;&nbsp;
+									</label>
+									<label class="position-relative">
 										<input type="checkbox" name="userphotos" value="{$generalset.userphotos.photos}" class="ace" <php>if($generalset['userphotos']['photos'] == 1)echo "checked";</php>>
 										<span class="lbl">相册图片数</span>
 										<input type="text" class="input-mini spinner-input" name="numphotos" value="{$generalset.userphotos.num}">&nbsp;&nbsp;
@@ -117,6 +122,8 @@
 						</div>
 					</div>
 				</form>
+			<else/>
+				<input type="button" value="开启Front" onclick="setFront('{$qid}','{$front}')" class="btn btn-xs btn-success">
 			</eq>
 			</div>
 		</div>
@@ -125,4 +132,26 @@
 
 </div><!-- /.main-content -->
 <include file="Public:footer" />
+<script type="text/javascript">
+function setFront(qid,front){
+	front == 1?front = 0:front = 1;
+	$.ajax({
+		    url: "{:U('setFront')}",
+		    type: 'post',
+		    cache: false,
+		    data: {
+		    	'qid':qid,
+		    	'front':front
+		    }
+		}).done(function(response) {
+			if(response == 1){
+				window.location.reload();
+			}else{
+				alert('失败！请重试！');
+			}
+		}).fail(function(response) {
+			console.log(response);
+		});
+}
+</script>
 
