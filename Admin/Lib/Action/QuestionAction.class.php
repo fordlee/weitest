@@ -416,8 +416,7 @@ class QuestionAction extends Action {
         $front = $this -> _getFront($front);
         $frontcontent = $this -> _getFrontcontent($front);
         $generalset = $this -> _getGeneralset($front);
-        $generalset = json_encode($generalset);
-
+        
         $item = array(
             'generalset' => $generalset,
             'frontcontent' => $frontcontent,
@@ -432,6 +431,35 @@ class QuestionAction extends Action {
         }else{
             $this -> error("修改失败！");
         }
+    }
+
+    //Front设置修改
+    public function setFront(){
+        $qid = $_POST['qid'];
+        $front = $_POST['front'];
+        $m_q = M('question');
+        if($front == 1){
+            $generalset = '{"userdefault":{"default":1,"num":"1"},"userfriends":{"friends":1,"num":"3"},"userphotos":{"photos":1,"num":""}}';
+            $data = array(
+                "id" => $qid,
+                "generalset" => $generalset,
+                "front" => 1
+            );
+            $ret = $m_q -> save($data);
+        }else{
+            $data = array(
+                "id" => $qid,
+                "front" => 0
+            );
+            $ret = $m_q -> save($data);
+        }
+
+        if($ret){
+            echo 1;
+        }else{
+            echo 0;
+        }
+
     }
 
     public function setStatus(){
