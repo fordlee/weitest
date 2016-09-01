@@ -81,8 +81,13 @@
 					</div>
 				</form>
 				<hr>
+				<eq name="gif" value="1">
+					<input type="button" value="gif关闭" onclick="setGif('{$qid}','{$gif}')" class="btn btn-xs btn-danger">
+				<else/>
+					<input type="button" value="gif开启" onclick="setGif('{$qid}','{$gif}')" class="btn btn-xs btn-success">
+				</eq>
 				<eq name="front" value="1">
-				<input type="button" value="关闭Front" onclick="setFront('{$qid}','{$front}')" class="btn btn-xs btn-danger">
+				<input type="button" value="Front关闭" onclick="setFront('{$qid}','{$front}')" class="btn btn-xs btn-danger">
 				<form action="{:U('editfrontsave')}" method="post" class="form-horizontal">
 					<input type="hidden" name="p" value="{$p}">
 					<input type="hidden" name="qid" value="{$qid}">
@@ -123,7 +128,7 @@
 					</div>
 				</form>
 			<else/>
-				<input type="button" value="开启Front" onclick="setFront('{$qid}','{$front}')" class="btn btn-xs btn-success">
+				<input type="button" value="Front开启" onclick="setFront('{$qid}','{$front}')" class="btn btn-xs btn-success">
 			</eq>
 			</div>
 		</div>
@@ -142,6 +147,27 @@ function setFront(qid,front){
 		    data: {
 		    	'qid':qid,
 		    	'front':front
+		    }
+		}).done(function(response) {
+			if(response == 1){
+				window.location.reload();
+			}else{
+				alert('失败！请重试！');
+			}
+		}).fail(function(response) {
+			console.log(response);
+		});
+}
+
+function setGif(qid,gif){
+	gif == 1?gif = 0:gif = 1;
+	$.ajax({
+		    url: "{:U('setGif')}",
+		    type: 'post',
+		    cache: false,
+		    data: {
+		    	'qid':qid,
+		    	'gif':gif
 		    }
 		}).done(function(response) {
 			if(response == 1){

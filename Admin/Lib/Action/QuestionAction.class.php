@@ -74,6 +74,33 @@ class QuestionAction extends Action {
         $this -> display('questionlist');
     }
 
+    public function getQuestionById(){
+        $qid = $_POST['qid'];
+        $m_q = M('question');
+        $p = $this -> _getp();
+        $list = $m_q -> order('reorder desc,id desc')
+                       -> field('id,reorder,qcode,status,date')
+                       -> where(array('id' => $qid))
+                       -> select();
+
+        $m_q_d = M('question_detail');
+        foreach ($list as $k => $v) {
+            $ret = $m_q_d -> where(array('qid'=>$v['id'])) -> select();
+            $list[$k]['qd'] = $ret;
+        }
+        
+
+        $m_c = M('category');
+        $categories = $m_c -> select();
+        
+        $this -> assign('p', $p);
+        $this -> assign('dateRange',$date);
+        $this -> assign('list', $list);
+        $this -> assign('categories', $categories);
+
+        $this -> display('questionlist');
+    }
+
     public function datesort(){
         $date = $_POST['date_range'];
         $dateRange = $this -> _getDateSwap($date);
@@ -181,7 +208,7 @@ class QuestionAction extends Action {
     }
 
     public function questionentrysave(){
-
+        
         import('ORG.Net.UploadFile');
         $upload = new UploadFile();
         $upload->maxSize  = 3145728;
@@ -200,7 +227,9 @@ class QuestionAction extends Action {
         $front = $this -> _getFront($front);
         $frontcontent = $this -> _getFrontcontent($front);
         $generalset = $this -> _getGeneralset($front);
-        
+
+        $gif = intval($_POST['gif']);
+
         $profile = $_POST['profile'];
         $profileStr=implode(',',$profile);
 
@@ -215,6 +244,7 @@ class QuestionAction extends Action {
             'generalset' => $generalset,
             'frontcontent' => $frontcontent,
             'front' => $front,
+            'gif' => $gif,
             'status' => 0,
             'date' => date('Y-m-d')
         );
@@ -258,6 +288,8 @@ class QuestionAction extends Action {
         $frontcontent = $this -> _getFrontcontent($front);
         $generalset = $this -> _getGeneralset($front);
 
+        $gif = intval($_POST['gif']);
+
         $icon = $info[0]['savename'];
         $bgpic = $info[1]['savename'];
         
@@ -267,7 +299,8 @@ class QuestionAction extends Action {
             'bgpic' => $bgpic,
             'generalset' => $generalset,
             'frontcontent' => $frontcontent,
-            'front' => $front
+            'front' => $front,
+            'gif' => $gif
         );
 
         $m_q = M('question');
@@ -353,6 +386,7 @@ class QuestionAction extends Action {
         $this -> assign('profile',$profile);
         $this -> assign('qid', $item['id']);
         $this -> assign('front',$item['front']);
+        $this -> assign('gif',$item['gif']);
         $this -> assign('frontcontent',$item['frontcontent']);
         $this -> assign('generalset',json_decode($item['generalset'],true));
         
@@ -433,13 +467,40 @@ class QuestionAction extends Action {
         }
     }
 
+    //Gif图片生成设置
+    public function setGif(){
+        $qid = $_POST['qid'];
+        $gif = $_POST['gif'];
+
+        $m_q = M('question');
+        if($gif == 1){
+            $data = array(
+                "id" => $qid,
+                "gif"=> 1 
+            );
+        }else{
+            $data = array(
+                "id" => $qid,
+                "gif"=> 0
+            );
+        }
+
+        $ret = $m_q -> save($data);
+
+        if($ret){
+            echo 1;
+        }else{
+            echo 0;
+        }
+    }
+
     //Front设置修改
     public function setFront(){
         $qid = $_POST['qid'];
         $front = $_POST['front'];
         $m_q = M('question');
         if($front == 1){
-            $generalset = '{"userdefault":{"default":1,"num":"1"},"userfriends":{"friends":1,"num":"3"},"userphotos":{"photos":1,"num":""}}';
+            $generalset = '{"userdefault":{"default":1,"num":"1"},"userfriends":{"friends":1,"num":"3"}}';
             $data = array(
                 "id" => $qid,
                 "generalset" => $generalset,

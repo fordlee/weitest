@@ -23,6 +23,7 @@ class IndexAction extends Action {
         $count = $m -> where($where) -> count();
         import("ORG.Util.MyPage");//导入自定义分页类
         $Page   = new Page($count, 15);
+        
         //添加广告参数调用
         if(isset($_GET['aid']) && !empty($_GET['aid'])){
             $arr = explode('_', $_GET['aid']);            
@@ -41,7 +42,6 @@ class IndexAction extends Action {
                 }
             }
 
-            //'id' => array(array('exp','NOT IN('.implode(',', $notqid).')'),array('exp',' is NOT NULL'),'AND')
             $where = array(
                 'status' => 1,
                 'language' => $language,
@@ -51,6 +51,24 @@ class IndexAction extends Action {
         
         $item = $m -> limit($Page->firstRow.','. $Page->listRows)->order('reorder desc,id desc')-> where($where)->select();        
         
+        //重新排序,第一页2,4排推荐题目
+        if(!isset($_GET['p']) || $_GET['p'] == 1){
+            $secondRow = array_slice($item,0,3);
+            $fourthRow = array_slice($item,3,3);
+            $firstRow  = array_slice($item,6,3);
+            $thirdRow  = array_slice($item,9,3);
+            for($i=1,$j=count($item)/3;$i<$j;$i++) {
+                if($i==2){
+                    array_splice($item,0,3,$firstRow);
+                    array_splice($item,3,3,$secondRow);
+                }
+                if($i==4){
+                    array_splice($item,6,3,$thirdRow);
+                    array_splice($item,9,3,$fourthRow);
+                }
+            }
+        }
+
         //添加广告参数调用
         if(isset($_GET['aid']) && !empty($_GET['aid'])){
             for($i=count($aditem)-1,$j=0;$i>=$j;$i--){

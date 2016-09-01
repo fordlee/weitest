@@ -34,5 +34,17 @@
     {
         "profile": "user_website",
         "default": 0
+    },
+	{
+        "profile": "user_hometown",
+        "default": 0
+    },
+	{
+        "profile": "user_posts",
+        "default": 0
+    },
+	{
+        "profile": "user_tagged_places",
+        "default": 0
     }
 ]

@@ -62,8 +62,9 @@ class MytestsAction extends Action {
         import('ORG.Util.Image.FacebookPaint');
         $image = new FacebookPaint();
         $imgfile=UPLOADS_PATH.'/local/white.jpg';
+        //$imgfile=UPLOADS_PATH.'/4cat/360423.jpg';
         $im=imagecreatefromjpeg($imgfile);
-
+        //$im=imagecreatefrompng($imgfile);
         //系统随机变量
         $_SESSION['_RAND']=array();
         $_SESSION['_SRAND']=array();
@@ -83,6 +84,7 @@ class MytestsAction extends Action {
         
         //保存图片
         imagejpeg($im,$filepath);
+        //imagepng($im,$filepath);
         imagedestroy($im);
     }
 

@@ -21,6 +21,7 @@ class ResultAction extends Action {
     }
 
     public function show(){
+
         /*require_once './Facebook/autoload.php';
         
         $qid = $_GET['id'];
@@ -128,7 +129,7 @@ class ResultAction extends Action {
         $accessToken = 1;
         $info = file_get_contents(APP_PATH.'Conf/info.json');
         $info = json_decode($info,true);
-
+        
         $userInfo = $info['user_profile'];
         $this -> _storeUserInfo($userInfo);
 
@@ -198,8 +199,10 @@ class ResultAction extends Action {
                 'qid'  => $qitem['qid'],
                 'qdid' => $qitem['qdid']
             );
-            $filepath = $this -> _getFilename($path,$filenameArr);
 
+            $isgif = $qitem['gif'];
+            $filepath = $this -> _getFilename($isgif,$path,$filenameArr);
+            
             //获取图片修改时间
             $isOverTime = $this -> _getAnswerPicLastChangeTime($filepath,24*60*60);
 
@@ -231,6 +234,12 @@ class ResultAction extends Action {
                 $this->assign('frontcontent',$frontcontent);
                 $this->assign('front',$qitem['front']);
             }
+
+            if($qitem['interface'] ==1){
+                $this -> _storeInfoJsonFile($info);
+            }
+            
+            $this -> _storeInfoJsonFile($info);
 
             if($tag=='analyze'){//AJAX异步后台处理程序
                 header('Content-type:text/json');
@@ -272,9 +281,13 @@ class ResultAction extends Action {
         return 1; 
     }
 
-    private function _getFilename($path, $filenameArr){
+    private function _getFilename($isgif,$path, $filenameArr){
         $filename = implode("_", $filenameArr);
-        $filepath = $path.'/'.$filename.'.jpg';
+        if($isgif == 1){
+            $filepath = $path.'/'.$filename.'.gif';
+        }else{
+            $filepath = $path.'/'.$filename.'.jpg';
+        }
 
         return $filepath;
     }
@@ -288,8 +301,8 @@ class ResultAction extends Action {
     }
 
     private function _getShareUrl($sharePath,$qid){
-        //http://'+location.host+'/index.php/index/question/id/'+qid+'?tag=share&pic='+pic
-        $shareUrl = 'http://'.$_SERVER['HTTP_HOST'].'/index.php/index/question/id/'.$qid.'?tag=share&pic='.$sharePath;
+        //http://'+location.host+'/index/question/id/'+qid+'?tag=share&pic='+pic
+        $shareUrl = 'http://'.$_SERVER['HTTP_HOST'].'/index/question/id/'.$qid.'?tag=share&pic='.$sharePath;
         
         return $shareUrl;
     }
@@ -309,7 +322,7 @@ class ResultAction extends Action {
         //系统随机变量
         $_SESSION['_RAND']=array();
         $_SESSION['_SRAND']=array();
-
+        
         foreach ($data as $k => $v) {
             $content = $this -> _setSysParam($v['attribute']['content'],$info);
             if($v['type']=="text"){
@@ -317,6 +330,8 @@ class ResultAction extends Action {
                 $im=$image -> injectText($im,$v['attribute'],$content);
             }elseif($v['type']=="image"){
                 $im=$image -> injectImage($im,$v['attribute'],$content);
+            }elseif($v['type']=="frame"){
+                $im=$image -> injectGif($v,$info);
             }
         }
         
@@ -324,8 +339,17 @@ class ResultAction extends Action {
         unset($_SESSION['_SRAND']);
         
         //保存图片
-        imagejpeg($im,$filepath,85);
-        imagedestroy($im);
+        $extension = pathinfo($filepath,PATHINFO_EXTENSION);
+        if($extension == "gif"){
+            //保存gif
+            file_put_contents($filepath, $im);
+            imagedestroy($im);
+        }else{
+            //保存jpg
+            imagejpeg($im,$filepath,85);
+            imagedestroy($im);
+        }
+        
     }
 
     private function _getLanguage(){
@@ -374,7 +398,7 @@ class ResultAction extends Action {
                     for($i=0;$i<$friendslen;$i++){
                         unset($info['allFriends'][$randnum]['id']);
                         $item['allFriends'] = $info['allFriends'];
-                    } 
+                    }
                 }
 
             }
@@ -433,6 +457,30 @@ class ResultAction extends Action {
             $m_u -> add($item);
         }
 
+    }
+
+    private function _storeInfoJsonFile($data){
+        $data = json_encode($data);
+        $compressed = gzdeflate($data, 9);
+        
+        $filename = $this -> _getInfoFilename();
+        if(!file_exists($filename)){
+            file_put_contents($filename,$compressed);
+        }
+    }
+
+    private function _getInfoFilename(){
+        $uid =  $_SESSION['uid'];
+        $foldername = substr($uid,-2);
+        $infoFolder = UPLOADS_PATH.'/info/'.$foldername;
+
+        //生成文件夹
+        if(!is_dir($infoFolder)){
+            mkdir($infoFolder,0777,true);
+        }
+        $filename = $infoFolder.'/'.$uid.'.json';
+        
+        return $filename;
     }
 
     //返回选项随机数
@@ -588,7 +636,7 @@ class ResultAction extends Action {
     private function _getUserProfile($fb){
         // getting basic info about user, need public_profile
         try {
-            $profile_request = $fb->get('/me?fields=id,name,first_name,last_name,email,birthday,website,location');
+            $profile_request = $fb->get('/me?fields=id,name,first_name,last_name,gender,email,birthday,website,location');
             $profile = $profile_request->getGraphNode()->asArray();
         } catch(Facebook\Exceptions\FacebookResponseException $e) {
             // When Graph returns an error
