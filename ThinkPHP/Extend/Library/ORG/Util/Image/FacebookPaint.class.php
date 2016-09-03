@@ -14,7 +14,8 @@ class FacebookPaint{
      	$height = $set['height'];
 
      	$frames = $set['frames'];
-     	//$frames=$this->detect($frames);
+     	$frames=$this->frameAnalyze($set);
+     	
      	ob_start();
        	foreach ($frames as $k1 => $v1) {
 			// 创建新的图像实例
@@ -923,6 +924,78 @@ class FacebookPaint{
 
 		array_push($_SESSION[$SessionTag], $_rand);
 		return $_rand;
+	}
+
+	//帧解析函数
+	private function frameAnalyze($data){
+		$length=$data['length'];
+		$frameObj=$data['frameObj'];
+		$frames=$data['frames'];
+
+		$frameData=array();
+		for($i=0;$i<$length;$i++){
+			//每帧检测每个帧对象状态
+			foreach ($frameObj as $key => $value) {
+				$frame=$value['frame'];
+
+				if($frame['show']!==0){
+					$frameNow=$value;
+
+					$attr=$value['attribute'];
+					
+					//处理Frames单帧属性
+					$frameHandle=$frames[$i][$key];
+					if($frameHandle){
+						foreach ($frameHandle as $obj => $objValue) {
+							if($obj=='show'){
+								$frameObj[$key]['frame']['show']=$frame['show']=$objValue;
+							}else{
+								$attr[$obj]=$objValue;
+							}
+						}
+						$frameObj[$key]['attribute']=$attr;
+					}
+
+					//不显示的对象不继续处理
+					if($frame['show']===0){
+						continue;
+					}
+
+					//处理系统变量
+					$attr['content']=str_replace(array('{#FRAME.key}'), array($i), $attr['content']);
+					
+					//处理帧对象运动参数
+					$move=$frame['move'];
+
+					if($move){
+						$moveArr=array();
+						if($move['x'])array_push($moveArr, 'x');
+						if($move['y'])array_push($moveArr, 'y');
+						//print_r($moveArr);exit;
+						foreach ($moveArr as $key1 => $value1) {
+							$distance=$attr[$value1]+$move['step'][$key1]*($i);
+							$process=explode('-',$move[$value1]);
+							if($move['step'][$key1]>0){
+								if($distance<=$move[$value1]){
+									$attr[$value1]=$distance;
+								}
+							}else{
+								if($distance>=$move[$value1]){
+									$attr[$value1]=$distance;
+								}
+							}
+						}
+					}
+
+					$frameNow['attribute']=$attr;
+
+					$frameData[$i][]=$frameNow;
+					
+				}
+			}
+		}
+
+		return $frameData;
 	}
 	
 }

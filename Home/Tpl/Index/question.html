@@ -116,7 +116,7 @@ body{background: #e6eaef url(/Public/mytests/img/header_bg_bot.png) center botto
                     <eq name="front" value="1">
                         {$frontcontent}
                     <else/>
-                        <img src="{$path}?t=<?php echo rand(1,100)?>"  alt="{$qitem.content}" id="resultpic" style="width:100%;cursor:pointer" onclick="share('{$qid}','{$sharePath}')" fid="{$uid}">
+                        <img src="{$path}?t=<?php echo rand(1,100)?>"  alt="{$qitem.content}" id="resultpic" style="<neq name='isGif' value='1'>width:100%;<else/>max-width:100%;</neq>cursor:pointer" onclick="share('{$qid}','{$sharePath}')" fid="{$uid}">
                     </eq>
                 </if>
             </div>

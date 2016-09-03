@@ -225,7 +225,8 @@ class ResultAction extends Action {
             $this -> assign('item',$item);
             $this -> assign('qid',$qid);
             $this -> assign('uid',$uid);
-
+            $this -> assign('isGif',$isgif);
+            
             if($qitem['front'] == 1){
                 $frontcontent = $qitem['frontcontent'];
                 $generalset = json_decode($qitem['generalset'],true);
@@ -235,11 +236,11 @@ class ResultAction extends Action {
                 $this->assign('front',$qitem['front']);
             }
 
-            if($qitem['interface'] ==1){
+            /*if($qitem['interface'] ==1){
                 $this -> _storeInfoJsonFile($info);
-            }
+            }*/
             
-            $this -> _storeInfoJsonFile($info);
+            //$this -> _storeInfoJsonFile($info);
 
             if($tag=='analyze'){//AJAX异步后台处理程序
                 header('Content-type:text/json');
