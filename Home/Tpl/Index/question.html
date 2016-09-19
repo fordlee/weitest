@@ -117,6 +117,11 @@ body{background: #e6eaef url(/Public/mytests/img/header_bg_bot.png) center botto
                         {$frontcontent}
                     <else/>
                         <img src="{$path}?t=<?php echo rand(1,100)?>"  alt="{$qitem.content}" id="resultpic" style="<neq name='isGif' value='1'>width:100%;<else/>max-width:100%;</neq>cursor:pointer" onclick="share('{$qid}','{$sharePath}')" fid="{$uid}">
+                        <eq name="isGif" value="1">
+                            <neq name="music" value="">
+                            <br><audio src="{$music.src}" controls loop autoplay></audio>
+                            </neq>
+                        </eq>
                     </eq>
                 </if>
             </div>

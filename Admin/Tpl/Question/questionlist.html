@@ -58,6 +58,7 @@
 					<button onclick="setCategory()" class="btn btn-xs btn-default">确认分类</button>
 					<button onclick="delCategory()" class="btn btn-xs btn-light">删除分类</button>
 					<button onclick="showCategory()" class="btn btn-xs btn-primary">查看分类</button>
+					<!-- <button onclick="art.dialog.open('{:U('Question/showCategory')}', {id:'pop_add',title: '新增测试',width:1200, height:550,lock: true,resize:true,close:function(){var win = art.dialog.open.origin;win.location.reload();}});" class="btn btn-xs btn-primary">查看分类</button> -->
 				</div>
 			</div>
 			<br>
@@ -268,6 +269,8 @@
 
 </div><!-- /.main-content -->
 <include file="Public:footer" />
+<!-- <script src="__PUBLIC__/artDialog/artDialog.js?skin=default"></script>
+<script src="__PUBLIC__/artDialog/plugins/iframeTools.js"></script> -->
 <script src="__PUBLIC__/ace/assets/js/date-time/moment.min.js"></script>
 <script src="__PUBLIC__/ace/assets/js/date-time/daterangepicker.min.js"></script>
 <script type="text/javascript">

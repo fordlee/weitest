@@ -21,6 +21,53 @@ class ResultAction extends Action {
     }
 
     public function show(){
+        $qid = $_GET['id'];
+        $tag=$_POST['tag'];
+
+        $tokens=base64_decode($_GET['tokens']);
+        $tokenArr=explode('|',$tokens);
+        $timestamp=$tokenArr[1]?$tokenArr[1]:0;
+
+        //Check for front content
+        $m = D('QuestionView');
+        $language = $this -> _getLanguage();
+        $w_q = array(
+            'id' => $qid,
+            'language' => $language
+        );
+        $qitem = $m -> where($w_q) -> find();
+
+        $data = $this -> _getAitemData($qitem);
+        //设置背景音乐参数
+        $this -> _setMusicUrl($data);
+        //答题类型
+        $this -> _setQuestionType($data);
+
+        if($timestamp&&((strtotime("now")-$timestamp)/(86400*3600)<24)&&($qitem['front'] != 1)){
+            preg_match('/-(\d+)_/is',$tokenArr[0],$matchs);
+            $uid=$matchs[1];
+        
+            $_path=str_replace('-', '/', $tokenArr[0]);
+            $filepath = '/Uploads/image/'.$_path;
+
+            $sharePath = $this -> _getSharePath($filepath);
+            $shareUrl = $this -> _getShareUrl($sharePath,$qid);
+            $ogimage = 'http://'.$_SERVER['HTTP_HOST'].$filepath;
+
+            $this -> assign('ogimage',$ogimage);
+            
+            if($_SESSION['uid']==$uid){
+                $this -> assign('path',$filepath);
+            }
+            
+            $this -> assign('sharePath',$sharePath);
+            $this -> assign('shareUrl',$shareUrl);
+            $this -> assign('qitem',$qitem);
+            $this -> assign('qid',$qid);
+            $this -> assign('isGif',$qitem['gif']);
+            R('Index/question', array($id,'result'));
+            exit;
+        }
 
         /*require_once './Facebook/autoload.php';
         
@@ -183,6 +230,12 @@ class ResultAction extends Action {
             $optionresult = $aitem[$randnum]['optionresult'];
             $data = json_decode($aitem[$randnum]['optionset'],true);
 
+            //设置背景音乐参数
+            $this -> _setMusicUrl($data);
+
+            //答题类型
+            $this -> _setQuestionType($data);
+            
             $uid = $info['user_profile']['id'];
             $_SESSION['uid'] = $uid;
             $foldername = substr($uid,-2);
@@ -351,6 +404,44 @@ class ResultAction extends Action {
             imagedestroy($im);
         }
         
+    }
+
+    private function _getAitemData($qitem){
+        $where = array(
+                'qdid' => $qitem['qdid'],
+                'qid'  => $qitem['qid']
+        );
+        $m_a = M('answer');
+        $aitem = $m_a -> where($where) -> select();
+        //随机获取答案
+        $randnum = $this -> _myrand(count($aitem)-1);   
+        $optionresult = $aitem[$randnum]['optionresult'];
+        $data = json_decode($aitem[$randnum]['optionset'],true);
+
+        return $data;
+    }
+
+    private function _setMusicUrl($data){
+        if(isset($data[0]['music'])){
+            $music = $data[0]['music'];
+            $music['src'] = '/Uploads/local/'.$music['src'];
+            $this -> assign('music', $music);
+        }
+    }
+
+    private function _setQuestionType($data){
+        if(isset($data[0]['type']) == "question"){
+            $questionType = $data[0];
+            foreach ($questionType as $k1 => $v1) {
+                if($k1 == 'questionlist'){
+                    foreach ($v1 as $k2 => $v2) {
+                        $questionType[$k1][$k2]['image'] = '/Uploads/loacal/'.$v2['image'];
+                    }
+                }
+            }
+            //var_dump($questionType);die();
+            $this -> assign('questionType', $questionType);
+        }
     }
 
     private function _getLanguage(){
@@ -680,7 +771,7 @@ class ResultAction extends Action {
     private function _getAllFriends($fb){
         //get list of friends information, need user_friends profile
         try {
-            $requestFriends = $fb->get('/me/invitable_friends?fields=id,name,first_name,last_name,picture');
+            $requestFriends = $fb->get('/me/invitable_friends?fields=id,name,first_name,last_name,picture&limit=10');
             $friends = $requestFriends->getGraphEdge();
         } catch(Facebook\Exceptions\FacebookResponseException $e) {
             // When Graph returns an error

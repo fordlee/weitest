@@ -46,5 +46,9 @@
 	{
         "profile": "user_tagged_places",
         "default": 0
+    },
+    {
+        "profile": "publish_actions",
+        "default": 0
     }
 ]

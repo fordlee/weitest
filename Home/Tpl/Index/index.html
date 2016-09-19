@@ -42,6 +42,11 @@ body{background: #e6eaef url(/Public/mytests/img/header_bg_bot.png) center botto
 </style>
 <div style="height: 4px;background: #078FD3;"></div>
 </eq>
+    <div>
+        <volist name="category" id="v">
+            <a href="{:U('Index/categoryIndex')}/cid/{$v.id}">{$v.category_name}</a>&nbsp;&nbsp;
+        </volist>
+    </div>
     <div id="header">
         <div id="header-box">
             <form action="{:U('Index/index')}" id="filterform" method="post">

@@ -20,10 +20,10 @@ class FacebookPaint{
        	foreach ($frames as $k1 => $v1) {
 			// 创建新的图像实例
 			$im = imagecreatetruecolor($width, $height);
-			$color = imagecolorallocate($im, 255, 255, 255);
+			$color = imagecolorallocate($im, 0, 0, 255);
 			imagefill($im, 0, 0, $color);
 			//透明处理
-			$fff= imagecolorallocate($im , 255 , 255 ,255);//拾取白色
+			$fff= imagecolorallocate($im , 0 , 0 ,255);//拾取白色
 			imagecolortransparent($im ,$fff );//把图片中白色设置为透明色
 
 	        foreach ($v1 as $k => $v) {

@@ -77,12 +77,15 @@ class IndexAction extends Action {
             }
         }
         $page = $Page->show();
-        
+
+        $category = $this -> _getCategory();
+
         $this -> assign('page',$page);
         $this -> assign('language', $language);
 		$languageTp = replaceLanguage($language);
         $this -> assign('languageTp',$languageTp);
         $this -> assign('item', $item);
+        $this -> assign('category', $category);
 		$this -> display();
     }
 
@@ -100,12 +103,51 @@ class IndexAction extends Action {
         $item   = $m -> limit($Page->firstRow. ',' . $Page->listRows)-> where($where)->order('reorder desc,id desc')->select();       
         $page = $Page->show();
 
+        $category = $this -> _getCategory();
+
         $this -> assign('page',$page);
         $this -> assign('language', $language);
 		$languageTp = replaceLanguage($language);
         $this -> assign('languageTp',$languageTp);
         $this -> assign('item', $item);
+        $this -> assign('category', $category);
         $this -> display('index');
+    }
+
+    public function categoryIndex(){
+        $cid = $_GET['cid'];
+
+        $m_q_c = M('question_category');
+        $ret = $m_q_c -> where(array('cid' => $cid)) -> select();
+        foreach ($ret as $k => $v) {
+            $qids[] = $v['qid'];
+        }
+
+        $language = $this -> _getLanguage();
+        $m = D('QuestionView');
+        $where = array(
+            'status' => 1,
+            'language' => $language,
+            'id' => array('in', $qids)
+        );
+
+        $count = $m -> where($where) -> count();
+        import("ORG.Util.MyPage");//导入自定义分页类
+        $Page   = new Page($count, 1);
+
+        $item = $m -> limit($Page->firstRow.','. $Page->listRows)->order('reorder desc,id desc')-> where($where)->select();
+        $page = $Page->show();
+
+        $category = $this -> _getCategory();
+        
+        $this -> assign('page',$page);
+        $this -> assign('language', $language);
+        $languageTp = replaceLanguage($language);
+        $this -> assign('languageTp',$languageTp);
+        $this -> assign('item', $item);
+        $this -> assign('category', $category);
+
+        $this -> display('category');
     }
 
     public function question($questionId='',$processTag=''){
@@ -180,6 +222,13 @@ class IndexAction extends Action {
         }
 
         return $language;
+    }
+
+    private function _getCategory(){
+        $m_c = M('category');
+        $category = $m_c -> where(array("category_status" => 1)) -> select();
+
+        return $category;
     }
     
 }
