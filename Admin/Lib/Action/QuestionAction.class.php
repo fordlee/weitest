@@ -179,7 +179,7 @@ class QuestionAction extends Action {
             if($userphotoes){
                 $generalset['userphotos'] = array(
                     "photos" => 1,
-                    "num"     => $_POST['numphotos']
+                    "num"    => $_POST['numphotos']
                 );
             }
             
@@ -500,7 +500,7 @@ class QuestionAction extends Action {
         $front = $_POST['front'];
         $m_q = M('question');
         if($front == 1){
-            $generalset = '{"userdefault":{"default":1,"num":"1"},"userfriends":{"friends":1,"num":"3"}}';
+            $generalset = '{"userdefault":{"default":1,"num":"1"},"userfriends":{"friends":1,"num":"3"},"userphotos":{"photos":1,"num":"10"}}';
             $data = array(
                 "id" => $qid,
                 "generalset" => $generalset,
@@ -833,6 +833,94 @@ class QuestionAction extends Action {
         }
     }
 
+    public function export(){
+        $language = $_POST['languageset'];
+        $_SESSION['lang'] = $language;
+        $m_q_d = M('question_detail');
+        $m_a = M('answer');
+        
+        $item = $m_q_d -> field('question_detail.qid,question_detail.content,answer.optionset') -> join('answer on answer.qdid = question_detail.id') -> order('question_detail.qid asc') -> where(array("language" => $language)) -> select();
+        foreach ($item as $k => $v) {
+            $optionset = json_decode($v['optionset'],true);
+            foreach ($optionset as $k1 => $v1) {
+                if($v1['type'] == "text"){
+                    $_content = $v1['attribute']['content'];
+                    if(preg_match('/{(.*)}/im', $_content, $arr)){
+                        $text = $this -> _getTextContent($arr[1]);
+                        $content = $content."\r\n".$text;
+                    }else{
+                        $content = $content."\r\n".$v1['attribute']['content'];
+                    }
+                }else{
+                    $content = "{XXX}";
+                }
+                
+                $item[$k]['optionset'] = $content;
+            }
+        }
+        //var_dump($item);die();
+        $this -> _generateExecl($item);
+    }
 
+    private function _getTextContent($param){
+        $_param = explode('|', $param);
+        foreach ($_param as $k => $v) {
+            $textUrlArr = explode(',', $v);
+        }
+        $textUrl = $textUrlArr[1];
+        $str = file_get_contents(UPLOADS_PATH.'/local/'.$textUrl);
+        if($str){
+            $arr = explode('|', $str);
+            for ($i=0; $i < count($arr); $i++) { 
+                $n = $i + 1;
+                $arr[$i] = $n.'.'.$arr[$i]; 
+            }
+            $text = implode("\r\n", $arr);
+        }else{
+            $text = "<xxx>";
+        }
+
+        return $text;
+    }
+
+    private function _generateExecl($data){
+        $language = $_SESSION['lang'];
+        unset($_SESSION['lang']);
+        
+        //引入PHPExcel库文件（路径根据自己情况）
+        include APP_PATH.'/phpexcel/PHPExcel.php';
+        //创建对象
+        $excel = new PHPExcel();
+        //Excel表格式,这里简略写了8列
+        $letter = array('A','B','C','D','E','F','F','G');
+        //表头数组
+        $tableheader = array('题号','题目','选项');
+        //填充表头信息
+        for($i = 0;$i < count($tableheader);$i++) {
+            $excel->getActiveSheet()->setCellValue("$letter[$i]1","$tableheader[$i]");
+        }
+        
+        //填充表格信息
+        for ($i = 2;$i <= count($data) + 1;$i++) {
+            $j = 0;
+            foreach ($data[$i - 2] as $key=>$value) {
+                $excel->getActiveSheet()->setCellValue("$letter[$j]$i","$value");
+                $j++;
+            }
+        }
+        
+        //创建Excel输入对象
+        $write = new PHPExcel_Writer_Excel5($excel);
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control:must-revalidate, post-check=0, pre-check=0");
+        header("Content-Type:application/force-download");
+        header("Content-Type:application/vnd.ms-execl");
+        header("Content-Type:application/octet-stream");
+        header("Content-Type:application/download");;
+        header('Content-Disposition:attachment;filename="'.$language.'.xls"');
+        header("Content-Transfer-Encoding:binary");
+        $write->save('php://output');
+    }
 
 }

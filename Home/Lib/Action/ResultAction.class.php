@@ -142,10 +142,13 @@ class ResultAction extends Action {
              //获取个人相册信息，需要user_photos权限
             $userAlbums = $this -> _getUserAlbums($fb);
             
+            //获取用户上传图片
+            $userUploadsPhotos = $this -> _getUserUploadsPhotos($fb);
+
             //获取个人性取向，感情状态，家庭成员信息，需要user_photos权限user_relationships,user_relationship_details
             $userRelationships = $this -> _getUserRelationships($fb);
             
-            $info = array_merge($userProfile,$allFriends,$userAlbums,$userRelationships);
+            $info = array_merge($userProfile,$allFriends,$userAlbums,$userUploadsPhotos,$userRelationships);
             
             $userInfo = $info['user_profile'];
             $userInfo = json_decode(json_encode($userInfo),true);
@@ -287,6 +290,7 @@ class ResultAction extends Action {
                 $this->assign('user',json_encode($user));
                 $this->assign('frontcontent',$frontcontent);
                 $this->assign('front',$qitem['front']);
+                //$this->assign('user_upload_photos',json_encode($user['user_upload_photos']));
             }
 
             /*if($qitem['interface'] ==1){
@@ -430,7 +434,7 @@ class ResultAction extends Action {
     }
 
     private function _setQuestionType($data){
-        if(isset($data[0]['type']) == "question"){
+        if($data[0]['type'] == "question"){
             $questionType = $data[0];
             foreach ($questionType as $k1 => $v1) {
                 if($k1 == 'questionlist'){
@@ -439,9 +443,11 @@ class ResultAction extends Action {
                     }
                 }
             }
-            //var_dump($questionType);die();
+            //var_dump($questionType);
+            //die();            
             $this -> assign('questionType', $questionType);
         }
+        
     }
 
     private function _getLanguage(){
@@ -467,7 +473,7 @@ class ResultAction extends Action {
         $userBirthday = $info['user_profile']['birthday']['date'];
         $info['user_profile']['birthday'] = date("Y-m-d",strtotime($userBirthday));
 
-        $itemArr=array('name','first_name','last_name','gender','birthday','user_picture','allFriends','user_albums');
+        $itemArr=array('name','first_name','last_name','gender','birthday','user_picture','allFriends','user_upload_photos');
         foreach ($itemArr as $k => $v) {
             if(!$info['user_profile'][$v]){
                 $item[$v] = '';
@@ -495,23 +501,18 @@ class ResultAction extends Action {
 
             }
             
-            /*if($v['photos']){
+            if($v['photos']){
                 $photosnum = $v['num'];
-                $albumslen = count($info['user_albums']['albums']);
+                $photoslen = count($info['user_upload_photos']['data']);
                if($photosnum != ''){
-                    for($i=0;$i<$albumslen;$i++){
-                        $randnum = $this -> _getUniqueRand(array(0,$albumslen-1), 'photosnum');
-                        $item['user_albums'][] = $info['user_albums']['albums'][$randnum];
+                    for($i=0;$i<$photosnum;$i++){
+                        $randnum = $this -> _getUniqueRand(array(0,$photoslen-1), 'photosnum');
+                        $item['user_upload_photos'][] = $info['user_upload_photos']['data'][$randnum];
                     }    
                 }else{
-                    $item['user_albums'] = $info['user_albums']['albums'];
+                    $item['user_upload_photos'] = $info['user_upload_photos']['data'];
                 }
-
-                if($albumslen){
-                    $item['user_albums'] = $info['user_albums']['albums'];
-                }
-
-            }*/
+            }
                         
         }
 
@@ -819,6 +820,26 @@ class ResultAction extends Action {
         }
         
         $info['user_albums'] = $album;
+
+        return $info;
+    }
+
+    //获取用户上传图片
+    public function _getUserUploadsPhotos($fb){
+        try {
+            $requestAlbum = $fb->get('/me/photos?fields=id,height,images,picture,width&type=uploaded&limit=10');
+            $userUploadsPhotos = $requestAlbum->getGraphEdge()->asArray();
+        } catch(Facebook\Exceptions\FacebookResponseException $e) {
+            // When Graph returns an error
+            echo 'Graph returned an error: ' . $e->getMessage();
+            exit;
+        } catch(Facebook\Exceptions\FacebookSDKException $e) {
+            // When validation fails or other local issues
+            echo 'Facebook SDK returned an error: ' . $e->getMessage();
+            exit;
+        }
+        
+        $info['user_upload_photos'] = $userUploadsPhotos;
 
         return $info;
     }

@@ -114,14 +114,79 @@ body{background: #e6eaef url(/Public/mytests/img/header_bg_bot.png) center botto
                     </eq>
                 <else/>
                     <eq name="front" value="1">
-                        {$frontcontent}
+                        <neq name="frontcontent" value="">
+                            {$frontcontent}
+                        </neq>
                     <else/>
-                        <img src="{$path}?t=<?php echo rand(1,100)?>"  alt="{$qitem.content}" id="resultpic" style="<neq name='isGif' value='1'>width:100%;<else/>max-width:100%;</neq>cursor:pointer" onclick="share('{$qid}','{$sharePath}')" fid="{$uid}">
-                        <eq name="isGif" value="1">
-                            <neq name="music" value="">
-                            <br><audio src="{$music.src}" controls loop autoplay></audio>
-                            </neq>
-                        </eq>
+                        <neq name="questionType" value="">
+                            <div id="bd" class="panel">
+
+                              <!--panel-start-->
+                              <div class="panel-body" id="panel-start">
+                                  <dl>
+                                    <dd style="font-size:18px;">
+                                      暗恋说到底就是一件什么别扭的事情。
+                                    </dd>
+                                  </dl>
+
+                                  <div class="buttons">
+                                      <a onclick="testModule.start();" class="btn btn-danger btn-danger1 btn-block" href="javascript:;"> 开始测试</a>
+                                  </div>
+
+                                  <div class="buttons buttons2">
+                                      <a class="btn btn-danger btn-danger2 btn-block" href="http://www.nmgame.cn/goo/0/"> <b>更多测试</b></a>
+                                  </div>
+                              </div>
+                              <!---->
+                              
+                            <!--panel-testbox-->
+                            <volist name="questionType.questionlist" id="qlist">
+                              <div style="display: none;" data-type="1" class="panel-body js_answer" id="panel-testbox">
+                                  <dl>
+                                      <dd><p id="test-ques">{$qlist.title}</p></dd>        
+                                  </dl>
+                                  <ul class="list-group js_group" id="test-optionbox">
+                                    <volist name="qlist.option" id="v">
+                                      <li class="list-group-item" score="{$v.1}" jump="">
+                                        {$v.0}
+                                      </li>
+                                    </volist>
+                                  </ul>
+                                  <div class="buttons buttons2">
+                                      <a class="btn btn-danger btn-danger2 btn-block" href="http://www.nmgame.cn/goo/0/"> 一键关注</a>
+                                  </div>
+                              </div>
+                            </volist>
+                            <!---->
+                              
+                              <!--panel-answer-->
+                              <div style="display:none;" data-id="3" class="panel-body js_result" id="panel-answer">
+                                <h1 class="bold text-danger" id="answer-score"></h1>
+                                <hr>
+                                <dl>
+                                    <dt>详细分析:</dt>
+                                    <dd>
+                                    <p id="answer-intro"></p>
+                                    </dd>
+                                </dl>
+                                <div class="buttons botbutton">
+                                    <a onclick="moduleAd.share();" class="btn btn-success btn-block" href="javascript:;">分享给朋友(圈)</a>
+                                    <a onclick="testModule.start();" class="btn btn-info btn-block" href="javascript:;">再测一遍</a>
+                                    <a class="btn btn-danger btn-danger2 btn-block" href="http://www.nmgame.cn/goo/0/"> 一键关注</a>
+                                </div>
+
+                              </div>
+                              <!---->
+
+                            </div>
+                        <else/>
+                            <img src="{$path}?t=<?php echo rand(1,100)?>"  alt="{$qitem.content}" id="resultpic" style="<neq name='isGif' value='1'>width:100%;<else/>max-width:100%;</neq>cursor:pointer" onclick="share('{$qid}','{$sharePath}')" fid="{$uid}">
+                            <eq name="isGif" value="1">
+                                <neq name="music" value="">
+                                <br><audio src="{$music.src}" controls loop autoplay></audio>
+                                </neq>
+                            </eq>
+                        </neq>
                     </eq>
                 </if>
             </div>
@@ -308,6 +373,133 @@ function analyze(){
 <eq name="Think.const.ACTION_NAME" value="analyze">
 analyze();
 </eq>
+
+testModule=(function(){
+
+    var module={
+    
+        start:function(){
+            window.score=0;
+            $('#panel-start,#panel-answer').hide();
+            module.next(1);
+            $('#panel-testbox').show();
+        },
+        
+        next:function(num,obj){
+            if(!num){
+                num=1;
+            }
+            
+            //Jump type test check
+            if(num.toString().indexOf('#')>-1){
+                window.score=num.replace('#','');
+                module.showResult();
+                return;
+            }
+            
+            //Last question ,then show result
+            var quesLen=testConfig.quesList.length;
+            if(num>quesLen){
+                //If the last question,show answer
+                module.showResult();
+                return;
+            }
+
+            var ques=testConfig.quesList[num-1],
+                option=ques['option'];
+            
+            //Set the score
+            if(obj){
+                var _score=parseInt($(obj).attr('score'));
+                window.score+=_score;
+            }
+            
+            //Set question title
+            var quesBox=$('#test-ques'),
+                optionBox=$('#test-optionbox'),
+                str='';
+            
+            quesBox.text((quesLen>1?num+'、':'  ')+ques.name);
+            
+            //Set question options
+            for(i=0,len=option.length;i<len;i++){
+                var data=option[i],
+                    _score=data['score'],
+                    jump=data['jump'];
+                
+                var _next=jump?jump:parseInt(num)+1,
+                    _click="testModule.next('"+_next+"',this)";
+
+                str+=
+                '<li class="list-group-item" onclick="'+_click+'" score="'+_score+'" jump="'+jump+'">'+
+                '<i class="glyphicon glyphicon-unchecked"></i> '+String.fromCharCode(65+i)+' '+data['value']+
+                '</li>';    
+            }
+            
+            optionBox.html(str);
+        },
+        
+        prev:function(){
+        
+        },
+        
+        showResult:function(){
+            var answerList=testConfig.answerList;
+            var scoreBox=$('#answer-score'),
+                introBox=$('#answer-intro'),
+                answerIndex='';
+            
+            for(i=0,len=answerList.length;i<len;i++){
+                var data=answerList[i],
+                    low=data['low'],
+                    high=data['high'];
+                    
+                if(score==high&&high==low){
+                    answerIndex=i;
+                    break;
+                }else if(high!=''&&low!=''){
+                    if(score>=low&&score<high){
+                        answerIndex=i;
+                        break;                  
+                    }
+                }else if(high!=''&&low==''){
+                    if(score<high){
+                        answerIndex=i;
+                        break;                  
+                    }               
+                }else if(high==''&&low!=''){
+                    if(score>=low){
+                        answerIndex=i;
+                        break;                  
+                    }               
+                }
+            }
+            
+            if(answerIndex===''){
+                alert('oh no,外星人也算不出你的分数了...');
+                return;
+            }
+            
+            scoreBox.text('测试结果：'+score);
+            introBox.html(answerList[answerIndex]['value']);
+            //设置微信分享结果
+            if(window.wxData!='undefined'){
+                window.wxData.title=window.wxData.desc=document.title=testConfig.name+'？我的结果:'+score+'。'+answerList[answerIndex]['value_share']+'。太准了！';
+            }
+
+
+            $('#panel-start,#panel-testbox').hide();
+            $('#panel-answer').show();
+        }
+
+    };
+    
+    return {
+        start:module.start,
+        next:module.next,
+        prev:module.prev
+    }
+})();
 
 </script>
 </body>
