@@ -839,6 +839,7 @@ class QuestionAction extends Action {
         $m_q_d = M('question_detail');
         $m_a = M('answer');
         
+        /*$data=array();
         $item = $m_q_d -> field('question_detail.qid,question_detail.content,answer.optionset') -> join('answer on answer.qdid = question_detail.id') -> order('question_detail.qid asc') -> where(array("language" => $language)) -> select();
         foreach ($item as $k => $v) {
             $optionset = json_decode($v['optionset'],true);
@@ -858,8 +859,55 @@ class QuestionAction extends Action {
                 $item[$k]['optionset'] = $content;
             }
         }
+        //var_dump($item);
+        for ($i=0; $i < count($item); $i++) { 
+            $key = $item[$i]['qid'];
+            $data[$key]['qid'] = $item[$i]['qid'];
+            $data[$key]['title'] = $item[$i]['content'];
+            $data[$key]['options'][] = $item[$i]['optionset'];
+        }*/
+
+        $item = $m_q_d -> field('question_detail.qid,question_detail.content,answer.optionset') -> join('answer on answer.qdid = question_detail.id') -> order('question_detail.qid asc') -> where(array("language" => $language)) -> select();
+        foreach ($item as $k => $v) {
+            $optionset = json_decode($v['optionset'],true);
+            foreach ($optionset as $k1 => $v1) {
+                if($v1['type'] == "text"){
+                    $_content = $v1['attribute']['content'];
+                    if(preg_match('/{(.*)}/im', $_content, $arr)){
+                        $text = $this -> _getTextContent($arr[1]);
+                        if(is_array($text)){
+                            $content = $text;
+                        }else{
+                            $content = $content."\r\n".$text;
+                        }
+                    }else{
+                        $content = $content."\r\n".$v1['attribute']['content'];
+                    }
+                }else{
+                    $content = "{XXX}";
+                }
+                
+                $item[$k]['optionset'] = $content;
+            }
+        }
         //var_dump($item);die();
-        $this -> _generateExecl($item);
+
+        $data=array();
+        for ($i=0; $i < count($item); $i++) { 
+            $key = $item[$i]['qid'];
+            $data[$key]['qid'] = $item[$i]['qid'];
+            $data[$key]['title'] = $item[$i]['content'];
+
+            $options = $item[$i]['optionset'];
+            if(is_array($options)){
+                $data[$key]['options'] = $options;
+            }else{
+                $data[$key]['options'][] = $options;
+            }
+        }
+
+        //var_dump($data);die();
+        $this -> _generateExecl($data);
     }
 
     private function _getTextContent($param){
@@ -870,12 +918,7 @@ class QuestionAction extends Action {
         $textUrl = $textUrlArr[1];
         $str = file_get_contents(UPLOADS_PATH.'/local/'.$textUrl);
         if($str){
-            $arr = explode('|', $str);
-            for ($i=0; $i < count($arr); $i++) { 
-                $n = $i + 1;
-                $arr[$i] = $n.'.'.$arr[$i]; 
-            }
-            $text = implode("\r\n", $arr);
+            $text = explode('|', $str);
         }else{
             $text = "<xxx>";
         }
@@ -903,12 +946,17 @@ class QuestionAction extends Action {
         //填充表格信息
         for ($i = 2;$i <= count($data) + 1;$i++) {
             $j = 0;
-            foreach ($data[$i - 2] as $key=>$value) {
-                $excel->getActiveSheet()->setCellValue("$letter[$j]$i","$value");
+            foreach ($data[$i - 1] as $k=>$v) {
+                if(is_array($v)){
+                    $str = implode("\r\n", $v);
+                    $excel->getActiveSheet()->setCellValue("$letter[$j]$i","$str");
+                }else{
+                    $excel->getActiveSheet()->setCellValue("$letter[$j]$i","$v");
+                }
                 $j++;
             }
         }
-        
+        //die();
         //创建Excel输入对象
         $write = new PHPExcel_Writer_Excel5($excel);
         header("Pragma: public");

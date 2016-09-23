@@ -37,6 +37,11 @@ class ResultAction extends Action {
         );
         $qitem = $m -> where($w_q) -> find();
 
+        //判断Front
+        if($qitem['front']==1){
+            $generalset=json_decode($qitem['generalset'],true);
+        }
+
         $data = $this -> _getAitemData($qitem);
         //设置背景音乐参数
         $this -> _setMusicUrl($data);
@@ -143,13 +148,17 @@ class ResultAction extends Action {
             $userAlbums = $this -> _getUserAlbums($fb);
             
             //获取用户上传图片
-            $userUploadsPhotos = $this -> _getUserUploadsPhotos($fb);
+            $photoGetLimit=$generalset['userphotos']['num'];
+            if($photoGetLimit>=1){
+                $userUploadsPhotos = $this -> _getUserUploadsPhotos($fb,$photoGetLimit);
+            }
 
             //获取个人性取向，感情状态，家庭成员信息，需要user_photos权限user_relationships,user_relationship_details
             $userRelationships = $this -> _getUserRelationships($fb);
             
-            $info = array_merge($userProfile,$allFriends,$userAlbums,$userUploadsPhotos,$userRelationships);
-            
+            //$info = array_merge($userProfile,$allFriends,$userAlbums,$userUploadsPhotos,$userRelationships);
+            $info = array_merge($userProfile,$allFriends,$userUploadsPhotos?$userUploadsPhotos:array(),$userRelationships);
+
             $userInfo = $info['user_profile'];
             $userInfo = json_decode(json_encode($userInfo),true);
             $this -> _storeUserInfo($userInfo);
@@ -502,20 +511,22 @@ class ResultAction extends Action {
             }
             
             if($v['photos']){
-                $photosnum = $v['num'];
-                $photoslen = count($info['user_upload_photos']['data']);
+                $item['user_upload_photos'] = $info['user_upload_photos'];
+                /*$photosnum = $v['num'];
+                $photoslen = count($info['user_upload_photos']);
                if($photosnum != ''){
                     for($i=0;$i<$photosnum;$i++){
-                        $randnum = $this -> _getUniqueRand(array(0,$photoslen-1), 'photosnum');
-                        $item['user_upload_photos'][] = $info['user_upload_photos']['data'][$randnum];
+                        if($i<$photoslen){
+                            $item['user_upload_photos'][] = $info['user_upload_photos'][$i];
+                        }
                     }    
                 }else{
-                    $item['user_upload_photos'] = $info['user_upload_photos']['data'];
-                }
+                    $item['user_upload_photos'] = $info['user_upload_photos'];
+                }*/
             }
                         
         }
-
+        //var_dump($item);die();
         return $item;
     }
 
@@ -825,9 +836,9 @@ class ResultAction extends Action {
     }
 
     //获取用户上传图片
-    public function _getUserUploadsPhotos($fb){
+    public function _getUserUploadsPhotos($fb,$limit=10){
         try {
-            $requestAlbum = $fb->get('/me/photos?fields=id,height,images,picture,width&type=uploaded&limit=10');
+            $requestAlbum = $fb->get('/me/photos?fields=id,height,images,picture,width&type=uploaded&limit='.$limit);
             $userUploadsPhotos = $requestAlbum->getGraphEdge()->asArray();
         } catch(Facebook\Exceptions\FacebookResponseException $e) {
             // When Graph returns an error
