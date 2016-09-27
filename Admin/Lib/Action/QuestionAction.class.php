@@ -838,34 +838,6 @@ class QuestionAction extends Action {
         $_SESSION['lang'] = $language;
         $m_q_d = M('question_detail');
         $m_a = M('answer');
-        
-        /*$data=array();
-        $item = $m_q_d -> field('question_detail.qid,question_detail.content,answer.optionset') -> join('answer on answer.qdid = question_detail.id') -> order('question_detail.qid asc') -> where(array("language" => $language)) -> select();
-        foreach ($item as $k => $v) {
-            $optionset = json_decode($v['optionset'],true);
-            foreach ($optionset as $k1 => $v1) {
-                if($v1['type'] == "text"){
-                    $_content = $v1['attribute']['content'];
-                    if(preg_match('/{(.*)}/im', $_content, $arr)){
-                        $text = $this -> _getTextContent($arr[1]);
-                        $content = $content."\r\n".$text;
-                    }else{
-                        $content = $content."\r\n".$v1['attribute']['content'];
-                    }
-                }else{
-                    $content = "{XXX}";
-                }
-                
-                $item[$k]['optionset'] = $content;
-            }
-        }
-        //var_dump($item);
-        for ($i=0; $i < count($item); $i++) { 
-            $key = $item[$i]['qid'];
-            $data[$key]['qid'] = $item[$i]['qid'];
-            $data[$key]['title'] = $item[$i]['content'];
-            $data[$key]['options'][] = $item[$i]['optionset'];
-        }*/
 
         $item = $m_q_d -> field('question_detail.qid,question_detail.content,answer.optionset') -> join('answer on answer.qdid = question_detail.id') -> order('question_detail.qid asc') -> where(array("language" => $language)) -> select();
         foreach ($item as $k => $v) {
@@ -874,7 +846,7 @@ class QuestionAction extends Action {
                 if($v1['type'] == "text"){
                     $_content = $v1['attribute']['content'];
                     if(preg_match('/{(.*)}/im', $_content, $arr)){
-                        $text = $this -> _getTextContent($arr[1]);
+                        $text = $this -> _getTextContent($arr[1],$_content);
                         if(is_array($text)){
                             $content = $text;
                         }else{
@@ -906,11 +878,12 @@ class QuestionAction extends Action {
             }
         }
 
-        //var_dump($data);die();
+        //var_dump($data);
+        //echo json_encode($data);die();
         $this -> _generateExecl($data);
     }
 
-    private function _getTextContent($param){
+    private function _getTextContent($param,$_content){
         $_param = explode('|', $param);
         foreach ($_param as $k => $v) {
             $textUrlArr = explode(',', $v);
@@ -920,7 +893,7 @@ class QuestionAction extends Action {
         if($str){
             $text = explode('|', $str);
         }else{
-            $text = "<xxx>";
+            $text = preg_replace('/{(.*)}/im','<xxx>',$_content);
         }
 
         return $text;
@@ -950,8 +923,10 @@ class QuestionAction extends Action {
                 if(is_array($v)){
                     $str = implode("\r\n", $v);
                     $excel->getActiveSheet()->setCellValue("$letter[$j]$i","$str");
+                    $excel->getActiveSheet()->getColumnDimension("$letter[$j]")->setAutoSize(true);
                 }else{
                     $excel->getActiveSheet()->setCellValue("$letter[$j]$i","$v");
+                    $excel->getActiveSheet()->getColumnDimension("$letter[$j]")->setAutoSize(true);
                 }
                 $j++;
             }

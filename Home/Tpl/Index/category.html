@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta property="fb:app_id" content="1053226548106670"/>
+    <meta property="fb:admins" content="100003640356542"/>
+    <meta name="description" content="{$languageTp.index_description}">
+    <meta name="keywords" content="{$languageTp.index_keywords}">
+    <meta property="og:title" content="{$languageTp.index_title}"/>
+    <meta property="og:description" content="{$languageTp.index_description}"/>
+    <meta property="og:image" content="http://www.mytests.co/mytests.co.jpg?t={:rand(1,200);}"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="http://{$Think.server.HTTP_HOST}"/>
+    <title>{$languageTp.index_title}</title>
+    <link rel="stylesheet" href="__PUBLIC__/mytests/css/index.css?t=15" type="text/css">
+</head>
+<body>
+<div id="all">
+<eq name="Think.server.HTTP_HOST" value="pt.mytests.co">
+<style type="text/css">
+#header {
+    background: #3d5d99 url(/Public/mytests/img/header_bg_top.png) center repeat-x;
+}
+body{background: #e6eaef url(/Public/mytests/img/header_bg_bot.png) center bottom repeat-x;}
+.container-vice-box-btn {
+    background: #078FD2;
+    border: 1px solid #00699E;
+    box-shadow: 0px 1px 1px 1px #0C6B94;
+}
+#footer-img {
+    height: 10px;
+    background: #2E73C0;
+}
+.nextbtn:hover {
+    background-color: #FFE935;
+}
+.nextbtn {
+    background-color: #F8DD03;
+}
+</style>
+<div style="height: 4px;background: #078FD3;"></div>
+</eq>
+    <div>
+        <volist name="category" id="v">
+            <a href="{:U('Index/categoryIndex')}/cid/{$v.id}">{$v.category_name}</a>&nbsp;&nbsp;
+        </volist>
+    </div>
+    <div id="header">
+        <div id="header-box">
+            <form action="{:U('Index/index')}" id="filterform" method="post">
+            <a href="/" class="header-logo" ><img src="__PUBLIC__/mytests/img/logo.png" alt="mytests.co" title="Home"></a>
+            <a href="/" class="header-home" >HOME</a>
+            <select id="language" class="lan-switch" name="language">
+                <option value="zh" <php>if($language == 'zh') echo "selected";</php>>中文</option>
+                <option value="en" <php>if($language == 'en') echo "selected";</php>>English</option>
+                <option value="pt" <php>if($language == 'pt') echo "selected";</php>>Portuguese</option>
+                <!-- <option value="fr" <php>if($language == 'fr') echo "selected";</php>>French</option> -->
+            </select>
+            </form>
+        </div>
+    </div>
+
+        <div id="container">
+            <p class="as-title">Advertisement</p>
+            <div id="middle-ad">
+				<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+				<!-- Mytest-970x90-top -->
+				<ins class="adsbygoogle"
+					 style="display:inline-block;width:970px;height:90px"
+					 data-ad-client="ca-pub-3961823097646209"
+					 data-ad-slot="5558272509"></ins>
+				<script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+				</script>			
+			</div>
+			
+            <div>{$page}</div>
+			
+            <volist name="item" id="v">
+                <a href="{:U('Index/question')}/id/{$v.id}" class="container-box">
+                    <img class="container-box-img" src="{:C('IMAGEQ_PATH')}/{$v.icon}">
+                    <div class="container-box-mask">
+                        <div class="container-box-title">{$v.content}</div>
+                        <div class="container-box-btn">{$languageTp.test_btn}</div>
+                    </div>
+                </a>
+            </volist>
+            <div id="right-ad">
+                <p class="as-title">Advertisement</p>
+                <span>
+					<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+					<!-- Mytest -->
+					<ins class="adsbygoogle"
+						 style="display:inline-block;width:160px;height:600px"
+						 data-ad-client="ca-pub-3961823097646209"
+						 data-ad-slot="7035005709"></ins>
+					<script>
+					(adsbygoogle = window.adsbygoogle || []).push({});
+					</script>
+				</span>
+            </div>
+            <br/>
+            
+			<div>{$page}</div>
+
+            <p class="as-title">Advertisement</p>
+            <div id="bottom-ad" style="margin-bottom: 30px">
+				<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+				<!-- Mytest-336x280-bot -->
+				<ins class="adsbygoogle"
+					 style="display:inline-block;width:336px;height:280px"
+					 data-ad-client="ca-pub-3961823097646209"
+					 data-ad-slot="8511738906"></ins>
+				<script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+				</script>
+			</div>
+        </div>
+
+    <div id="footer">
+        <a href="tos.html" target="_blank">TOS</a>
+        <br/>
+        <p>Copyright 2016 By Mytests.co©</p>
+        <div id="footer-img"></div>
+    </div>
+
+</div>
+<script src="__PUBLIC__/mytests/js/jquery-3.0.0.min.js"></script>
+</body>
+</html>
+<script type="text/javascript" src="__PUBLIC__/mytests/js/common.js?t=3"></script>
