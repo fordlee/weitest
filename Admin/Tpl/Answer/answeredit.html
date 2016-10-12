@@ -35,6 +35,21 @@
 								<option value="pt" <php>if($qdItem['language'] ==pt)echo selected</php>>
 									Portuguese
 								</option>
+								<option value="vi" <php>if($qdItem['language'] == 'vi') echo "selected";</php>>
+									Vietnamese
+								</option>
+					            <option value="fr" <php>if($qdItem['language'] == 'fr') echo "selected";</php>>
+					            	French
+					            </option>
+				                <option value="ja" <php>if($qdItem['language'] == 'ja') echo "selected";</php>>
+				                	Japanese
+				                </option>
+				                <option value="es" <php>if($qdItem['language'] == 'es') echo "selected";</php>>
+				                	Spanish
+				                </option>
+				                <option value="ko" <php>if($qdItem['language'] == 'ko') echo "selected";</php>>
+				                	Korean
+				                </option>
 							</select>
 						</div>
 					</div>
@@ -55,7 +70,7 @@
 							<button type="button" onclick="addAnswerPic(this)" class="btn btn-xs btn-primary">
 								<i class="icon icon-plus"></i>图片
 							</button>&nbsp;
-							<button type="button" onclick="delTr(this)" class="btn btn-xs btn-danger"> 
+							<button type="button" onclick="delTr(this,{$v['id']})" class="btn btn-xs btn-danger"> 
 								<i class="icon-minus"></i>移除
 							</button>
 							</div>
@@ -95,10 +110,28 @@ function addAnswerPic(obj){
 	_this.parent().next().click();
 }
 
-function delTr(obj){
+function delTr(obj,aid){
 	var _this=$(obj);
 	_this.parent().parent().parent().next().remove();
 	_this.parent().parent().parent().remove();
+
+	$.ajax({
+	    url: "{:U('Answer/answerdel')}",
+	    type: 'post',
+	    cache: false,
+	    data: {
+	    	'aid':aid
+	    }
+	}).done(function(response) {
+		if(response == 1){
+			alert('删除成功！');
+			window.location.reload();
+		}else{
+			alert('删除失败！请重试！');
+		}
+	}).fail(function(response) {
+		console.log(response);
+	});
 }
 
 </script>

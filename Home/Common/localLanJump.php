@@ -10,7 +10,7 @@ function getAcceptLan(){
         if($sepLan[1])array_unshift($lanArr,$sepLan[1]);
     }
 
-    $LANG=array('en','pt','zh');
+    $LANG=array('en','pt','zh','vi');
 
     $len=count($lanArr);
     for($i=0;$i<$len;$i++){
@@ -32,7 +32,7 @@ function autoGo(){
     $arr=explode('.', $host);
     $siteLan=$arr[0];
 
-    if($siteLan!=$lan&&$lan!='en'&&!in_array($siteLan, array('en','pt','zh'))){
+    if($siteLan!=$lan&&$lan!='en'&&!in_array($siteLan, array('en','pt','zh','vi'))){
         $utm=$_GET['utm'];
         $utm=$utm?'?utm='.$utm:'';
         header('Location:http://'.$lan.'.mytests.co'.$utm);

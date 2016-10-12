@@ -95,13 +95,13 @@ class Page {
         $upRow          =   $this->nowPage-1;
         $downRow        =   $this->nowPage+1;
         if ($upRow>0){
-            $upPage     =   "<a href='".str_replace('__PAGE__',$upRow,$url)."' class='nextbtn'><img src='__PUBLIC__/mytests/img/arrowb1.png'>".$this->config['prev']."</a>";
+            $upPage     =   "<a href='".str_replace('__PAGE__',$upRow,$url)."' class='prebtn btn'><img src='__PUBLIC__/mytests/img/arrow1.png'>".$this->config['prev']."</a>";
         }else{
             $upPage     =   '';
         }
 
         if ($downRow <= $this->totalPages){
-            $downPage   =   "<a href='".str_replace('__PAGE__',$downRow,$url)."' class='nextbtn'>".$this->config['next']."<img src='__PUBLIC__/mytests/img/arrow1.png'></a>";
+            $downPage   =   "<a href='".str_replace('__PAGE__',$downRow,$url)."' class='nextbtn btn'>".$this->config['next']."<img src='__PUBLIC__/mytests/img/arrow2.png'></a>";
         }else{
             $downPage   =   '';
         }

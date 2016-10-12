@@ -136,6 +136,19 @@ class AnswerAction extends Action {
         }
     }
 
+    public function answerdel(){
+        $aid = $_POST['aid'];
+        $m_a = M('answer');
+        $w = array('id' => $aid);
+        $ret = $m_a -> where($w) -> find();
+
+        if($ret !== NULL){
+            $m_a -> where($w) -> delete();
+            echo 1;
+        }else{
+            echo 0;
+        }
+    }
 
 }
 ?>

@@ -124,6 +124,32 @@ function getCharacter($birthdate,$language){
     $number = getUniqueRand(array(0,$_len-1),'num');
 
     return $arr[$number];
+}
+
+function getCharacterByNo($birthdate,$lineNo,$language,$path){
+    $constellation_no = getConstellation($birthdate);
+    $str = file_get_contents(UPLOADS_PATH.'/local/'.$path.'/'.$constellation_no.".txt");
+    
+    if($language == "zh"){
+        preg_match_all("/./us", $str, $match);
+        $arr = $match[0];
+        for ($i=0; $i < count($arr); $i++) { 
+          $txt .= $arr[$i];
+          if(($i+1)%$lineNo == 0){
+            $txt = $txt."\r\n";
+          }
+        }
+    }else{
+        $arr = explode(' ', $str);
+        for ($i=0; $i < count($arr); $i++) { 
+            $txt=$txt.' '.$arr[$i];
+            if(($i+1)%$lineNo == 0){
+               $txt = $txt."\r\n";
+            }
+        }
+    }
+
+    return $txt;
 } 
 
 function getUniqueRand($param,$SessionTag=''){

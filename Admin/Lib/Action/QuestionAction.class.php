@@ -19,7 +19,7 @@ class QuestionAction extends Action {
 
         import("ORG.Util.Page");//导入分页类
         $count  = $m_q -> count();//计算总数
-        $Page   = new Page($count, 5);
+        $Page   = new Page($count, 10);
         $list   = $m_q -> limit($Page->firstRow. ',' . $Page->listRows)->order('reorder desc,id desc')-> field('id,reorder,qcode,status,date') -> select();
         $page = $Page->show();
 
@@ -47,7 +47,7 @@ class QuestionAction extends Action {
         import("ORG.Util.Page");//导入分页类
         $count  = $m_q_c -> where(array('cid' => $cid)) -> count();//计算总数 
 
-        $Page   = new Page($count, 5);
+        $Page   = new Page($count, 10);
         $list = $m_q_c -> join('question on question.id = question_category.qid') 
                        -> limit($Page->firstRow. ',' . $Page->listRows)
                        -> order('reorder desc,id desc')
@@ -578,22 +578,24 @@ class QuestionAction extends Action {
     public function delpic(){
         $qid = $_POST['qid'];
         $uid = $_POST['uid'];
+        $p = $_POST['p'];
 
         if((isset($_POST['uid']) && !empty($_POST['uid']))&&
             (isset($_POST['qid']) && !empty($_POST['qid']))){
-            $this -> redirect('/Question/deluid/uid/'.$uid.'/qid/'.$qid);
+            $this -> redirect('/Question/deluid/uid/'.$uid.'/qid/'.$qid.'/p/'.$p);
         }elseif(isset($_POST['uid']) && !empty($_POST['uid'])){
-            $this -> redirect('/Question/deluid/uid/'.$uid);
+            $this -> redirect('/Question/deluid/uid/'.$uid.'/p/'.$p);
         }elseif(isset($_POST['qid']) && !empty($_POST['qid'])){
-            $this -> redirect('/Question/delqid/qid/'.$qid);
+            $this -> redirect('/Question/delqid/qid/'.$qid.'/p/'.$p);
         }else{
-            $this -> redirect('/Question/questionlist');
+            $this -> redirect('/Question/questionlist/p/'.$p);
         }
     }
 
     public function delqid(){
         $filedir = IMAGE_PATH;
         $qid = $_GET['qid'];
+        $p = $this -> _getp();
         $page = isset($_GET['page'])?$_GET['page']:1;
         $foldersnames = scandir($filedir);
         $folders = array();
@@ -624,7 +626,7 @@ class QuestionAction extends Action {
             $newpage = $page+1;
             $this -> success('第'.$page.'次删除成功！',U('Question/delqid').'/qid/'.$qid.'/page/'.$newpage);
         }else{
-            $this -> success('全部删除成功！',U('question/questionlist'));
+            $this -> success('全部删除成功！',U('question/questionlist').'/p/'.$p);
         }
 
 
@@ -633,6 +635,7 @@ class QuestionAction extends Action {
     public function deluid(){
         $uid = $_GET['uid'];
         $qid = $_GET['qid'];
+        $p = $this -> _getp();
         $dir = IMAGE_PATH;
         $folder = substr($uid,-2);
         $filedir = $dir.'/'.$folder;
@@ -657,9 +660,9 @@ class QuestionAction extends Action {
         }
 
         if($ret){
-            $this -> success('删除成功！',U('Question/questionlist'));
+            $this -> success('删除成功！',U('Question/questionlist').'/p/'.$p);
         }else{
-            $this -> error('此人不存在或已删除！',U('Question/questionlist'));
+            $this -> error('此人不存在或已删除！',U('Question/questionlist').'/p/'.$p);
         }
     }
 

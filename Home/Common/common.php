@@ -62,6 +62,24 @@ function replaceLanguage($language){
 	            "index_keywords" => "teste, testes grátis, testes online, testes engraçados, jogo teste, teste de personalidade, teste de amor, teste de inteligência, testes emocionais, testes divertidos, coleção de testes, vida, carreira, sorte"
 	        );
 	        break;
+	    case 'vi':
+	    	$arr = array(
+	    		"code" => "vi_VN",
+				"test_btn" => "nhập thử nghiệm",
+	            "login_txt" => "Xin hãy đăng nhập vào Facebook để xem kết quả xét nghiệm của bạn",
+	            "login" => "Đăng nhập bằng facebook",
+	            "share" => "Chia sẻ trên Facebook",
+	            "loading_txt" => "Phân tích các dữ liệu cá nhân là để tính toán kết quả của bạn ...",
+	            "facebook_like_txt" => "Xin vui lòng cho chúng tôi một ngón tay cái lên!" ,
+				"facebook_like" => "https://www.facebook.com/Mytestsco-Vietnamese-1783205645293220",
+	            "description" => "Bấm vào đây! Chia sẻ kết quả của bạn cho bạn bè!",
+	            "ogdescription" => "Nhấn vào thử nghiệm để xem kết quả của bạn là không giống nhau.",
+	            "index_title" => "Mytests.co-Phổ biến nền tảng thử nghiệm tính cách vui vẻ",
+	            "like_txt" => "Tôi đoán u thích",
+	            "index_description" => "Kiểm tra tính cách mạng, thử nghiệm cảm xúc, thử nghiệm giải trí, kiểm tra tâm lý, ngay lập tức tham gia vào việc đưa bạn tìm hiểu thêm về bản thân!",
+	            "index_keywords" => "Kiểm tra, thử nghiệm miễn phí, thử nghiệm trực tuyến, thử nghiệm hương vị, trò chơi kiểm tra, kiểm tra tính cách, kiểm tra tình yêu, test IQ, test EQ, funny kiểm tra, thử nghiệm nổi bật, cuộc sống, nghề nghiệp, may mắn"
+	    	);
+			break;
 	    default:
 	        $arr = array(
 	        	"code" => "en_US",

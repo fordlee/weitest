@@ -21,7 +21,11 @@ class IndexAction extends Action {
         );
 
         $count = $m -> where($where) -> count();
-        import("ORG.Util.MyPage");//导入自定义分页类
+        if($_GET['v'] == 1){
+            import("ORG.Util.MyNewPage");
+        }else{
+            import("ORG.Util.MyPage");//导入自定义分页类
+        }
         $Page   = new Page($count, 15);
         
         //添加广告参数调用
@@ -98,7 +102,11 @@ class IndexAction extends Action {
         );
 
         $count = $m -> where($where) -> count();
-        import("ORG.Util.MyPage");//导入自定义分页类
+        if($_GET['v'] == 1){
+            import("ORG.Util.MyNewPage");
+        }else{
+            import("ORG.Util.MyPage");//导入自定义分页类
+        }
         $Page   = new Page($count, 15);
         $item   = $m -> limit($Page->firstRow. ',' . $Page->listRows)-> where($where)->order('reorder desc,id desc')->select();       
         $page = $Page->show();
@@ -154,11 +162,6 @@ class IndexAction extends Action {
 
         $qid = $_GET['id'];
         $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
-
-        if($questionId){
-            $qid=$questionId;
-            $this->assign('processTag',$processTag);
-        }
         
     	$language = $this -> _getLanguage();   
         $languageTp = replaceLanguage($language);
@@ -201,7 +204,15 @@ class IndexAction extends Action {
         $this -> assign('languageTp',$languageTp);
         $this -> assign('item', $item);
         $this -> assign('qitem', $qitem);
-        $this -> display('Index:question');
+
+        if($questionId){
+            $qid=$questionId;
+            $this->assign('processTag',$processTag);
+            $this->display('Index/analyse');
+        }else{
+            $this -> display();
+        }
+
     }
 	
 	private function _getLanguage(){
