@@ -249,5 +249,23 @@ class TestAction extends Action {
         file_put_contents(UPLOADS_PATH.'/local/40/txt/1.txt', $txt);
     }
 
+    public function UrlGenerate(){
+        $url1 = U('Blog/read@blog.thinkphp.cn','id=1');
+        $url2 = U('Blog/read#comment?id=1');
+
+        echo $url1.'<br>';
+        echo $url2;
+    }
+
+    public function zhuanma(){ 
+        $str = "简体";
+        
+        $s = $this -> getFirstCharter($str);
+
+        echo $s;
+    }
+      
+
+
 }
 ?>

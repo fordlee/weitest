@@ -4,19 +4,36 @@ class ResultAction extends Action {
     //构造函数
     public function __construct() {
         parent::__construct();
-        $utm=$_REQUEST['utm'];
-        $utm=$utm?'?utm='.$utm:'';
-        $_utm=$utm?'&utm='.$utm:'';
-        $this->assign('utm',$utm);
-        $this->assign('_utm',$_utm);
+		$this->getUtms();
     }
-    
+	
+	private function getUtms(){
+        $utm=$_REQUEST['utm'];
+		$version=$_REQUEST['v'];
+		
+		if(rand(1,100)<=40){
+			$version=1;
+		}
+		
+		$_v=$version?'&v='.$version:'';
+		
+		$utm=$utm?'?utm='.$utm.$_v:'';
+		$_utm=$utm?'&utm='.$utm.$_v:'';
+		
+		$this->assign('utm',$utm);
+		$this->assign('_utm',$_utm);
+		return array(
+			'utm'=>$utm,
+			'_utm'=>$_utm
+		);
+	}
+	
     public function analyze(){
         $id=$_GET['id'];
         R('Index/question', array($id,'analyze'));
     }
-    
-    private function _getProfile($qid){
+	
+	private function _getProfile($qid){
         $m_q = M('question');
         $qitem = $m_q -> where(array("id" => $qid)) -> find();
 
@@ -30,36 +47,41 @@ class ResultAction extends Action {
     }
 
     public function show(){
-        $qid = $_GET['id'];
-        $tag=$_POST['tag'];
+        $qid = $_REQUEST['id'];
+        $tag = $_REQUEST['tag'];
+        $rid = $_REQUEST['rid'];
+        $retest = $_REQUEST['retest'];
 
-        $tokens=base64_decode($_GET['tokens']);
-        $tokenArr=explode('|',$tokens);
-        $timestamp=$tokenArr[1]?$tokenArr[1]:0;
-
-        //Check for front content
-        $m = D('QuestionView');
-        $language = $this -> _getLanguage();
+		$tokens=base64_decode($_GET['tokens']);
+		$tokenArr=explode('|',$tokens);
+		$timestamp=$tokenArr[1]?$tokenArr[1]:0;
+		
+		$utms=$this->getUtms();$utm=$utms['utm'];
+		
+		//Check for front content
+		$m = D('QuestionView');
+		$language = $this -> _getLanguage();
         $w_q = array(
             'id' => $qid,
             'language' => $language
         );
         $qitem = $m -> where($w_q) -> find();
-        
+		
         //判断Front
         if($qitem['front']==1){
             $generalset=json_decode($qitem['generalset'],true);
         }
         
-        $data = $this -> _getAitemData($qitem);
-        //设置背景音乐参数
+        //获取答案数据
+		$data = $this -> _getAitemData($qitem);
+		//设置背景音乐参数
         $this -> _setMusicUrl($data);
-        
-        if($timestamp&&((strtotime("now")-$timestamp)/(86400*3600)<24)&&($qitem['front'] != 1)){
-            preg_match('/-(\d+)_/is',$tokenArr[0],$matchs);
-            $uid=$matchs[1];
-        
-            $_path=str_replace('-', '/', $tokenArr[0]);
+		
+		if($timestamp&&((strtotime("now")-$timestamp)/(86400*3600)<24)&&($qitem['front'] != 1)){
+			preg_match('/-(\d+)_/is',$tokenArr[0],$matchs);
+			$uid=$matchs[1];
+		
+			$_path=str_replace('-', '/', $tokenArr[0]);
             $filepath = '/Uploads/image/'.$_path;
 
             $sharePath = $this -> _getSharePath($filepath);
@@ -67,20 +89,21 @@ class ResultAction extends Action {
             $ogimage = 'http://'.$_SERVER['HTTP_HOST'].$filepath;
 
             $this -> assign('ogimage',$ogimage);
-            
-            if($_SESSION['uid']==$uid){
-                $this -> assign('path',$filepath);
-            }
+			
+			if($_SESSION['uid']==$uid){
+				$this -> assign('path',$filepath);
+			}
 
             $this -> assign('sharePath',$sharePath);
             $this -> assign('shareUrl',$shareUrl);
             $this -> assign('qitem',$qitem);
             $this -> assign('qid',$qid);
-            $this -> assign('isGif',$qitem['gif']);
-            R('Index/result', array($id,'result'));
-            exit;
-        }
-    
+			$this -> assign('isGif',$qitem['gif']);
+
+			R('Index/question', array($id,'result'));
+			exit;
+		}
+	
         /*require_once './Facebook/autoload.php';
 
         if($tag=='analyze'){
@@ -99,7 +122,7 @@ class ResultAction extends Action {
         //$permissions = ['email','public_profile','user_birthday','user_location','user_website','user_friends','user_photos','user_relationships','user_relationship_details'];
         $permissions = $this -> _getProfile($qid);
         
-        try {
+		try {
             if (isset($_SESSION['facebook_access_token'])) {
                 $accessToken = $_SESSION['facebook_access_token'];
             } else {
@@ -147,8 +170,8 @@ class ResultAction extends Action {
             
             //获取个人相册
             //$userAlbums = $this -> _getUserAlbums($fb);
-            
-            //获取用户上传图片
+			
+			//获取用户上传图片
             $photoGetLimit=$generalset['userphotos']['num'];
             if($photoGetLimit>=1){
                 $userUploadsPhotos = $this -> _getUserUploadsPhotos($fb,$photoGetLimit);
@@ -165,22 +188,35 @@ class ResultAction extends Action {
             $this -> _storeUserInfo($userInfo);
             
             $info = json_decode(json_encode($info),true);
-            if(isset($_GET['code'])){
-                $tag='codeResult';
-            }
+			if(isset($_GET['code'])){
+				$tag='codeResult';
+			}
 
+			//info信息多语言处理
+			switch($info['user_profile']['gender']){
+				case '男':
+				case 'ชาย':
+					$info['user_profile']['gender']="male";
+					break;
+				case '女':
+				case 'หญิง':
+					$info['user_profile']['gender']="female";
+					break;
+			}
+			
             $this->paintResult($fb,$info,$accessToken,$qid,$tag);
-            
+			
             // redirect the user back to the same page if it has "code" GET variable
             if (isset($_GET['code'])) {
-                $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
-                $redirectUrl = $protocol.$_SERVER['SERVER_NAME'].'/Result/show/id/'.$_GET['id'].($_SESSION['tokens']?'/tokens/'.$_SESSION['tokens']:'').($_REQUEST['utm']?'?utm='.$_REQUEST['utm']:'');
-                header('Location:'.$redirectUrl);
-            }   
-            exit;
+				//$utm=($_REQUEST['utm']?'?utm='.$_REQUEST['utm']:'');
+				$protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
+				$redirectUrl = $protocol.$_SERVER['SERVER_NAME'].'/Result/show/id/'.$_GET['id'].($_SESSION['tokens']?'/tokens/'.$_SESSION['tokens']:'').$utm;
+				header('Location:'.$redirectUrl);
+            }	
+			exit;
         } else {
-            $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
-            $loginUrl = $helper->getLoginUrl($protocol.$_SERVER['SERVER_NAME'].'/Result/show'.($qid?'/id/'.$qid:'').($_REQUEST['utm']?'/utm/'.$_REQUEST['utm']:''), $permissions);
+			$protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
+            $loginUrl = $helper->getLoginUrl($protocol.$_SERVER['SERVER_NAME'].'/Result/show'.($qid?'/id/'.$qid:'').$utm, $permissions);
 
             if($tag=='analyze'){ //AJAX异步后台处理程序
                 header('Content-type:text/json');
@@ -195,7 +231,7 @@ class ResultAction extends Action {
             }
 
         }*/
-
+        
         $accessToken = 1;
         $info = file_get_contents(APP_PATH.'Conf/info.json');
         $info = json_decode($info,true);
@@ -207,10 +243,12 @@ class ResultAction extends Action {
     }
 
     public function paintResult($fb,$info,$accessToken,$questionId='',$tag=''){
-        unset($_SESSION['tokens']);
-        $qid = $_GET['id'];
-        $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
-        
+		unset($_SESSION['tokens']);
+        $qid = $_REQUEST['id'];
+        $retest = $_REQUEST['retest'];
+
+		$protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
+		
         if($tag=='analyze'){//AJAX异步后台处理程序
             $qid=$questionId;
         }
@@ -229,7 +267,7 @@ class ResultAction extends Action {
             $item = $m -> where($where) -> limit(20) -> select();
             
             $qitem = $m -> where(array('id' => $qid,'language' => $language)) -> find();
-            
+
             if($_GET['tag']=='share'){
                 $qitem['title']=$qitem['content'];
             }else{
@@ -241,8 +279,8 @@ class ResultAction extends Action {
                 'qid'  => $qitem['qid']
             );
             $aitem = $m_a -> where($where) -> select();
-            
-            if($aitem == NULL){
+			
+			if($aitem == NULL){
                 header("Location: ".$protocol.$_SERVER['HTTP_HOST']."/Public/404/index.html");
                 die();
             }
@@ -252,11 +290,18 @@ class ResultAction extends Action {
             
             $optionresult = $aitem[$randnum]['optionresult'];
             $data = json_decode($aitem[$randnum]['optionset'],true);
-            
-            //设置背景音乐参数
+			
+            //设置答题类型数据
+            if($qitem['isTests'] == 1){
+                $rid = $_REQUEST['rid'];
+                $data = $this -> getTestsPaintResult($data,$rid);
+                //var_dump($data);exit;
+            }
+
+			//设置背景音乐参数
             if(isset($data[0]['music'])){
                 $music = $data[0]['music'];
-                $music['src'] = '/Uploads/local/'.$music['src'];
+				$music['src'] = '/Uploads/local/'.$music['src'];
                 $this -> assign('music', $music);
             }
 
@@ -276,14 +321,21 @@ class ResultAction extends Action {
                 'qid'  => $qitem['qid'],
                 'qdid' => $qitem['qdid']
             );
-            
+			
             $isgif = $qitem['gif'];
             $filepath = $this -> _getFilename($isgif,$path,$filenameArr);
             
             //获取图片修改时间
             $isOverTime = $this -> _getAnswerPicLastChangeTime($filepath,24*60*60);
 
-            if(!file_exists($filepath) || $isOverTime){
+            //判断答题次数是否超过3
+            if($retest){
+                echo $retest;die();
+                $retestsNum = $this -> _calcRetestsNum();
+                $retestsNum<3?$isCanRetest = 1:$isCanRetest = 0;
+            }
+            
+            if(!file_exists($filepath) || $isOverTime || ($retest && $isCanRetest)){
                 $this -> _createSavePic($info,$data,$filepath);
             }
             
@@ -302,32 +354,36 @@ class ResultAction extends Action {
             $this -> assign('item',$item);
             $this -> assign('qid',$qid);
             $this -> assign('uid',$uid);
-            $this -> assign('isGif',$isgif);
-            
-            if($qitem['front'] == 1){
+			$this -> assign('isGif',$isgif);
+			
+			if($qitem['front'] == 1){
                 $frontcontent = $qitem['frontcontent'];
                 $generalset = json_decode($qitem['generalset'],true);
                 $user = $this -> _getFielterUserInfo($info,$generalset);
                 $this->assign('user',json_encode($user));
                 $this->assign('frontcontent',$frontcontent);
                 $this->assign('front',$qitem['front']);
-                //$this->assign('user_upload_photos',json_encode($user['user_upload_photos']));
+				//$this->assign('user_upload_photos',json_encode($user['user_upload_photos']));
             }
 
-            $tokens=base64_encode($sharePath.'|'.time());
-            $_SESSION['tokens']=$tokens;
+			$tokens=base64_encode($sharePath.'|'.time());
+			$_SESSION['tokens']=$tokens;
             if($tag=='analyze'){//AJAX异步后台处理程序
                 header('Content-type:text/json');
                 echo json_encode(array(
                     'login'=>true,
                     'paint'=>true,
-                    'tokens'=>$tokens
+					'tokens'=>$tokens
                 ));
                 exit;
             }else{
-                if($tag!='codeResult'){
-                    $this -> display('Index/result');
-                }
+				if($tag!='codeResult'){
+					if($_GET['v']==1||$language=='zh'){
+						$this -> display('New:result'); 
+					}else{
+						$this -> display('Index/question'); 
+					}
+				}
             }
             
         } else {
@@ -380,7 +436,7 @@ class ResultAction extends Action {
 
     private function _getShareUrl($sharePath,$qid){
         //http://'+location.host+'/index.php/index/question/id/'+qid+'?tag=share&pic='+pic
-        $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
+		$protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
         $shareUrl = $protocol.$_SERVER['HTTP_HOST'].'/index/question/id/'.$qid.'/tag/share/pic/'.$sharePath.'&t='.rand(1,100);
         
         return $shareUrl;
@@ -428,9 +484,72 @@ class ResultAction extends Action {
             imagejpeg($im,$filepath,85);
             imagedestroy($im);
         }
-        
+		
     }
-    
+
+    private function getTestsPaintResult($data,$rid){
+        $OptionsArr = $data[0];
+        if($OptionsArr['type'] == "question"){
+            $Options = $OptionsArr;
+            foreach ($Options as $k1 => $v1) {
+                if($k1 == 'questionlist'){
+                    foreach ($v1 as $k2 => $v2) {
+                        if($v2['image']){
+                            $Options[$k1][$k2]['image'] = '/Uploads/loacal/'.$v2['image'];
+                        }
+                    }
+                }
+            }
+        }
+        $resultlist=$Options['resultlist'];
+        if(count($data[1]) == 1){
+            $paintResult = $data[1][0];
+        }else{
+            $paintResult = $data[1][$rid];
+        }
+        //var_dump($paintResult);
+
+        //置换Test类型数据
+        foreach ($paintResult as $k => $v) {
+            $content = $v['attribute']['content'];
+            $paintResult[$k]['attribute']['content'] = $this -> _setTestParam($content,$resultlist,$rid);
+        }
+        //var_dump($paintResult);
+        return $paintResult;
+    }
+
+    private function _setTestParam($content,$resultlist,$rid){
+        //置换结果答案中变量
+        if(preg_match('/{#TEST.result}/im',$content)){
+            $content=str_replace('{#TEST.result}', $resultlist[$rid][0],$content);
+        }
+
+        //置换结果答案描述中变量
+        if(preg_match('/{#TEST.result.desc}/im',$content)){
+            $content=str_replace('{#TEST.result.desc}', $resultlist[$rid][2],$content);
+            $this -> assign('resultDesc',$content);
+        }
+
+
+        //置换结果选项列表中变量
+        preg_match_all('/{#TEST.resultlist.(.*?)}/im', $content, $matches);
+        if(isset($matches[1])){
+            $n = $matches[1][0];
+            $content=str_replace('{#TEST.resultlist.'.$n.'}', $resultlist[$n][0],$content);
+        }
+
+
+        //置换结果答案描述列表中变量
+        preg_match_all('/{#TEST.resultlist.(\d+).desc}/im', $content, $matches);
+        if(isset($matches[1])){
+            $n = $matches[1][0];
+            $content=str_replace('{#TEST.resultlist.'.$n.'.desc}', $resultlist[$n][2],$content);
+            $this -> assign('resultlistDesc',$content);
+        }
+
+        return $content;
+    }
+	
     private function _getAitemData($qitem){
         $where = array(
                 'qdid' => $qitem['qdid'],
@@ -445,19 +564,20 @@ class ResultAction extends Action {
 
         return $data;
     }
-    
-    private function _setMusicUrl($data){
+	
+	private function _setMusicUrl($data){
         if(isset($data[0]['music'])){
             $music = $data[0]['music'];
-            $music['src'] = '/Uploads/local/'.$music['src'];
+			$music['src'] = '/Uploads/local/'.$music['src'];
             $this -> assign('music', $music);
         }
     }
 
     private function _getLanguage(){
+		$utms=$this->getUtms();$utm=$utms['utm'];
         if(isset($_POST['language']) && !empty($_POST['language'])){
             $language = $_POST['language'];
-            $url = "http://".$language.".mytests.co";
+            $url = "http://".$language.".mytests.co".$utm;
             //$qid = $_POST['id'];
             //$url = "http://".$language.".mytests.co/question/id/".$qid;
             header("Location:".$url);
@@ -472,7 +592,7 @@ class ResultAction extends Action {
 
         return $language;
     }
-
+	
     private function _getLocale(){
         $localeArr = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
         $locale = str_replace('-','_',$localeArr[0]);
@@ -482,8 +602,8 @@ class ResultAction extends Action {
             return false;
         }
     }
-    
-    private function _getFielterUserInfo($info,$generalset){
+	
+	private function _getFielterUserInfo($info,$generalset){
         $userBirthday = $info['user_profile']['birthday']['date'];
         $info['user_profile']['birthday'] = date("Y-m-d",strtotime($userBirthday));
 
@@ -530,7 +650,7 @@ class ResultAction extends Action {
             }
                         
         }
-        
+		
         return $item;
     }
 
@@ -587,6 +707,18 @@ class ResultAction extends Action {
         }
 
         return $rand;
+    }
+
+    //统计用户重测次数
+    private function _calcRetestsNum(){
+        if(isset($_SESSION['retestsNum'])){
+            $retestsNum++;
+            $_SESSION['retestsNum'] = $retestsNum;
+        }else{
+            $retestsNum = 1;
+        }
+
+        return $retestsNum;
     }
 
     //设置内容内置系统变量
@@ -682,20 +814,20 @@ class ResultAction extends Action {
     }
 
 
-    //获取函数参数列表
-    private function _getStrParam($str){
-        $pos=strpos($str,'(');
-        if($pos>=0){
-            $_str=explode('(', $str);
-            $str=$_str[1];
-        }
-        preg_match_all('/(\w+|\[(.*?)\])/im', $str, $match);
-        foreach ($match as $key => $value) {
-            $match[$key]=preg_replace('/(\[|\])/im', '', $value);
-        }
-        
-        return $match[0];
-    }
+	//获取函数参数列表
+	private function _getStrParam($str){
+		$pos=strpos($str,'(');
+		if($pos>=0){
+			$_str=explode('(', $str);
+			$str=$_str[1];
+		}
+		preg_match_all('/(\w+|\[(.*?)\])/im', $str, $match);
+		foreach ($match as $key => $value) {
+			$match[$key]=preg_replace('/(\[|\])/im', '', $value);
+		}
+		
+		return $match[0];
+	}
 
     //生成不重复随机数
     private function _getUniqueRand($param,$SessionTag=''){
@@ -717,13 +849,12 @@ class ResultAction extends Action {
 
     //获取个人基本信息，需要public_profile权限
     private function _getUserProfile($fb){
-        $locale = $this -> _getLocale();
+		$locale = $this -> _getLocale();
         if($locale == false){
             $param = '/me?fields=id,name,first_name,last_name,gender,email,birthday,website,location';
         }else{
             $param = '/me?fields=id,name,first_name,last_name,gender,email,birthday,website,location&locale='.$locale;
         }
-
         // getting basic info about user, need public_profile
         try {
             $profile_request = $fb->get($param);
@@ -821,7 +952,7 @@ class ResultAction extends Action {
         return $info;
     }
 
-    //获取用户上传图片
+	//获取用户上传图片
     public function _getUserUploadsPhotos($fb,$limit=10){
         try {
             $requestAlbum = $fb->get('/me/photos?fields=id,height,images,picture,width&type=uploaded&limit='.$limit);
@@ -861,6 +992,7 @@ class ResultAction extends Action {
 
         return $info;
     }
+
 
 }
 ?>

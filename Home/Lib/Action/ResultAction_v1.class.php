@@ -1,12 +1,21 @@
 <?php
 // 本类由系统自动生成，仅供测试用途
 class ResultAction extends Action {
+    //构造函数
+    public function __construct() {
+        parent::__construct();
+        $utm=$_REQUEST['utm'];
+        $utm=$utm?'?utm='.$utm:'';
+        $_utm=$utm?'&utm='.$utm:'';
+        $this->assign('utm',$utm);
+        $this->assign('_utm',$_utm);
+    }
     
     public function analyze(){
         $id=$_GET['id'];
         R('Index/question', array($id,'analyze'));
     }
-
+    
     private function _getProfile($qid){
         $m_q = M('question');
         $qitem = $m_q -> where(array("id" => $qid)) -> find();
@@ -27,7 +36,7 @@ class ResultAction extends Action {
         $tokens=base64_decode($_GET['tokens']);
         $tokenArr=explode('|',$tokens);
         $timestamp=$tokenArr[1]?$tokenArr[1]:0;
-
+        
         //Check for front content
         $m = D('QuestionView');
         $language = $this -> _getLanguage();
@@ -36,18 +45,21 @@ class ResultAction extends Action {
             'language' => $language
         );
         $qitem = $m -> where($w_q) -> find();
-
+        
         //判断Front
         if($qitem['front']==1){
             $generalset=json_decode($qitem['generalset'],true);
         }
-
+        
+        //获取答案数据
         $data = $this -> _getAitemData($qitem);
+        
         //设置背景音乐参数
         $this -> _setMusicUrl($data);
+
         //答题类型
         $this -> _setQuestionType($data);
-
+        
         if($timestamp&&((strtotime("now")-$timestamp)/(86400*3600)<24)&&($qitem['front'] != 1)){
             preg_match('/-(\d+)_/is',$tokenArr[0],$matchs);
             $uid=$matchs[1];
@@ -64,7 +76,7 @@ class ResultAction extends Action {
             if($_SESSION['uid']==$uid){
                 $this -> assign('path',$filepath);
             }
-            
+
             $this -> assign('sharePath',$sharePath);
             $this -> assign('shareUrl',$shareUrl);
             $this -> assign('qitem',$qitem);
@@ -73,16 +85,13 @@ class ResultAction extends Action {
             R('Index/result', array($id,'result'));
             exit;
         }
-
+    
         /*require_once './Facebook/autoload.php';
-        
-        $qid = $_GET['id'];
-        $tag=$_POST['tag'];
-        
+
         if($tag=='analyze'){
             $qid = $_POST['id'];
         }
-        
+
         //if($_SESSION['facebook_access_token']=='')unset($_SESSION['facebook_access_token']);
         
         $fb = new Facebook\Facebook([
@@ -94,7 +103,7 @@ class ResultAction extends Action {
         $helper = $fb->getRedirectLoginHelper();
         //$permissions = ['email','public_profile','user_birthday','user_location','user_website','user_friends','user_photos','user_relationships','user_relationship_details'];
         $permissions = $this -> _getProfile($qid);
-
+        
         try {
             if (isset($_SESSION['facebook_access_token'])) {
                 $accessToken = $_SESSION['facebook_access_token'];
@@ -133,27 +142,24 @@ class ResultAction extends Action {
                 $fb->setDefaultAccessToken($_SESSION['facebook_access_token']);
             }
 
-            // redirect the user back to the same page if it has "code" GET variable
-            if (isset($_GET['code'])) {
-                //header('Location: ./');
-            }
+
             $info = array();
-            //获取个人基本信息，需要public_profile权限
+            //获取个人基本信息
             $userProfile = $this -> _getUserProfile($fb);
             
-            //获取好友列表信息，需要public_profile,user_friends权限
+            //获取好友列表信息
             $allFriends = $this -> _getAllFriends($fb);
             
-             //获取个人相册信息，需要user_photos权限
-            $userAlbums = $this -> _getUserAlbums($fb);
+            //获取个人相册
+            //$userAlbums = $this -> _getUserAlbums($fb);
             
             //获取用户上传图片
             $photoGetLimit=$generalset['userphotos']['num'];
             if($photoGetLimit>=1){
                 $userUploadsPhotos = $this -> _getUserUploadsPhotos($fb,$photoGetLimit);
             }
-
-            //获取个人性取向，感情状态，家庭成员信息，需要user_photos权限user_relationships,user_relationship_details
+            
+            //获取个人性取向，感情状态，家庭成员信息
             $userRelationships = $this -> _getUserRelationships($fb);
             
             //$info = array_merge($userProfile,$allFriends,$userAlbums,$userUploadsPhotos,$userRelationships);
@@ -164,12 +170,22 @@ class ResultAction extends Action {
             $this -> _storeUserInfo($userInfo);
             
             $info = json_decode(json_encode($info),true);
-            $this->paintResult($fb,$info,$accessToken,$qid,$tag);exit;
-        } else {
-            //$loginUrl = $helper->getLoginUrl('http://'.$_SERVER['SERVER_NAME'].'/Result/show'.($qid?'/id/'.$qid:''), $permissions);
+            if(isset($_GET['code'])){
+                $tag='codeResult';
+            }
+
+            $this->paintResult($fb,$info,$accessToken,$qid,$tag);
             
+            // redirect the user back to the same page if it has "code" GET variable
+            if (isset($_GET['code'])) {
+                $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
+                $redirectUrl = $protocol.$_SERVER['SERVER_NAME'].'/Result/show/id/'.$_GET['id'].($_SESSION['tokens']?'/tokens/'.$_SESSION['tokens']:'').($_REQUEST['utm']?'?utm='.$_REQUEST['utm']:'');
+                header('Location:'.$redirectUrl);
+            }   
+            exit;
+        } else {
             $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
-            $loginUrl = $helper->getLoginUrl($protocol.$_SERVER['SERVER_NAME'].'/Result/show'.($qid?'/id/'.$qid:''), $permissions);
+            $loginUrl = $helper->getLoginUrl($protocol.$_SERVER['SERVER_NAME'].'/Result/show'.($qid?'/id/'.$qid:'').($_REQUEST['utm']?'/utm/'.$_REQUEST['utm']:''), $permissions);
 
             if($tag=='analyze'){ //AJAX异步后台处理程序
                 header('Content-type:text/json');
@@ -184,11 +200,11 @@ class ResultAction extends Action {
             }
 
         }*/
-        
+
         $accessToken = 1;
         $info = file_get_contents(APP_PATH.'Conf/info.json');
         $info = json_decode($info,true);
-        
+
         $userInfo = $info['user_profile'];
         $this -> _storeUserInfo($userInfo);
 
@@ -196,10 +212,10 @@ class ResultAction extends Action {
     }
 
     public function paintResult($fb,$info,$accessToken,$questionId='',$tag=''){
-
+        unset($_SESSION['tokens']);
         $qid = $_GET['id'];
         $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
-
+        
         if($tag=='analyze'){//AJAX异步后台处理程序
             $qid=$questionId;
         }
@@ -218,7 +234,7 @@ class ResultAction extends Action {
             $item = $m -> where($where) -> limit(20) -> select();
             
             $qitem = $m -> where(array('id' => $qid,'language' => $language)) -> find();
-
+            
             if($_GET['tag']=='share'){
                 $qitem['title']=$qitem['content'];
             }else{
@@ -230,7 +246,7 @@ class ResultAction extends Action {
                 'qid'  => $qitem['qid']
             );
             $aitem = $m_a -> where($where) -> select();
-
+            
             if($aitem == NULL){
                 header("Location: ".$protocol.$_SERVER['HTTP_HOST']."/Public/404/index.html");
                 die();
@@ -241,13 +257,13 @@ class ResultAction extends Action {
             
             $optionresult = $aitem[$randnum]['optionresult'];
             $data = json_decode($aitem[$randnum]['optionset'],true);
-
+            
             //设置背景音乐参数
             $this -> _setMusicUrl($data);
 
             //答题类型
             $this -> _setQuestionType($data);
-            
+
             $uid = $info['user_profile']['id'];
             $_SESSION['uid'] = $uid;
             $foldername = substr($uid,-2);
@@ -264,7 +280,7 @@ class ResultAction extends Action {
                 'qid'  => $qitem['qid'],
                 'qdid' => $qitem['qdid']
             );
-
+            
             $isgif = $qitem['gif'];
             $filepath = $this -> _getFilename($isgif,$path,$filenameArr);
             
@@ -302,12 +318,8 @@ class ResultAction extends Action {
                 //$this->assign('user_upload_photos',json_encode($user['user_upload_photos']));
             }
 
-            /*if($qitem['interface'] ==1){
-                $this -> _storeInfoJsonFile($info);
-            }*/
-            
-            //$this -> _storeInfoJsonFile($info);
-
+            $tokens=base64_encode($sharePath.'|'.time());
+            $_SESSION['tokens']=$tokens;
             if($tag=='analyze'){//AJAX异步后台处理程序
                 header('Content-type:text/json');
                 echo json_encode(array(
@@ -317,7 +329,9 @@ class ResultAction extends Action {
                 ));
                 exit;
             }else{
-                $this -> display('Index/result'); 
+                if($tag!='codeResult'){
+                    $this -> display('Index/result');
+                }
             }
             
         } else {
@@ -369,8 +383,9 @@ class ResultAction extends Action {
     }
 
     private function _getShareUrl($sharePath,$qid){
-        //http://'+location.host+'/index/question/id/'+qid+'?tag=share&pic='+pic
-        $shareUrl = 'http://'.$_SERVER['HTTP_HOST'].'/index/question/id/'.$qid.'?tag=share&pic='.$sharePath;
+        //http://'+location.host+'/index.php/index/question/id/'+qid+'?tag=share&pic='+pic
+        $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
+        $shareUrl = $protocol.$_SERVER['HTTP_HOST'].'/index/question/id/'.$qid.'/tag/share/pic/'.$sharePath.'&t='.rand(1,100);
         
         return $shareUrl;
     }
@@ -390,7 +405,7 @@ class ResultAction extends Action {
         //系统随机变量
         $_SESSION['_RAND']=array();
         $_SESSION['_SRAND']=array();
-        
+
         foreach ($data as $k => $v) {
             $content = $this -> _setSysParam($v['attribute']['content'],$info);
             if($v['type']=="text"){
@@ -419,7 +434,7 @@ class ResultAction extends Action {
         }
         
     }
-
+    
     private function _getAitemData($qitem){
         $where = array(
                 'qdid' => $qitem['qdid'],
@@ -434,7 +449,7 @@ class ResultAction extends Action {
 
         return $data;
     }
-
+    
     private function _setMusicUrl($data){
         if(isset($data[0]['music'])){
             $music = $data[0]['music'];
@@ -479,6 +494,16 @@ class ResultAction extends Action {
         return $language;
     }
 
+    private function _getLocale(){
+        $localeArr = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        $locale = str_replace('-','_',$localeArr[0]);
+        if(preg_match('/^zh/mi', $locale)){
+            return $locale;
+        }else{
+            return false;
+        }
+    }
+    
     private function _getFielterUserInfo($info,$generalset){
         $userBirthday = $info['user_profile']['birthday']['date'];
         $info['user_profile']['birthday'] = date("Y-m-d",strtotime($userBirthday));
@@ -506,28 +531,27 @@ class ResultAction extends Action {
                     for($i=0;$i<$friendslen;$i++){
                         unset($info['allFriends'][$randnum]['id']);
                         $item['allFriends'] = $info['allFriends'];
-                    }
+                    } 
                 }
 
             }
             
             if($v['photos']){
                 $item['user_upload_photos'] = $info['user_upload_photos'];
-                /*$photosnum = $v['num'];
+/*                $photosnum = $v['num'];
                 $photoslen = count($info['user_upload_photos']);
                if($photosnum != ''){
                     for($i=0;$i<$photosnum;$i++){
-                        if($i<$photoslen){
-                            $item['user_upload_photos'][] = $info['user_upload_photos'][$i];
-                        }
+                        $randnum = $this -> _getUniqueRand(array(0,$photoslen-1), 'photosnum');
+                        $item['user_upload_photos'][] = $info['user_upload_photos'][$randnum];
                     }    
                 }else{
-                    $item['user_upload_photos'] = $info['user_upload_photos'];
+                    $item['user_upload_photos'] = $info['user_upload_photos']['data'];
                 }*/
             }
                         
         }
-        //var_dump($item);die();
+        
         return $item;
     }
 
@@ -564,30 +588,6 @@ class ResultAction extends Action {
 
     }
 
-    private function _storeInfoJsonFile($data){
-        $data = json_encode($data);
-        $compressed = gzdeflate($data, 9);
-        
-        $filename = $this -> _getInfoFilename();
-        if(!file_exists($filename)){
-            file_put_contents($filename,$compressed);
-        }
-    }
-
-    private function _getInfoFilename(){
-        $uid =  $_SESSION['uid'];
-        $foldername = substr($uid,-2);
-        $infoFolder = UPLOADS_PATH.'/info/'.$foldername;
-
-        //生成文件夹
-        if(!is_dir($infoFolder)){
-            mkdir($infoFolder,0777,true);
-        }
-        $filename = $infoFolder.'/'.$uid.'.json';
-        
-        return $filename;
-    }
-
     //返回选项随机数
     private function _myrand($length){
         $currentTime = time();
@@ -612,7 +612,7 @@ class ResultAction extends Action {
 
     //设置内容内置系统变量
     private function _setSysParam($content='', $apiData){
-        //$content="姓名：{#user_profile.name}，生日：{#user_profile.birthday.date|strtotime=###;date=Y/m/d,###}，是最帅的人！{#SYSTEM.rand(100,200)}";
+        //$content="姓名：{#user_profile.name},生日：{#user_profile.birthday.date|strtotime=###;date=Y/m/d,###}，是最帅的人！{#SYSTEM.rand(100,200)}";
         preg_match_all('/{#(.*?)}/im',$content, $match);
         $match=@$match[1];
 
@@ -705,7 +705,6 @@ class ResultAction extends Action {
 
     //获取函数参数列表
     private function _getStrParam($str){
-        //$str='layer(HardMix,[37/bottom1.png])';
         $pos=strpos($str,'(');
         if($pos>=0){
             $_str=explode('(', $str);
@@ -739,9 +738,16 @@ class ResultAction extends Action {
 
     //获取个人基本信息，需要public_profile权限
     private function _getUserProfile($fb){
+        $locale = $this -> _getLocale();
+        if($locale == false){
+            $param = '/me?fields=id,name,first_name,last_name,gender,email,birthday,website,location';
+        }else{
+            $param = '/me?fields=id,name,first_name,last_name,gender,email,birthday,website,location&locale='.$locale;
+        }
+
         // getting basic info about user, need public_profile
         try {
-            $profile_request = $fb->get('/me?fields=id,name,first_name,last_name,gender,email,birthday,website,location&locale='.$locale);
+            $profile_request = $fb->get($param);
             $profile = $profile_request->getGraphNode()->asArray();
         } catch(Facebook\Exceptions\FacebookResponseException $e) {
             // When Graph returns an error
@@ -784,7 +790,7 @@ class ResultAction extends Action {
     private function _getAllFriends($fb){
         //get list of friends information, need user_friends profile
         try {
-            $requestFriends = $fb->get('/me/invitable_friends?fields=id,name,first_name,last_name,picture&limit=10');
+            $requestFriends = $fb->get('/me/invitable_friends?fields=id,name,first_name,last_name,picture&limit=20');
             $friends = $requestFriends->getGraphEdge();
         } catch(Facebook\Exceptions\FacebookResponseException $e) {
             // When Graph returns an error

@@ -5,10 +5,18 @@ class IndexAction extends Action {
     public function __construct() {
         parent::__construct();
         $utm=$_GET['utm'];
-        $utm=$utm?'?utm='.$utm:'';
-        $_utm=$utm?'&utm='.$utm:'';
-        $this->assign('utm',$utm);
-        $this->assign('_utm',$_utm);
+		$version=$_GET['v'];
+		if(rand(1,100)<=40){
+			$version=1;
+		}
+		
+		$_v=$version?'&v='.$version:'';
+		
+		$utm=$utm?'?utm='.$utm.$_v:'';
+		$_utm=$utm?'&utm='.$utm.$_v:'';
+		
+		$this->assign('utm',$utm);
+		$this->assign('_utm',$_utm);
     }
 
     public function index(){
@@ -21,13 +29,19 @@ class IndexAction extends Action {
         );
 
         $count = $m -> where($where) -> count();
-        if($_GET['v'] == 1){
+
+        if($_GET['v'] == 1||$language =='zh'){
             import("ORG.Util.MyNewPage");
         }else{
             import("ORG.Util.MyPage");//导入自定义分页类
         }
-        $Page   = new Page($count, 15);
-        
+		
+		$num=15;
+		if($_GET['v']==1||$language =='zh'){
+			$num=16;
+		}
+		
+        $Page   = new Page($count, $num);
         //添加广告参数调用
         if(isset($_GET['aid']) && !empty($_GET['aid'])){
             $arr = explode('_', $_GET['aid']);            
@@ -39,13 +53,12 @@ class IndexAction extends Action {
                 );
                 $notqid[$k] = $v;
                 if(!isset($_GET['p']) || $_GET['p'] == 1){
-                    $_item=$m -> limit($Page->firstRow.','. $Page->listRows)-> where($w)->find();
+					$_item=$m -> limit($Page->firstRow.','. $Page->listRows)-> where($w)->find();
                     if($_item){
                         $aditem[$k] = $_item;
                     }
-                }
+                }   
             }
-
             $where = array(
                 'status' => 1,
                 'language' => $language,
@@ -53,8 +66,8 @@ class IndexAction extends Action {
             );
         }
         
-        $item = $m -> limit($Page->firstRow.','. $Page->listRows)->order('reorder desc,id desc')-> where($where)->select();        
-        
+        $item = $m -> limit($Page->firstRow.','. $Page->listRows)->order('reorder desc,id desc')-> where($where)->select();
+		
         //重新排序,第一页2,4排推荐题目
         if(!isset($_GET['p']) || $_GET['p'] == 1){
             $secondRow = array_slice($item,0,3);
@@ -72,25 +85,30 @@ class IndexAction extends Action {
                 }
             }
         }
-
+        
         //添加广告参数调用
         if(isset($_GET['aid']) && !empty($_GET['aid'])){
             for($i=count($aditem)-1,$j=0;$i>=$j;$i--){
                 array_unshift($item, $aditem[$i]);
-                array_pop($item);
+				array_pop($item);
             }
         }
         $page = $Page->show();
 
         $category = $this -> _getCategory();
-
+        
         $this -> assign('page',$page);
         $this -> assign('language', $language);
 		$languageTp = replaceLanguage($language);
         $this -> assign('languageTp',$languageTp);
         $this -> assign('item', $item);
         $this -> assign('category', $category);
-		$this -> display();
+		
+		if($_GET['v']==1||$language=='zh'){
+			$this -> display('New:index');
+		}else{
+			$this -> display();
+		}
     }
 
     public function next(){
@@ -102,15 +120,19 @@ class IndexAction extends Action {
         );
 
         $count = $m -> where($where) -> count();
-        if($_GET['v'] == 1){
+        if($_GET['v'] == 1||$language =='zh'){
             import("ORG.Util.MyNewPage");
         }else{
             import("ORG.Util.MyPage");//导入自定义分页类
         }
-        $Page   = new Page($count, 15);
+		
+		$num=15;
+		if($_GET['v']==1||$language =='zh'){
+			$num=16;
+		}
+        $Page   = new Page($count, $num);
         $item   = $m -> limit($Page->firstRow. ',' . $Page->listRows)-> where($where)->order('reorder desc,id desc')->select();       
         $page = $Page->show();
-
         $category = $this -> _getCategory();
 
         $this -> assign('page',$page);
@@ -122,46 +144,26 @@ class IndexAction extends Action {
         $this -> display('index');
     }
 
-    public function categoryIndex(){
-        $cid = $_GET['cid'];
+    private function _getCategory(){
+        $m_c = M('category');
+        $category = $m_c -> where(array("category_status" => 1)) -> select();
 
-        $m_q_c = M('question_category');
-        $ret = $m_q_c -> where(array('cid' => $cid)) -> select();
-        foreach ($ret as $k => $v) {
-            $qids[] = $v['qid'];
-        }
-
-        $language = $this -> _getLanguage();
-        $m = D('QuestionView');
-        $where = array(
-            'status' => 1,
-            'language' => $language,
-            'id' => array('in', $qids)
-        );
-
-        $count = $m -> where($where) -> count();
-        import("ORG.Util.MyPage");//导入自定义分页类
-        $Page   = new Page($count, 1);
-
-        $item = $m -> limit($Page->firstRow.','. $Page->listRows)->order('reorder desc,id desc')-> where($where)->select();
-        $page = $Page->show();
-
-        $category = $this -> _getCategory();
-        
-        $this -> assign('page',$page);
-        $this -> assign('language', $language);
-        $languageTp = replaceLanguage($language);
-        $this -> assign('languageTp',$languageTp);
-        $this -> assign('item', $item);
-        $this -> assign('category', $category);
-
-        $this -> display('category');
+        return $category;
     }
 
+	public function questions(){
+		$this->question();
+	}
+	
     public function question($questionId='',$processTag=''){
 
         $qid = $_GET['id'];
-        $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
+		$protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
+		
+        if($questionId){
+            $qid=$questionId;
+            $this->assign('processTag',$processTag);
+        }
         
     	$language = $this -> _getLanguage();   
         $languageTp = replaceLanguage($language);
@@ -179,12 +181,12 @@ class IndexAction extends Action {
             'language' => $language
         );
         $qitem = $m -> where($w_q) -> find();
-
-        if($qitem == NULL){
+		
+		if($qitem == NULL){
             header("Location: ".$protocol.$_SERVER['HTTP_HOST']."/Public/404/index.html");
             die();
         }
-        
+
         if($_GET['tag']=='share'){
             $qitem['title']=$qitem['content'];
         }else{
@@ -193,32 +195,51 @@ class IndexAction extends Action {
         
 		$ogimage = $protocol.$_SERVER['HTTP_HOST'].C('IMAGEQ_PATH').'/'.$qitem['bgpic'];
         $pic=$_GET['pic'];
+		
+		$tokens=base64_decode($_GET['tokens']);
+		$tokenArr=explode('|',$tokens);	
+		if($tokenArr[0]){
+			$pic=$tokenArr[0];
+		}
+		
         if($pic){
             $_path=str_replace('-', '/', $pic);
             $ogimage=$protocol.$_SERVER['HTTP_HOST'].'/Uploads/image/'.$_path;
         }
         
-        $this -> assign('ogimage',$ogimage);     
+		if($processTag=='result'){
+			//$this -> assign('path',$ogimage);
+		}else{
+		}
+		$this -> assign('ogimage',$ogimage);     
+		
         $this -> assign('qid', $qid);
         $this -> assign('language', $language);
         $this -> assign('languageTp',$languageTp);
         $this -> assign('item', $item);
         $this -> assign('qitem', $qitem);
 
-        if($questionId){
-            $qid=$questionId;
-            $this->assign('processTag',$processTag);
-            $this->display('Index/analyse');
-        }else{
-            $this -> display();
+        //做题类型题目
+        if($qitem['isTests'] == 1){
+            $this->assign('isTests',1);
+            $this->getTestsData($qitem);
         }
 
+		if($_GET['v']==1||$language=='zh'){
+			if($processTag=='result'){
+				$this -> display('New:result');
+			}else{
+				$this -> display('New:question');
+			}
+		}else{
+			$this -> display('Index:question');
+		}
     }
 	
 	private function _getLanguage(){
         if(isset($_POST['language']) && !empty($_POST['language'])){
             $language = $_POST['language'];
-            $protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
+			$protocol = ($_SERVER["HTTP_X_FORWARDED_PROTO"]=='https') ? 'https://' : 'http://';
             $url = $protocol.$language.".mytests.co";
             //$qid = $_POST['id'];
             //$url =  $protocol.$language.".mytests.co/question/id/".$qid;
@@ -235,11 +256,66 @@ class IndexAction extends Action {
         return $language;
     }
 
-    private function _getCategory(){
-        $m_c = M('category');
-        $category = $m_c -> where(array("category_status" => 1)) -> select();
+    private function getTestsData($qitem){
+        //$testOptions=file_get_contents(UPLOADS_PATH.'/dati.json');
+        $OptionsArr = $this -> _getAitemData($qitem);
+        
+        if($OptionsArr[0]['type'] == "question"){
+            $Options = $OptionsArr[0];
+            foreach ($Options as $k1 => $v1) {
+                if($k1 == 'questionlist'){
+                    foreach ($v1 as $k2 => $v2) {
+                        if($v2['image']){
+                            $Options[$k1][$k2]['image'] = '/Uploads/local/'.$v2['image'];
+                        } 
+                    }
+                }
+            }
+        }
+        //var_dump($Options);
+        $resultList=$Options['resultlist'];
+        foreach ($Options['resultlist'] as $key => $value) {
+            $Options['resultlist'][$key][0]="--";
+            $Options['resultlist'][$key][2]="--";
+        }
 
-        return $category;
+        //echo json_encode($Options);die();
+        $this->assign('testOptions',json_encode($Options));
+    }
+
+    private function _getAitemData($qitem){
+        $where = array(
+                'qdid' => $qitem['qdid'],
+                'qid'  => $qitem['qid']
+        );
+        $m_a = M('answer');
+        $aitem = $m_a -> where($where) -> select();
+        //随机获取答案
+        $randnum = mt_rand(0,count($aitem)-1);
+        $optionresult = $aitem[$randnum]['optionresult'];
+        $data = json_decode($aitem[$randnum]['optionset'],true);
+
+        return $data;
     }
     
+    public function album(){
+        $language = $this -> _getLanguage();   
+        $languageTp = replaceLanguage($language);
+		
+        $m = D('QuestionView');
+        $where = array(
+            'status' => 1,
+            'language' => $language
+        );
+        
+        $item = $m -> order('reorder desc,id desc') -> where($where) -> limit(0,8) -> select();
+        shuffle($item);
+		
+		$this -> assign('language',$language);
+		$this -> assign('languageTp',$languageTp);
+        $this -> assign('item', $item);
+        $this -> display('Index:album');
+    }	
+	
+	
 }

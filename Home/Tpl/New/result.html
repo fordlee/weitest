@@ -1,0 +1,187 @@
+<include file="Public:header" /> 
+
+<div id="container">
+	<div id="container-box1">
+		<div id="container-content">
+			<div id="content-title">
+				<span class="title-text">{$qitem.content}</span>
+				<div class="title-tool">
+					<img class="tool-arrow" src="__PUBLIC__/new/img/arrow_right.gif">
+					<div class="fb-like" data-href="{$languageTp.facebook_like}" data-layout="button_count" data-action="like" data-size="large" data-show-faces="false" data-share="false"></div>
+					<a id="linkComment" href="#comment" title="Comments"><img src="__PUBLIC__/new/img/facebook.gif?t=1"></a>
+				</div>
+			</div>
+			<div id="content-result">
+				<eq name="front" value="1">
+				    {$frontcontent}
+				<else/>
+				    <img src="{$path}?t=<?php echo rand(1,100)?>"  alt="{$qitem.content}" id="resultpic" style="<neq name='isGif' value='1'>width:100%;<else/>max-width:100%;min-width:320px;</neq>cursor:pointer" onclick="share('{$qid}','{$sharePath}')" fid="{$uid}">
+					<eq name="isGif" value="1">
+						<neq name="music" value="">
+						<br><audio src="{$music.src}" controls loop autoplay></audio>
+						</neq>
+					</eq>
+				</eq>
+			</div>
+			<div class="share-box">
+				<a class="share-fb login" href="javascript:;" onclick="share('{$qid}','{$sharePath}','fb')" fid="{$uid}">
+					<img src="__PUBLIC__/new/img/facebook.png">
+					<span>{$languageTp.share}</span>
+				</a>
+				<a class="share-like login">
+					<div class="fb-like" data-href="{$languageTp.facebook_like}" data-layout="button_count" data-action="like" data-size="large" data-show-faces="false" data-share="false"></div>
+				</a>
+				<a class="share-messenger login"  href="javascript:;" onclick="share('{$qid}','{$sharePath}','messenger')" fid="{$uid}">
+					<img src="__PUBLIC__/new/img/messenger.png">
+					<span>Messenger</span>
+				</a>
+				<a class="share-twitter login" href="javascript:;" onclick="share('{$qid}','{$sharePath}','twitter')" fid="{$uid}">
+					<img src="__PUBLIC__/new/img/twitter.png">
+					<span>Twitter</span>
+				</a>
+				<a class="share-google login" href="javascript:;" onclick="share('{$qid}','{$sharePath}','google')" fid="{$uid}">
+					<img src="__PUBLIC__/new/img/google.png">
+				</a>
+			</div>
+		</div>
+
+
+		<div class="as600x300">
+			<!-- Mytests-new_600x300 -->
+            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>  
+            <script type="text/javascript">
+              if (window.innerWidth <= 600) {
+                // Small ad
+              google_ad_slot = "4875650102";
+              google_ad_width = 336;
+              google_ad_height = 280;
+              } else {
+                // Medium (fallback) ad
+                google_ad_slot = "7748391305";
+                google_ad_width = 600;
+                google_ad_height = 300;
+              }
+              try{
+                document.write('<ins class="adsbygoogle" style="display:inline-block;width:'+google_ad_width+'px;height:'+google_ad_height+'px" data-ad-client="ca-pub-3961823097646209" data-ad-slot="'+google_ad_slot+'" data-ad-region="MYTESTS_MID"></ins>');
+                (adsbygoogle = window.adsbygoogle || []).push({});      
+              }catch(e){
+                console.log(e);
+              }
+            </script>
+		</div>
+
+		<div class="randombtnbox">
+			<hr style="border:1px dashed #c6c6c6;border-bottom:none;width:98%">
+			<a href="{:U('Index/question')}/id/{:rand(1,24)}{$utm}" class="randombtn btn">
+	            <span>NEXT</span>
+	            <img src="__PUBLIC__/new/img/arrow2.png">
+	        </a>
+		</div>
+
+        <volist name="item" id="v" offset="0" length="4">
+	        <a class="test-box" href="{:U('Index/question')}/id/{$v.id}{$utm}">
+	        	<img class="lazy" src="__PUBLIC__/new/img/empty.png" data-original="{:C('IMAGEQ_PATH')}/{$v.icon}">
+	        	<div class="test-question">{$v.content}</div>
+	        </a>
+	    </volist>	
+	    	
+        <div id="comment">
+			<div class="fb-comments" data-href="http://{$Think.server.HTTP_HOST}/index/question/id/{$qid}" data-width="100%" data-numposts="5"></div>
+        </div>
+
+		<div class="as320x280 as320280 as320x280-below" style="display:none;">
+			<script type="text/javascript">
+			if (window.innerWidth <600) {
+				/*-- Mytests-new_336x280-replace_mobile_bot --*/
+				google_ad_slot = "8834844904";
+				google_ad_width = 336;
+				google_ad_height = 280;
+
+				try{
+					document.write('<ins class="adsbygoogle" style="display:inline-block;width:'+google_ad_width+'px;height:'+google_ad_height+'px" data-ad-client="ca-pub-3961823097646209" data-ad-slot="'+google_ad_slot+'" data-ad-region="MYTESTS_BOT"></ins>');
+					(adsbygoogle = window.adsbygoogle || []).push({});      
+				}catch(e){
+					console.log(e);
+				}
+
+			  }
+			</script>
+		</div>
+
+        <volist name="item" id="v" offset="4" length="6">
+	        <a class="test-box" href="{:U('Index/question')}/id/{$v.id}{$utm}">
+	        	<img class="lazy" src="__PUBLIC__/new/img/empty.png" data-original="{:C('IMAGEQ_PATH')}/{$v.icon}">
+	        	<div class="test-question">{$v.content}</div>
+	        </a>
+	    </volist>
+
+        <div class="randombtnbox randombtnboxdis">
+			<hr style="border:1px dashed #c6c6c6;border-bottom:none;width:98%">
+			<a href="{:U('Index/question')}/id/{:rand(1,24)}{$utm}" class="randombtn btn">
+	            <span>NEXT</span>
+	            <img src="__PUBLIC__/new/img/arrow2.png">
+	        </a>
+		</div>
+
+	</div>
+
+	<include file="Public:rightbar" />
+
+	<div id="mytest">
+		<div>
+			<div class="fb-page" data-href="{$languageTp.facebook_like}" data-tabs="timeline" data-width="300" data-height="500" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="https://www.facebook.com/pt.mytests.co/" class="fb-xfbml-parse-ignore"><a href="{$languageTp.facebook_like}">Mytests.co</a></blockquote></div>
+		</div>
+		<a href="#header"><img src="__PUBLIC__/new/img/back.png"></a>
+	</div>
+</div>
+
+<script type="text/javascript" src="__PUBLIC__/new/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/new/ads.js"></script>
+<script type="text/javascript">
+
+function share(qid,pic,media){
+	var url=location.protocol+'//'+location.host+'/index/questions/id/'+qid+'/tag/share/pic/'+pic+'/t/{:rand(1,200);}';
+	var utm=getQueryString('utm');
+	if(utm)url=url+'/utm/'+utm;
+
+	var version=getQueryString('v');
+	if(version==1)url=url+'/v/'+version;
+
+	var _url=url;
+	url=encodeURIComponent(url);
+	var title=document.title.split(' - ')[0];
+	var via="Mytests.co";
+
+	var locUrl='https://www.facebook.com/sharer/sharer.php?u='+url;
+	switch(media){
+		case 'twitter':
+			locUrl='https://twitter.com/intent/tweet?url='+url+'&text='+title+'&via='+via
+		break;
+		case 'google':
+			locUrl='https://plus.google.com/share?url='+url;
+		break;
+		case 'messenger':
+			locUrl='http://www.facebook.com/dialog/send?app_id=1053226548106670&link='+url+'&redirect_uri='+location.protocol+'//'+location.host;
+		break;
+	}
+	
+    openwindow(locUrl,'',800,500);
+}
+
+function getQueryString(name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]); return null;
+}
+function openwindow(url,name,iWidth,iHeight){
+    var url;
+    var name;
+    var iWidth;
+    var iHeight;
+    var iTop = (window.screen.availHeight-30-iHeight)/2;
+    var iLeft = (window.screen.availWidth-10-iWidth)/2;
+    window.open(url,name,'height='+iHeight+',,innerHeight='+iHeight+',width='+iWidth+',innerWidth='+iWidth+',top='+iTop+',left='+iLeft+',toolbar=no,menubar=no,scrollbars=auto,resizeable=yes,location=no,status=no');
+}
+
+</script>
+<include file="Public:footer" /> 

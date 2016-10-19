@@ -30,6 +30,7 @@
 				<div class="col-xs-3">
 					<form action="{:U('getQuestionById')}" method="post">
 						<label>ID：</label>
+						<input type="hidden" name="p" value="{$p}">
 						<input type="text" name="qid" value ="" />
 						<input type="submit" class="btn btn-xs btn-light" value="确认">
 					</form>

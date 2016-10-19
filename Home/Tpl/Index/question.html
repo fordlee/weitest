@@ -1,53 +1,515 @@
-<include file="Public:header" /> 
-<div class="as_90x980">Advertisement</div>
-<div id="container">
-	<div id="container-box1">
-		<div id="container-content">
-			<h1>{$qitem.content}</h1>
-			<div id="content-test">
-				<a href="{:U('Result/analyze')}/id/{$qid}{$utm}" style="display:block;background:none!important;">
-					<img alt="{$qitem.content}" src="{:C('IMAGEQ_PATH')}/{$qitem.bgpic}" id="questionpic" style="width:100%;cursor:pointer">
-				</a>
-			</div>
-			<a href="" class="test-login login">
-				<img src="__PUBLIC__/mytests/img/facebook.png">
-				<span>{$languageTp.login}</span>
-			</a>
-		</div>
-		<div class="as320x280">Advertisement</div><div class="as320x280 as320280">Advertisement</div>
-		<div class="randombtnbox">
-			<hr style="border:1px dashed #999;width:98%">
-			<a href="{:U('Index/question')}/id/{:rand(1,24)}{$utm}" class="randombtn btn">
-	            <span>NEXT</span>
-	            <img src="__PUBLIC__/mytests/img/arrow2.png">
-	        </a>
-		</div>
-        <volist name="item" id="v" offset="12" length="4">
-	        <a class="test-box" href="{:U('Index/question')}/id/{$v.id}{$utm}">
-	        	<img src="{:C('IMAGEQ_PATH')}/{$v.icon}">
-	        	<div class="test-question">{$v.content}</div>
-	        </a>
-	    </volist>
-        <div id="comment">comment</div>
-       	<volist name="item" id="v" offset="6" length="4">
-	        <a class="test-box text-box-dis" href="{:U('Index/question')}/id/{$v.id}{$utm}">
-	        	<img src="{:C('IMAGEQ_PATH')}/{$v.icon}">
-	        	<div class="test-question">{$v.content}</div>
-	        </a>
-    	</volist>
-        <div class="randombtnbox randombtnboxdis">
-			<hr style="border:1px dashed #999;width:98%">
-			<a href="{:U('Index/question')}/id/{:rand(1,24)}{$utm}" class="randombtn btn">
-	            <span>NEXT</span>
-	            <img src="__PUBLIC__/mytests/img/arrow2.png">
-	        </a>
-		</div>
-	</div>
-	<div class="as_300x250">Advertisement</div>
-	<div class="as_300x600">Advertisement</div>
-	<div id="mytest">
-		<div></div>
-		<a href="#header"><img src="__PUBLIC__/mytests/img/back.png"></a>
-	</div>
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta property="fb:app_id" content="1053226548106670"/>
+    <meta property="fb:admins" content="100003640356542"/>
+    <meta property="og:site_name" content="mytests.co"/>
+    <meta name="keywords" content="{$qitem.content},{$languageTp.index_keywords}">
+    <meta name="description" content="{$qitem.content} - {$languageTp.index_description}">
+    <meta name="author" content="mytests">
+    <meta property="og:title" content="{$qitem.content}"/>
+    <meta property="og:description" content="{$languageTp.ogdescription}"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="{$shareUrl}"/>
+    <meta property="og:image" content="{$ogimage}?t={:rand(1,200);}"/>
+    <meta property="og:image:type" content="image/jpeg"/>
+    <meta property="og:image:width" content="800"/>
+    <meta property="og:image:height" content="420"/>
+
+    <title>{$qitem.title}</title>
+    <link href="__PUBLIC__/mytests/css/question.css?t=28" rel="stylesheet" type="text/css">
+</head>
+<body>
+<script type="text/javascript">
+    var User={$user|default='""'};
+    var LANG="{$language}";
+    var BASE="/Uploads/local/";
+    var ShareInfo={
+        qid:'{$qid}',
+        path:'{$sharePath}'
+    };
+</script>
+<eq name="Think.server.HTTP_HOST" value="pt.mytests.co">
+<style type="text/css">
+.header {
+    background: #3d5d99 url(/Public/mytests/img/header_bg_top.png) center repeat-x;
+}
+body{background: #e6eaef url(/Public/mytests/img/header_bg_bot.png) center bottom repeat-x;}
+.container-vice-box-btn {
+    background: #078FD2;
+    border: 1px solid #00699E;
+    box-shadow: 0px 1px 1px 1px #0C6B94;
+}
+#footer {
+    height: 10px;
+    background: #2E73C0;
+}
+</style>
+<div style="height: 4px;background: #078FD3;"></div>
+</eq>
+<div id="header" class="header">
+    <button id="header-hidden" onclick="toggle()">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+    <div class="header-box">
+        <form action="{:U('Index/question')}" id="filterform" method="post">
+            <input type="hidden" name="id" value="{$qid}" >
+            <a href="/{$utm}" class="header-logo" ></a>
+            <a href="/{$utm}" class="header-home" id="header-home">HOME</a>
+            <select id="language" class="lan-switch" name="language">
+                <option value="zh" <php>if($language == 'zh') echo "selected";</php>>中文</option>
+                <option value="en" <php>if($language == 'en') echo "selected";</php>>English</option>
+                <option value="pt" <php>if($language == 'pt') echo "selected";</php>>Portuguese</option>
+                <!-- <option value="fr" <php>if($language == 'fr') echo "selected";</php>>French</option> -->
+            </select>
+        </form>
+    </div>
 </div>
-<include file="Public:footer" />
+
+<div id="up-ad">
+<p>Advertisement</p>
+<div>
+	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+	<!-- Mytest-970x90-top -->
+	<ins class="adsbygoogle"
+		 style="display:inline-block;width:970px;height:90px"
+		 data-ad-client="ca-pub-3961823097646209"
+		 data-ad-slot="5558272509"></ins>
+	<script>
+	(adsbygoogle = window.adsbygoogle || []).push({});
+	</script>	
+</div>
+</div>
+
+<div id="container">
+    <div id="container-main">
+        <div id="container-content">
+            <h1>{$qitem.content}</h1>
+            <neq name="Think.const.ACTION_NAME" value="analyze">
+                <if condition="$path neq NULL">
+                    <a href="javascript:;" class="FBshare" onclick="share('{$qid}','{$sharePath}')" fid="{$uid}">
+                        <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
+                        <span>{$languageTp.share}</span>
+                        <div></div>
+                    </a>&nbsp;&nbsp;
+					<div class="fb-share" style="border-width: 3px;margin-left: 15px;">
+						<div class="fb-like" data-href="{$languageTp.facebook_like}" data-layout="button_count" data-action="like" data-size="large" data-show-faces="false" data-share="false">
+						</div>
+					</div>
+                </if>
+            </neq>
+            <div class="fb-banner">
+                <if condition ="$path eq NULL">
+                    <eq name="Think.const.ACTION_NAME" value="analyze">
+                        <img src="__PUBLIC__/mytests/img/loading.gif"><br>
+                        <span>{$languageTp.loading_txt}</span><br>
+                        <span style='margin-top: 10px;display: inline-block;font-weight: bold;position: relative;bottom: -5px;'>{$languageTp.facebook_like_txt}</span>
+                    <else/>
+                        <a href="{:U('Result/analyze')}/id/{$qid}{$utm}" style="display:block;background:none!important;"><img alt="{$qitem.content}" src="{:C('IMAGEQ_PATH')}/{$qitem.bgpic}" id="questionpic" style="width:100%;cursor:pointer"></a>
+                    </eq>
+                <else/>
+                    <eq name="front" value="1">
+                        <neq name="frontcontent" value="">
+                            {$frontcontent}
+                        </neq>
+                    <else/>
+                        <neq name="questionType" value="">
+                            <div id="bd" class="panel">
+
+                              <!--panel-start-->
+                              <div class="panel-body" id="panel-start">
+                                  <dl>
+                                    <dd style="font-size:18px;">
+                                      暗恋说到底就是一件什么别扭的事情。
+                                    </dd>
+                                  </dl>
+
+                                  <div class="buttons">
+                                      <a onclick="testModule.start();" class="btn btn-danger btn-danger1 btn-block" href="javascript:;"> 开始测试</a>
+                                  </div>
+
+                                  <div class="buttons buttons2">
+                                      <a class="btn btn-danger btn-danger2 btn-block" href="http://www.nmgame.cn/goo/0/"> <b>更多测试</b></a>
+                                  </div>
+                              </div>
+                              <!---->
+                              
+                            <!--panel-testbox-->
+                            <volist name="questionType.questionlist" id="qlist">
+                              <div style="display: none;" data-type="1" class="panel-body js_answer" id="panel-testbox">
+                                  <dl>
+                                      <dd><p id="test-ques">{$qlist.title}</p></dd>        
+                                  </dl>
+                                  <ul class="list-group js_group" id="test-optionbox">
+                                    <volist name="qlist.option" id="v">
+                                      <li class="list-group-item" score="{$v.1}" jump="">
+                                        {$v.0}
+                                      </li>
+                                    </volist>
+                                  </ul>
+                                  <div class="buttons buttons2">
+                                      <a class="btn btn-danger btn-danger2 btn-block" href="http://www.nmgame.cn/goo/0/"> 一键关注</a>
+                                  </div>
+                              </div>
+                            </volist>
+                            <!---->
+                              
+                              <!--panel-answer-->
+                              <div style="display:none;" data-id="3" class="panel-body js_result" id="panel-answer">
+                                <h1 class="bold text-danger" id="answer-score"></h1>
+                                <hr>
+                                <dl>
+                                    <dt>详细分析:</dt>
+                                    <dd>
+                                    <p id="answer-intro"></p>
+                                    </dd>
+                                </dl>
+                                <div class="buttons botbutton">
+                                    <a onclick="moduleAd.share();" class="btn btn-success btn-block" href="javascript:;">分享给朋友(圈)</a>
+                                    <a onclick="testModule.start();" class="btn btn-info btn-block" href="javascript:;">再测一遍</a>
+                                    <a class="btn btn-danger btn-danger2 btn-block" href="http://www.nmgame.cn/goo/0/"> 一键关注</a>
+                                </div>
+
+                              </div>
+                              <!---->
+
+                            </div>
+                        <else/>
+                            <img src="{$path}?t=<?php echo rand(1,100)?>"  alt="{$qitem.content}" id="resultpic" style="<neq name='isGif' value='1'>width:100%;<else/>max-width:100%;</neq>cursor:pointer" onclick="share('{$qid}','{$sharePath}')" fid="{$uid}">
+                            <eq name="isGif" value="1">
+                                <neq name="music" value="">
+                                <br><audio src="{$music.src}" controls loop autoplay></audio>
+                                </neq>
+                            </eq>
+                        </neq>
+                    </eq>
+                </if>
+            </div>
+            <div id="FbLogin">
+                <div class="fb-share">
+                    <div class="fb-like" data-href="{$languageTp.facebook_like}" data-layout="button_count" data-action="like" data-size="large" data-show-faces="false" data-share="false">
+                    </div>
+                </div><br>
+                <eq name="Think.const.ACTION_NAME" value="analyze">
+                <img src="__PUBLIC__/mytests/img/loadarrow.gif"/>
+                </eq>
+            <neq name="Think.const.ACTION_NAME" value="analyze">
+                <if condition="$path eq NULL">
+                <p>{$languageTp.login_txt}</p>
+                <a class="FBlogin" href="{:U('Result/analyze')}/id/{$qid}{$utm}">
+                    <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
+                    <span>{$languageTp.login}</span>
+                </a>
+                <else/>
+                <span style="display:block;">{$languageTp.description}</span>
+                <a href="javascript:;" class="CSS FBshare" onclick="share('{$qid}','{$sharePath}')" fid="{$uid}">
+                    <img src="__PUBLIC__/mytests/img/Facebook-logo.png">
+                    <span>{$languageTp.share}</span>
+                    <div></div>
+                </a>
+                </if>
+            </neq>
+
+            </div>
+            <div id="result" style="display:none">
+                <p id="rcontent"></p>
+            </div>
+        </div>
+    </div>
+    <div id="container-vice">
+        <div class="as_336x280" style="margin-top:-12px">
+            <p class="as-title">Advertisement</p>
+            <div class="as-content">
+				<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+				<!-- Mytest-question-336x280-right -->
+				<ins class="adsbygoogle"
+					 style="display:inline-block;width:336px;height:280px"
+					 data-ad-client="ca-pub-3961823097646209"
+					 data-ad-slot="2465205302"></ins>
+				<script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+				</script>
+			</div>
+        </div>
+
+        <volist name="item" id="v" offset="12" length="6">
+            <a href="{:U('Index/question')}/id/{$v.id}" class="container-vice-box">
+                <img src="{:C('IMAGEQ_PATH')}/{$v.icon}">
+                <div class="container-vice-box-btn">
+                    <img src="__PUBLIC__/mytests/img/arrow.png">
+                    <span>{$v.content}</span>
+                </div>
+                <div class="container-vice-mask"></div>
+            </a>
+        </volist>
+    </div>
+    <div id="container-patch">
+        <div class="as_600x300">
+            <p class="as-title">Advertisement</p>
+            <div class="ad-content">
+				<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+				<!-- Mytest-question-600x300 -->
+				<ins class="adsbygoogle"
+					 style="display:inline-block;width:600px;height:300px"
+					 data-ad-client="ca-pub-3961823097646209"
+					 data-ad-slot="6895404901"></ins>
+				<script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+				</script>
+			</div>
+        </div>
+
+        <div id="title">{$languageTp.like_txt}</div>
+
+        <div id="container-patch-bigbox">
+
+            <div class="patch-list patch-list_top">
+                <volist name="item" id="v" offset="6" length="6">
+                    <a href="{:U('Index/question')}/id/{$v.id}{$utm}" class="container-patch-box">
+                        <div>
+                            <img src="{:C('IMAGEQ_PATH')}/{$v.icon}" >
+                        </div>
+                        <span>{$v.content}</span>
+                    </a>
+                </volist>
+            </div>
+
+            <div class="as_336x280">
+                <p class="as-title">Advertisement</p>
+                <div class="as-content">
+					<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+					<!-- Mytest-question-336x280-bot -->
+					<ins class="adsbygoogle"
+						 style="display:inline-block;width:336px;height:280px"
+						 data-ad-client="ca-pub-3961823097646209"
+						 data-ad-slot="9988472102"></ins>
+					<script>
+					(adsbygoogle = window.adsbygoogle || []).push({});
+					</script>
+				</div>
+            </div>
+
+            <div class="patch-list patch-list_bottom">
+                <volist name="item" id="v" offset="0" length="6">
+                    <a href="{:U('Index/question')}/id/{$v.id}{$utm}" class="container-patch-box">
+                        <div>
+                            <img src="{:C('IMAGEQ_PATH')}/{$v.icon}" >
+                        </div>
+                        <span>{$v.content}</span>
+                    </a>
+                </volist>
+            </div>
+        </div>
+        <a href="{:U('Index/question')}/id/{:rand(1,39)}{$utm}" class="nextbtn">
+            <span>NEXT</span>
+            <img src="__PUBLIC__/mytests/img/arrow1.png">
+        </a>
+        <div id="footer-link">
+			<a href="tos.html{$utm}" target="_blank">TOS</a>
+            <br/>
+            <p>Copyright 2016 By Mytests.co©</p>
+        </div>
+    </div>
+</div>
+<div id="footer"></div>
+<script src="__PUBLIC__/mytests/js/jquery-3.0.0.min.js"></script>
+<script type="text/javascript">
+
+function share(qid,pic){
+	var url='http://'+location.host+'/index/questions/id/'+qid+'?tag=share&pic='+pic+'&t={:rand(1,200);}';
+	var utm=getQueryString('utm');
+	if(utm)url=url+'&utm='+utm;
+    url=encodeURIComponent(url);
+	
+    openwindow('https://www.facebook.com/sharer/sharer.php?u='+url,'',800,500);
+}
+
+function getQueryString(name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]); return null;
+}
+function openwindow(url,name,iWidth,iHeight){
+    var url;
+    var name;
+    var iWidth;
+    var iHeight;
+    var iTop = (window.screen.availHeight-30-iHeight)/2;
+    var iLeft = (window.screen.availWidth-10-iWidth)/2;
+    window.open(url,name,'height='+iHeight+',,innerHeight='+iHeight+',width='+iWidth+',innerWidth='+iWidth+',top='+iTop+',left='+iLeft+',toolbar=no,menubar=no,scrollbars=auto,resizeable=yes,location=no,status=no');
+}
+
+var timeFlag=new Date().getTime();
+var resultUrl="{:U('Result/show')}/id/{$qid}{$utm}";
+function analyze(){
+    window.timeFlag=new Date().getTime();
+    $.post("{:U('Result/show')}",{ id:{$qid},tag:'analyze'},function(response){
+        //Facebook un login
+        if(response.login==false){
+            location.href=response.loginUrl;
+        }else{
+            var timeNow=new Date().getTime(),diff=(timeNow-timeFlag)/1000;
+            if(diff>7){
+                location.href=resultUrl;
+            }else{
+                console.log(diff);
+                setTimeout(function(){
+                    location.href=resultUrl;
+                },(7-diff)*1000);
+            }
+        }
+    });
+
+    setTimeout(function(){
+        location.href=resultUrl;
+    },10*1000)
+}
+
+<eq name="Think.const.ACTION_NAME" value="analyze">
+analyze();
+</eq>
+
+testModule=(function(){
+
+    var module={
+    
+        start:function(){
+            window.score=0;
+            $('#panel-start,#panel-answer').hide();
+            module.next(1);
+            $('#panel-testbox').show();
+        },
+        
+        next:function(num,obj){
+            if(!num){
+                num=1;
+            }
+            
+            //Jump type test check
+            if(num.toString().indexOf('#')>-1){
+                window.score=num.replace('#','');
+                module.showResult();
+                return;
+            }
+            
+            //Last question ,then show result
+            var quesLen=testConfig.quesList.length;
+            if(num>quesLen){
+                //If the last question,show answer
+                module.showResult();
+                return;
+            }
+
+            var ques=testConfig.quesList[num-1],
+                option=ques['option'];
+            
+            //Set the score
+            if(obj){
+                var _score=parseInt($(obj).attr('score'));
+                window.score+=_score;
+            }
+            
+            //Set question title
+            var quesBox=$('#test-ques'),
+                optionBox=$('#test-optionbox'),
+                str='';
+            
+            quesBox.text((quesLen>1?num+'、':'  ')+ques.name);
+            
+            //Set question options
+            for(i=0,len=option.length;i<len;i++){
+                var data=option[i],
+                    _score=data['score'],
+                    jump=data['jump'];
+                
+                var _next=jump?jump:parseInt(num)+1,
+                    _click="testModule.next('"+_next+"',this)";
+
+                str+=
+                '<li class="list-group-item" onclick="'+_click+'" score="'+_score+'" jump="'+jump+'">'+
+                '<i class="glyphicon glyphicon-unchecked"></i> '+String.fromCharCode(65+i)+' '+data['value']+
+                '</li>';    
+            }
+            
+            optionBox.html(str);
+        },
+        
+        prev:function(){
+        
+        },
+        
+        showResult:function(){
+            var answerList=testConfig.answerList;
+            var scoreBox=$('#answer-score'),
+                introBox=$('#answer-intro'),
+                answerIndex='';
+            
+            for(i=0,len=answerList.length;i<len;i++){
+                var data=answerList[i],
+                    low=data['low'],
+                    high=data['high'];
+                    
+                if(score==high&&high==low){
+                    answerIndex=i;
+                    break;
+                }else if(high!=''&&low!=''){
+                    if(score>=low&&score<high){
+                        answerIndex=i;
+                        break;                  
+                    }
+                }else if(high!=''&&low==''){
+                    if(score<high){
+                        answerIndex=i;
+                        break;                  
+                    }               
+                }else if(high==''&&low!=''){
+                    if(score>=low){
+                        answerIndex=i;
+                        break;                  
+                    }               
+                }
+            }
+            
+            if(answerIndex===''){
+                alert('oh no,外星人也算不出你的分数了...');
+                return;
+            }
+            
+            scoreBox.text('测试结果：'+score);
+            introBox.html(answerList[answerIndex]['value']);
+            //设置微信分享结果
+            if(window.wxData!='undefined'){
+                window.wxData.title=window.wxData.desc=document.title=testConfig.name+'？我的结果:'+score+'。'+answerList[answerIndex]['value_share']+'。太准了！';
+            }
+
+
+            $('#panel-start,#panel-testbox').hide();
+            $('#panel-answer').show();
+        }
+
+    };
+    
+    return {
+        start:module.start,
+        next:module.next,
+        prev:module.prev
+    }
+})();
+
+</script>
+</body>
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/{$languageTp.code}/sdk.js#xfbml=1&version=v2.7&appId=1053226548106670";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+</html>
+<script type="text/javascript" src="__PUBLIC__/mytests/js/common.js?t=16"></script>

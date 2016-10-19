@@ -90,7 +90,12 @@
 					<input type="button" value="gif关闭" onclick="setGif('{$qid}','{$gif}')" class="btn btn-xs btn-danger">
 				<else/>
 					<input type="button" value="gif开启" onclick="setGif('{$qid}','{$gif}')" class="btn btn-xs btn-success">
-				</eq>
+				</eq>&nbsp;&nbsp;
+				<eq name="isTests" value="1">
+					<input type="button" value="答题关闭" onclick="setTests('{$qid}','{$isTests}')" class="btn btn-xs btn-danger">
+				<else/>
+					<input type="button" value="答题开启" onclick="setTests('{$qid}','{$isTests}')" class="btn btn-xs btn-success">
+				</eq>&nbsp;&nbsp;
 				<eq name="front" value="1">
 				<input type="button" value="Front关闭" onclick="setFront('{$qid}','{$front}')" class="btn btn-xs btn-danger">
 				<form action="{:U('editfrontsave')}" method="post" class="form-horizontal">
@@ -173,6 +178,27 @@ function setGif(qid,gif){
 		    data: {
 		    	'qid':qid,
 		    	'gif':gif
+		    }
+		}).done(function(response) {
+			if(response == 1){
+				window.location.reload();
+			}else{
+				alert('失败！请重试！');
+			}
+		}).fail(function(response) {
+			console.log(response);
+		});
+}
+
+function setTests(qid,isTests){
+	isTests == 1?isTests = 0:isTests = 1;
+	$.ajax({
+		    url: "{:U('setTests')}",
+		    type: 'post',
+		    cache: false,
+		    data: {
+		    	'qid':qid,
+		    	'isTests':isTests
 		    }
 		}).done(function(response) {
 			if(response == 1){

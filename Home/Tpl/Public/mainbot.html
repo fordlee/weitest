@@ -1,0 +1,77 @@
+		
+		<div class="as600x300">
+			<!-- Mytests-new_600x300 -->
+            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>  
+            <script type="text/javascript">
+              if (window.innerWidth <= 600) {
+                // Small ad
+              google_ad_slot = "4875650102";
+              google_ad_width = 336;
+              google_ad_height = 280;
+              } else {
+                // Medium (fallback) ad
+                google_ad_slot = "7748391305";
+                google_ad_width = 600;
+                google_ad_height = 300;
+              }
+              try{
+                document.write('<ins class="adsbygoogle" style="display:inline-block;width:'+google_ad_width+'px;height:'+google_ad_height+'px" data-ad-client="ca-pub-3961823097646209" data-ad-slot="'+google_ad_slot+'" data-ad-region="MYTESTS_MID"></ins>');
+                (adsbygoogle = window.adsbygoogle || []).push({});      
+              }catch(e){
+                console.log(e);
+              }
+            </script>
+		</div>
+
+		<div class="randombtnbox">
+			<hr style="border:1px dashed #c6c6c6;border-bottom:none;width:98%">
+			<a href="{:U('Index/question')}/id/{:rand(1,24)}{$utm}" class="randombtn btn">
+	            <span>NEXT</span>
+	            <img src="__PUBLIC__/new/img/arrow2.png">
+	        </a>
+		</div>
+
+        <volist name="item" id="v" offset="0" length="4">
+	        <a class="test-box" href="{:U('Index/question')}/id/{$v.id}{$utm}">
+	        	<img class="lazy" src="__PUBLIC__/new/img/empty.png" data-original="{:C('IMAGEQ_PATH')}/{$v.icon}" alt="{$v.content}">
+	        	<div class="test-question">{$v.content}</div>
+	        </a>
+	    </volist>	
+	    	
+        <div id="comment">
+			<div class="fb-comments" data-href="http://{$Think.server.HTTP_HOST}/index/question/id/{$qid}" data-width="100%" data-numposts="5"></div>
+        </div>
+
+		<div class="as320x280 as320280 as320x280-below" style="display:none;">
+			<script type="text/javascript">
+			if (window.innerWidth <600) {
+				/*-- Mytests-new_336x280-replace_mobile_bot --*/
+				google_ad_slot = "8834844904";
+				google_ad_width = 336;
+				google_ad_height = 280;
+
+				try{
+					document.write('<ins class="adsbygoogle" style="display:inline-block;width:'+google_ad_width+'px;height:'+google_ad_height+'px" data-ad-client="ca-pub-3961823097646209" data-ad-slot="'+google_ad_slot+'" data-ad-region="MYTESTS_BOT"></ins>');
+					(adsbygoogle = window.adsbygoogle || []).push({});      
+				}catch(e){
+					console.log(e);
+				}
+
+			  }
+			</script>
+		</div>
+
+        <volist name="item" id="v" offset="4" length="6">
+	        <a class="test-box" href="{:U('Index/question')}/id/{$v.id}{$utm}">
+	        	<img class="lazy" src="__PUBLIC__/new/img/empty.png" data-original="{:C('IMAGEQ_PATH')}/{$v.icon}" alt="{$v.content}">
+	        	<div class="test-question">{$v.content}</div>
+	        </a>
+	    </volist>
+
+        <div class="randombtnbox randombtnboxdis">
+			<hr style="border:1px dashed #c6c6c6;border-bottom:none;width:98%">
+			<a href="{:U('Index/question')}/id/{:rand(1,24)}{$utm}" class="randombtn btn">
+	            <span>NEXT</span>
+	            <img src="__PUBLIC__/new/img/arrow2.png">
+	        </a>
+		</div>

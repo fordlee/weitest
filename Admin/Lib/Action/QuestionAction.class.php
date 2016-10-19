@@ -76,8 +76,9 @@ class QuestionAction extends Action {
 
     public function getQuestionById(){
         $qid = $_POST['qid'];
+        $p = $_POST['p'];
+        
         $m_q = M('question');
-        $p = $this -> _getp();
         $list = $m_q -> order('reorder desc,id desc')
                        -> field('id,reorder,qcode,status,date')
                        -> where(array('id' => $qid))
@@ -229,6 +230,7 @@ class QuestionAction extends Action {
         $generalset = $this -> _getGeneralset($front);
 
         $gif = intval($_POST['gif']);
+        $isTests = intval($_POST['isTests']);
 
         $profile = $_POST['profile'];
         $profileStr=implode(',',$profile);
@@ -245,6 +247,7 @@ class QuestionAction extends Action {
             'frontcontent' => $frontcontent,
             'front' => $front,
             'gif' => $gif,
+            'isTests' => $isTests,
             'status' => 0,
             'date' => date('Y-m-d')
         );
@@ -261,9 +264,9 @@ class QuestionAction extends Action {
 
     public function questionedit(){
         $m_q = M('question');
-        $qcodes = $m_q -> field('qcode') -> select();
+        $qids = $m_q -> field('id') -> select();
 
-        $this -> assign('qcodes', $qcodes);
+        $this -> assign('qids', $qids);
         $this -> display('questionentry');
     }
 
@@ -281,7 +284,7 @@ class QuestionAction extends Action {
             $info =  $upload->getUploadFileInfo();
         }
         
-        $qcode = $_POST['qcode'];
+        $qid = $_POST['qid'];
 
         $front = $_POST['front'];
         $front = $this -> _getFront($front);
@@ -289,28 +292,30 @@ class QuestionAction extends Action {
         $generalset = $this -> _getGeneralset($front);
 
         $gif = intval($_POST['gif']);
+        $isTests = intval($_POST['isTests']);
 
         $icon = $info[0]['savename'];
         $bgpic = $info[1]['savename'];
         
         $item = array(
-            'qcode' => $qcode,
+            'id' => $qid,
             'icon'  => $icon,
             'bgpic' => $bgpic,
             'generalset' => $generalset,
             'frontcontent' => $frontcontent,
             'front' => $front,
-            'gif' => $gif
+            'gif' => $gif,
+            'isTests' => $isTests
         );
 
         $m_q = M('question');
-        $qitem = $m_q -> where(array('qcode' => $qcode)) -> find();
+        $qitem = $m_q -> where(array('id' => $qid)) -> find();
         if($qitem){
             $imgQ = UPLOADS_PATH."/imgQ/";
             unlink($imgQ.$qitem['icon']);
             unlink($imgQ.$qitem['bgpic']);
         }
-        $ret = $m_q -> where(array('qcode' => $qcode)) -> save($item);
+        $ret = $m_q -> where(array('id' => $qid)) -> save($item);
         
         if($ret != false){
             $this -> success('修改成功！','questionlist');
@@ -387,6 +392,7 @@ class QuestionAction extends Action {
         $this -> assign('qid', $item['id']);
         $this -> assign('front',$item['front']);
         $this -> assign('gif',$item['gif']);
+        $this -> assign('isTests',$item['isTests']);
         $this -> assign('frontcontent',$item['frontcontent']);
         $this -> assign('generalset',json_decode($item['generalset'],true));
         
@@ -482,6 +488,33 @@ class QuestionAction extends Action {
             $data = array(
                 "id" => $qid,
                 "gif"=> 0
+            );
+        }
+
+        $ret = $m_q -> save($data);
+
+        if($ret){
+            echo 1;
+        }else{
+            echo 0;
+        }
+    }
+
+    //答题类型设置
+    public function setTests(){
+        $qid = $_POST['qid'];
+        $isTests = $_POST['isTests'];
+
+        $m_q = M('question');
+        if($isTests == 1){
+            $data = array(
+                "id" => $qid,
+                "isTests"=> 1 
+            );
+        }else{
+            $data = array(
+                "id" => $qid,
+                "isTests"=> 0
             );
         }
 

@@ -1,0 +1,49 @@
+<include file="Public:header" /> 
+    <!-- <div>
+        <volist name="category" id="v">
+            <a href="{:U('Index/categoryIndex')}/cid/{$v.id}">{$v.category_name}</a>&nbsp;&nbsp;
+        </volist>
+    </div> -->
+<div id="container">
+	<div id="container-box">
+
+		<volist name="item" id="v">
+			<a class="content <eq name='key' value='0'><neq name='Think.get.aid' value=''>tag_hot</neq></eq>" href="{:U('Index/question')}/id/{$v.id}{$utm}">
+				<img <gt name="key" value="2">class="lazy" src="__PUBLIC__/new/img/empty.png" data-original<else/>src</gt>="{:C('IMAGEQ_PATH')}/{$v.icon}" alt="{$v.content}">
+				<div class="question">
+					<div class="question-box">{$v.content}</div><div class="question-button">{$languageTp.test_btn}</div>
+				</div>
+			</a><in name="key" value="1,3">
+			<script type="text/javascript">
+			  if (window.innerWidth <= 950) {
+
+					// Small ad
+				  google_ad_slot = "<eq name='key' value='1'>7358111703<else/>8834844904</eq>";
+				  google_ad_width = 336;
+				  google_ad_height = 280;
+				  try{
+				  document.write('<div class="as300x250" style="display:block;"><ins class="adsbygoogle" style="display:inline-block;width:'+google_ad_width+'px;height:'+google_ad_height+'px" data-ad-client="ca-pub-3961823097646209" data-ad-slot="'+google_ad_slot+'"></ins></div>');
+				  
+					(adsbygoogle = window.adsbygoogle || []).push({});
+				  }catch(e){
+					console.log(e);
+				  }
+			  }
+			</script></in></volist>
+
+			<div class="btnbox">
+		        {$page}
+			</div>
+
+	</div>
+
+	<include file="Public:rightbar" />
+
+	<div id="mytest">
+		<div>
+			<div class="fb-page" data-href="{$languageTp.facebook_like}" data-tabs="timeline" data-width="300" data-height="500" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="https://www.facebook.com/pt.mytests.co/" class="fb-xfbml-parse-ignore"><a href="{$languageTp.facebook_like}">Mytests.co</a></blockquote></div>
+		</div>
+		<a href="#header"><img src="__PUBLIC__/new/img/back.png"></a>
+	</div>
+</div>
+<include file="Public:footer" />

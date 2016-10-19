@@ -1,0 +1,38 @@
+
+
+<div id="footer">
+	<a href="">TOS</a>
+	Copyright 2016 By ©Mytests.co
+</div>
+<script type="text/javascript" src="__PUBLIC__/new/jquery-1.8.3.min.js"></script>
+<script type="text/javascript">
+var leftMytest;
+leftMytest=$(".as_300x250").offset().left;
+function fix(){
+	var scrollTop=document.documentElement.scrollTop||document.body.scrollTop;
+	if(scrollTop>1060){
+		$("#mytest").css({"position":"fixed","top":"0","right":"","left":leftMytest+"px"});
+	}else{
+		$("#mytest").css({"position":"absolute","top":"900px","right":"10px","left":""});
+	}
+}
+function height(){
+	for(var i=0;i<$(".question-box").length;i++){
+		if($(".question-box").eq(i).height()>31){
+			$(".question-box").eq(i).css("line-height","");
+		}
+		else{
+			$(".question-box").eq(i).css("line-height","30px");
+		}
+	}
+}
+height();
+window.onscroll=fix;
+window.onresize=function(){
+	leftMytest=$(".as_300x250").offset().left;
+	fix();
+	height();
+}
+</script>
+</body>
+</html>

@@ -21,7 +21,7 @@
 				<div class="row">
 					<div class="col-sm-3"><font size="5">问题设置</font></div>
 					<div class="col-sm-6">
-						<if condition="$qcodes eq NULL">
+						<if condition="$qids eq NULL">
 						<a href="{:U('questionedit')}" class="btn btn-success pull-right">
 							转换修改
 						</a>
@@ -33,7 +33,7 @@
 					</div>
 				</div>
 				<div class="hr hr-16 hr-dotted"></div>
-				<if condition="$qcodes eq NULL">
+				<if condition="$qids eq NULL">
 				<form action="{:U('questionentrysave')}" method="post" enctype="multipart/form-data" class="form-horizontal" >
 					<div class="form-group">
 						<label class="col-sm-2 control-label no-padding-right" for="qcode">题目编号录入：</label>
@@ -61,11 +61,11 @@
 
 				<form action="{:U('questionentryedit')}" method="post" enctype="multipart/form-data" class="form-horizontal" >
 					<div class="form-group">
-						<label class="col-sm-2 control-label no-padding-right" for="qcode">题目编号选择：</label>
+						<label class="col-sm-2 control-label no-padding-right" for="qid">题目编号选择：</label>
 						<div class="col-sm-4">
-							<select name="qcode">
-								<volist name="qcodes" id="v">
-									<option value="{$v.qcode}">{$v.qcode}</option>
+							<select name="qid">
+								<volist name="qids" id="v">
+									<option value="{$v.id}">{$v.id}</option>
 								</volist>
 							</select>
 						</div>
@@ -91,6 +91,16 @@
 						<div class="col-sm-4">
 							<label>
 								<input name="gif" id="switchgif" value="0" class="ace ace-switch ace-switch-3" type="checkbox">
+								<span class="lbl"></span>
+							</label>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label no-padding-right" >答题类型：</label>
+						<div class="col-sm-4">
+							<label>
+								<input name="isTests" id="switchTests" value="0" class="ace ace-switch ace-switch-3" type="checkbox">
 								<span class="lbl"></span>
 							</label>
 						</div>
@@ -133,7 +143,7 @@
 							<input type="button" onclick="window.location.reload()" class="btn btn-light pull-right" value="重置">
 						</div>
 						<div class="col-sm-7">
-							<input type="submit" class="btn btn-primary pull-right" <php>if($qcodes == NULL){echo 'value="添加"';}else{echo 'value="修改"';}</php>>
+							<input type="submit" class="btn btn-primary pull-right" <php>if($qids == NULL){echo 'value="添加"';}else{echo 'value="修改"';}</php>>
 						</div>
 					</div>
 				</form>
@@ -188,4 +198,11 @@ $('#switchgif').click(function(){
 	}
 });
 
+$('#switchTests').click(function(){
+	if($('#switchTests').is(':checked')){
+		$('#switchTests').val(1);
+	}else{
+		$('#switchTests').val(0);
+	}
+});
 </script>
