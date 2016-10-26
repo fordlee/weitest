@@ -76,6 +76,8 @@ class ResultAction extends Action {
 		$data = $this -> _getAitemData($qitem);
 		//设置背景音乐参数
         $this -> _setMusicUrl($data);
+        //设置desc文本信息
+        $resultDesc = $this -> _getDesc($qitem);
 		
 		if($timestamp&&((strtotime("now")-$timestamp)/(86400*3600)<24)&&($qitem['front'] != 1)){
 			preg_match('/-(\d+)_/is',$tokenArr[0],$matchs);
@@ -99,6 +101,7 @@ class ResultAction extends Action {
             $this -> assign('qitem',$qitem);
             $this -> assign('qid',$qid);
 			$this -> assign('isGif',$qitem['gif']);
+            $this -> assign('resultDesc', $resultDesc);
 
 			R('Index/question', array($id,'result'));
 			exit;
@@ -293,6 +296,7 @@ class ResultAction extends Action {
 			
             //设置答题类型数据
             if($qitem['isTests'] == 1){
+                $isTests = 1;
                 $rid = $_REQUEST['rid'];
                 $data = $this -> getTestsPaintResult($data,$rid);
                 //var_dump($data);exit;
@@ -309,10 +313,14 @@ class ResultAction extends Action {
             $_SESSION['uid'] = $uid;
             $foldername = substr($uid,-2);
             $path = IMAGE_PATH.'/'.$foldername;
-
+            $descfolderpath = UPLOADS_PATH.'/desc/'.$foldername;
+            
             //生成文件夹
             if(!is_dir($path)){
                 mkdir($path,0777,true);
+            }
+            if(!is_dir($descfolderpath)){
+                mkdir($descfolderpath,0777,true);
             }
 
             //判断本地文件
@@ -324,25 +332,26 @@ class ResultAction extends Action {
 			
             $isgif = $qitem['gif'];
             $filepath = $this -> _getFilename($isgif,$path,$filenameArr);
+            $descfilepath = $this -> _getDescname($descfolderpath,$filenameArr);
             
             //获取图片修改时间
             $isOverTime = $this -> _getAnswerPicLastChangeTime($filepath,24*60*60);
 
             //判断答题次数是否超过3
             if($retest){
-                echo $retest;die();
                 $retestsNum = $this -> _calcRetestsNum();
                 $retestsNum<3?$isCanRetest = 1:$isCanRetest = 0;
             }
             
-            if(!file_exists($filepath) || $isOverTime || ($retest && $isCanRetest)){
-                $this -> _createSavePic($info,$data,$filepath);
+            if(!file_exists($filepath) || $isOverTime || ($retest && $isCanRetest) || $isTests){
+                $this -> _createSavePic($info,$data,$filepath,$descfilepath);
             }
             
             $filepath = $this -> _filepathSwap($filepath,$optionresult);
             $sharePath = $this -> _getSharePath($filepath);
             $shareUrl = $this -> _getShareUrl($sharePath,$qid);
             $ogimage = 'http://'.$_SERVER['HTTP_HOST'].$filepath;
+            $resultDesc = file_get_contents($descfilepath);
 
             $this -> assign('ogimage',$ogimage);
             $this -> assign('path',$filepath);
@@ -355,6 +364,7 @@ class ResultAction extends Action {
             $this -> assign('qid',$qid);
             $this -> assign('uid',$uid);
 			$this -> assign('isGif',$isgif);
+            $this -> assign('resultDesc',$resultDesc);
 			
 			if($qitem['front'] == 1){
                 $frontcontent = $qitem['frontcontent'];
@@ -363,7 +373,6 @@ class ResultAction extends Action {
                 $this->assign('user',json_encode($user));
                 $this->assign('frontcontent',$frontcontent);
                 $this->assign('front',$qitem['front']);
-				//$this->assign('user_upload_photos',json_encode($user['user_upload_photos']));
             }
 
 			$tokens=base64_encode($sharePath.'|'.time());
@@ -425,6 +434,13 @@ class ResultAction extends Action {
 
         return $filepath;
     }
+
+    private function _getDescname($descfolderpath,$filenameArr){
+        $filename = implode("_", $filenameArr);
+        $descfilepath = $descfolderpath.'/'.$filename.'.txt';
+
+        return $descfilepath; 
+    }
     
     private function _getSharePath($filepath){
         //91+231721203887791_1_2.jpg
@@ -448,7 +464,7 @@ class ResultAction extends Action {
         return $filepath;
     }
 
-    private function _createSavePic($info,$data,$filepath){
+    private function _createSavePic($info,$data,$filepath,$descfilepath){
         import('ORG.Util.Image.FacebookPaint');
         $image = new FacebookPaint();
         $imgfile=UPLOADS_PATH.'/local/white.jpg';
@@ -467,6 +483,9 @@ class ResultAction extends Action {
                 $im=$image -> injectImage($im,$v['attribute'],$content);
             }elseif($v['type']=="frame"){
                 $im=$image -> injectGif($v,$info);
+            }elseif($v['type']=="desc"){
+                $desc = str_replace(PHP_EOL, '', $content);
+                file_put_contents($descfilepath, $desc);
             }
         }
         
@@ -527,7 +546,6 @@ class ResultAction extends Action {
         //置换结果答案描述中变量
         if(preg_match('/{#TEST.result.desc}/im',$content)){
             $content=str_replace('{#TEST.result.desc}', $resultlist[$rid][2],$content);
-            $this -> assign('resultDesc',$content);
         }
 
 
@@ -544,7 +562,6 @@ class ResultAction extends Action {
         if(isset($matches[1])){
             $n = $matches[1][0];
             $content=str_replace('{#TEST.resultlist.'.$n.'.desc}', $resultlist[$n][2],$content);
-            $this -> assign('resultlistDesc',$content);
         }
 
         return $content;
@@ -571,6 +588,24 @@ class ResultAction extends Action {
 			$music['src'] = '/Uploads/local/'.$music['src'];
             $this -> assign('music', $music);
         }
+    }
+
+    private function _getDesc($qitem){
+        $uid = $_SESSION['uid'];
+        $foldername = substr($uid,-2);
+        $descfolderpath = UPLOADS_PATH.'/desc/'.$foldername;
+
+        $filenameArr = array(
+            'uid'  => $uid,
+            'qid'  => $qitem['qid'],
+            'qdid' => $qitem['qdid']
+        );
+
+        $descfilepath = $this -> _getDescname($descfolderpath,$filenameArr);
+        $desc = file_get_contents($descfilepath);
+        $desc = str_replace(PHP_EOL, '', $desc);
+
+        return $desc;
     }
 
     private function _getLanguage(){
@@ -742,9 +777,11 @@ class ResultAction extends Action {
                 if(!$sysFun)continue;
 
                 //处理数据中的随机数
-                if($sysFun=='rand'||$sysFun=='_rand'){
+                if($sysFun=='rand'||$sysFun=='_rand'||$sysFun=='justrand'){
                     if($sysFun=='_rand'){//获取已存的SRAND数据
                         $_param=@$_SESSION['_SRAND'][$sysParam[0]];
+                    }elseif($sysFun=='justrand'){
+                        $_param=rand($sysParam[0],$sysParam[1]);
                     }else{
                         $_param=$this -> _getUniqueRand($sysParam,'_SRAND');
                     }
@@ -836,13 +873,17 @@ class ResultAction extends Action {
 
         $_arr=range($min,$max);
         $_sRand=$_SESSION[$SessionTag]?$_SESSION[$SessionTag]:array();
-
-        //var_dump($_arr);exit;
         $_arr=array_merge(array_diff($_arr,$_sRand),array_diff($_sRand,$_arr));
+
         $_len=count($_arr);
-        $_rand=@$_arr[rand(0,$_len-1)];
+        $_rand=$_arr[rand(0,$_len-1)];
 
         array_push($_SESSION[$SessionTag], $_rand);
+
+        if(count($_SESSION[$SessionTag])>=count($_arr)){
+            $_SESSION[$SessionTag]=array();
+        }
+        
         return $_rand;
     }
 

@@ -264,8 +264,79 @@ class TestAction extends Action {
 
         echo $s;
     }
-      
 
+    public function generateRandNum(){
+        for ($i=0; $i < 5; $i++) { 
+            //$number = $this -> createRand_hash(1,5);
+            //var_dump($number);
+            $num = $this -> getRandomSequence(1,10);
+            var_dump($num);
+        }
+    }
+      
+    //生成特定范围不重复随机数组,hash去重法
+    public function createRand_hash($min, $max){
+        $hash = array();
+        $out = array();
+        for($i=$min;$i<=$max;$i++)
+        {
+            $randnum = rand($min,$max);
+            while(@$hash[$randnum]==1)
+            {
+                $randnum = rand($min,$max);
+            }
+            $out[] = $randnum;
+            @$hash[$randnum]=1;
+        }
+
+        return $out;
+    }
+
+    public function getRandomSequence($min,$max){
+        $sequence = array();
+        $out = array();
+        for ($i = $min ; $i <= $max ; $i++) { 
+            $sequence[$i] = $i;
+        }
+        
+        $end = $max;
+
+        for ($i=$min; $i <= $max; $i++){
+            $num = rand($min,$end);
+            $out[$i] = $sequence[$num];
+            $sequence[$num] = $sequence[$end];
+            $end--;
+        }
+
+        return $out;
+    }
+
+    //随机产生六位数密码Begin
+    public function randStr($len=6,$format='ALL') { 
+         switch($format) { 
+             case 'ALL':
+             $chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-@#~'; break;
+             case 'CHAR':
+             $chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-@#~'; break;
+             case 'NUMBER':
+             $chars='0123456789'; break;
+             default :
+             $chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-@#~'; 
+             break;
+         }
+         mt_srand((double)microtime()*1000000*getmypid());
+         $password="";
+         while(strlen($password)<$len)
+            $password.=substr($chars,(mt_rand()%strlen($chars)),1);
+         return $password;
+    }
+
+    public function convert(){
+        define("MEDIAWIKI_PATH", "./Mediawiki/");
+        require_once "./Mediawiki/mediawiki-zhconverter.inc.php";
+        /* Convert it, valid variants such as zh, zh-hans, zh-hant, zh-cn, zh-tw, zh-sg & zh-hk */
+        echo MediaWikiZhConverter::convert("大中国从古相沿，剥中有复：虞、夏、周、秦、汉、三国、两晋。","zh-hant");
+    }
 
 }
 ?>

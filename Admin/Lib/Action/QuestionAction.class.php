@@ -285,17 +285,17 @@ class QuestionAction extends Action {
         }
         
         $qid = $_POST['qid'];
+        
+        $icon = $info[0]['savename'];
+        $bgpic = $info[1]['savename'];
 
-        $front = $_POST['front'];
+        /*$front = $_POST['front'];
         $front = $this -> _getFront($front);
         $frontcontent = $this -> _getFrontcontent($front);
         $generalset = $this -> _getGeneralset($front);
 
         $gif = intval($_POST['gif']);
         $isTests = intval($_POST['isTests']);
-
-        $icon = $info[0]['savename'];
-        $bgpic = $info[1]['savename'];
         
         $item = array(
             'id' => $qid,
@@ -306,6 +306,12 @@ class QuestionAction extends Action {
             'front' => $front,
             'gif' => $gif,
             'isTests' => $isTests
+        );*/
+
+        $item = array(
+            'id' => $qid,
+            'icon'  => $icon,
+            'bgpic' => $bgpic
         );
 
         $m_q = M('question');

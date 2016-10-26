@@ -63,7 +63,7 @@
 					<div class="form-group">
 						<label class="col-sm-2 control-label no-padding-right" for="qid">题目编号选择：</label>
 						<div class="col-sm-4">
-							<select name="qid">
+							<select name="qid" class="chosen-select" style="width:120px;">
 								<volist name="qids" id="v">
 									<option value="{$v.id}">{$v.id}</option>
 								</volist>
@@ -86,6 +86,8 @@
 							<span style="color:red">(banner size: 800x420)</span>
 						</div>
 					</div>
+
+					<if condition="$qids eq NULL">
 					<div class="form-group">
 						<label class="col-sm-2 control-label no-padding-right" >生成gif图片：</label>
 						<div class="col-sm-4">
@@ -137,6 +139,7 @@
 							<textarea name="frontcontent" style="margin:0px;width:450px;height:200px;"></textarea>
 						</div>
 					</div>
+					</if>
 
 					<div class="form-group">
 						<div class="col-sm-2">
@@ -175,6 +178,8 @@ $('#iconfile, #backfile').ace_file_input({
 	//console.log($(this).data('ace_input_files'));
 	//console.log($(this).data('ace_input_method'));
 });
+
+$(".chosen-select").chosen();
 
 $('#switchbtn').click(function(){
 

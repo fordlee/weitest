@@ -131,9 +131,11 @@ class MytestsAction extends Action {
                 if(!$sysFun)continue;
 
                 //处理数据中的随机数
-                if($sysFun=='rand'||$sysFun=='_rand'){
+                if($sysFun=='rand'||$sysFun=='_rand'||$sysFun=='justrand'){
                     if($sysFun=='_rand'){//获取已存的SRAND数据
                         $_param=@$_SESSION['_SRAND'][$sysParam[0]];
+                    }elseif($sysFun=='justrand'){
+                        $_param=rand($sysParam[0],$sysParam[1]);
                     }else{
                         $_param=$this -> _getUniqueRand($sysParam,'_SRAND');
                     }

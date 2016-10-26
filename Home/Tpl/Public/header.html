@@ -12,7 +12,7 @@
     <meta name="description" content="{$qitem.content} - {$languageTp.index_description}">
     <meta name="author" content="mytests">
     <meta property="og:title" content="{$qitem.content}"/>
-    <meta property="og:description" content="{$languageTp.ogdescription}"/>
+    <meta property="og:description" content="<neq name="resultDesc" value="">{$resultDesc}<else/>{$languageTp.ogdescription}</neq>"/>
     <meta property="og:type" content="website"/>
 	<if condition="$Think.const.ACTION_NAME neq 'questions' AND $Think.const.ACTION_NAME neq 'show'">
     <meta property="og:url" content="<neq name="shareUrl" value="">{$shareUrl}<else/>http://{$Think.server.HTTP_HOST}/index/question/id/{$qid}</neq>"/>
