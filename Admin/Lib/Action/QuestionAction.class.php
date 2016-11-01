@@ -434,6 +434,24 @@ class QuestionAction extends Action {
         }
     }
 
+    //删除问题语言详细表某语言题目
+    public function delQuestionDetail(){
+        $qdid = $_POST['qdid'];
+        $qid  = $_POST['qid'];
+
+        $m_q_d = M('question_detail');
+        $m_a   = M('answer');
+
+        $ret1 = $m_q_d -> where("id = $qdid") -> delete();
+        $ret2 = $m_a -> where("qid = $qid AND qdid = $qdid") -> delete();
+        
+        if($ret1 || $ret2){
+            echo 1;
+        }else{
+            echo 0;
+        }
+    }
+
     public function editprofilesave(){
         $p = $_POST['p'];
         $qid = $_POST['qid'];
@@ -877,7 +895,7 @@ class QuestionAction extends Action {
 
     public function export(){
         $language = $_POST['languageset'];
-        $_SESSION['lang'] = $language;
+        $_SESSION['lang'] = $language.'_question';
         $m_q_d = M('question_detail');
         $m_a = M('answer');
 
@@ -922,7 +940,9 @@ class QuestionAction extends Action {
 
         //var_dump($data);
         //echo json_encode($data);die();
-        $this -> _generateExecl($data);
+        //表头数组
+        $tableheader = array('题号','题目','选项');
+        $this -> _generateExecl($data,$tableheader);
     }
 
     private function _getTextContent($param,$_content){
@@ -941,7 +961,7 @@ class QuestionAction extends Action {
         return $text;
     }
 
-    private function _generateExecl($data){
+    private function _generateExecl($data,$tableheader){
         $language = $_SESSION['lang'];
         unset($_SESSION['lang']);
         
@@ -951,8 +971,7 @@ class QuestionAction extends Action {
         $excel = new PHPExcel();
         //Excel表格式,这里简略写了8列
         $letter = array('A','B','C','D','E','F','F','G');
-        //表头数组
-        $tableheader = array('题号','题目','选项');
+
         //填充表头信息
         for($i = 0;$i < count($tableheader);$i++) {
             $excel->getActiveSheet()->setCellValue("$letter[$i]1","$tableheader[$i]");
@@ -987,5 +1006,34 @@ class QuestionAction extends Action {
         header("Content-Transfer-Encoding:binary");
         $write->save('php://output');
     }
+
+    public function listDir(){
+        $i =$_GET['qid'];
+        $files = listDirTree("E:/wamp/www/weitest/Uploads/local/".$i);
+        //$files = listDirTree("/home/chinatjnet14/mytests.co/Uploads/local/".$i);
+
+        printf("<p>输出数据为：</p><pre>%s</pre>\n", var_export($files , true)); 
+    }
+
+    //导出题目json文本
+    public function exportJson($language='zh'){
+        $m = M('Question');
+        if(isset($_GET['language']))$language = $_GET['language'];
+        $_SESSION['lang'] = $language.'_json';
+
+        $ret = $m -> join('question_detail on question.id = question_detail.qid') -> join('answer on question.id = answer.qid') -> order('question.id asc') -> field('question.id, question_detail.content, answer.optionset') -> where(array('language' => $language)) -> select();
+        /*echo $m -> getLastSql();
+        printf("<p>输出数据为：</p><pre>%s</pre>\n", var_export($ret , true));exit;*/
+        //debug($ret);
+        $tableheader = array('题号','语言','题目','json文本');
+        $this -> _generateExecl($ret,$tableheader);
+    }
+
+    //删除Home目录Html缓存文件
+    public function removeHomeHtml($subpath = 'Runtime'){
+        $dir = 'E:\wamp\www\weitest\Home\\'.$sub;
+        echo deldir($dir);
+    }
+
 
 }
