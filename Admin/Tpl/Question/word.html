@@ -1,0 +1,35 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml"
+xmlns="http://www.w3.org/td/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>测试题目表</title>
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:tdackMoves>false</w:tdackMoves><w:tdackFormatting/><w:ValidateAgainstSchemas/><w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid><w:IgnoreMixedContent>false</w:IgnoreMixedContent><w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText><w:DoNotPromoteQF/><w:LidThemeOther>EN-US</w:LidThemeOther><w:LidThemeAsian>ZH-CN</w:LidThemeAsian><w:LidThemeComplexScript>X-NONE</w:LidThemeComplexScript><w:Compatibility><w:BreakWrappedTables/><w:SnapToGridInCell/><w:WrapTextWithPunct/><w:UseAsianBreakRules/><w:DontGrowAutofit/><w:SplitPgBreakAndParaMark/><w:DontVertAlignCellWithSp/><w:DontBreakConstdainedForcedTables/><w:DontVertAlignInTxbx/><w:Word11KerningPairs/><w:CachedColBalance/><w:UseFELayout/></w:Compatibility><w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel><m:mathPr><m:mathFont m:val="Cambria Math"/><m:brkBin m:val="before"/><m:brkBinSub m:val="--"/><m:smallFrac m:val="off"/><m:dispDef/><m:lMargin m:val="0"/> <m:rMargin m:val="0"/><m:defJc m:val="centerGroup"/><m:wrapIndent m:val="1440"/><m:intLim m:val="subSup"/><m:naryLim m:val="undOvr"/></m:mathPr></w:WordDocument></xml><![endif]-->
+</head>
+<body>
+<h1>测试题目表</h1>
+<table border="1" cellpadding="3" cellspacing="0">
+	<tr>
+		<th>题号</th>
+		<th>题目</th>
+		<th>答案</th>
+	</tr>
+	<volist name="data" id="v" key="i">
+	<tr>
+		<td>{$v.qid}</td>
+		<td>{$v.title}</td>
+		<td>
+			<table>
+				<volist name="v[options]" id="vv" key="j">
+				<tr>
+					<!-- <td>{$j}</td> -->
+					<td>{$vv}</td>
+				<tr>
+				</volist>
+			</table>
+		</td>
+	</tr>
+	</volist>
+</table>
+</body>
+</html>

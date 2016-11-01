@@ -262,7 +262,7 @@ class QuestionAction extends Action {
         }
     }
 
-    public function questionedit(){
+     public function questionedit(){
         $m_q = M('question');
         $qids = $m_q -> field('id') -> select();
 
@@ -285,30 +285,10 @@ class QuestionAction extends Action {
         }
         
         $qid = $_POST['qid'];
-        
         $icon = $info[0]['savename'];
         $bgpic = $info[1]['savename'];
-
-        /*$front = $_POST['front'];
-        $front = $this -> _getFront($front);
-        $frontcontent = $this -> _getFrontcontent($front);
-        $generalset = $this -> _getGeneralset($front);
-
-        $gif = intval($_POST['gif']);
-        $isTests = intval($_POST['isTests']);
-        
-        $item = array(
-            'id' => $qid,
-            'icon'  => $icon,
-            'bgpic' => $bgpic,
-            'generalset' => $generalset,
-            'frontcontent' => $frontcontent,
-            'front' => $front,
-            'gif' => $gif,
-            'isTests' => $isTests
-        );*/
-
-        $item = array(
+		
+		$item = array(
             'id' => $qid,
             'icon'  => $icon,
             'bgpic' => $bgpic
@@ -433,7 +413,7 @@ class QuestionAction extends Action {
             $this -> error('未修改内容！');
         }
     }
-
+	
     //删除问题语言详细表某语言题目
     public function delQuestionDetail(){
         $qdid = $_POST['qdid'];
@@ -922,7 +902,6 @@ class QuestionAction extends Action {
                 $item[$k]['optionset'] = $content;
             }
         }
-        //var_dump($item);die();
 
         $data=array();
         for ($i=0; $i < count($item); $i++) { 
@@ -938,10 +917,8 @@ class QuestionAction extends Action {
             }
         }
 
-        //var_dump($data);
-        //echo json_encode($data);die();
-        //表头数组
-        $tableheader = array('题号','题目','选项');
+		//表头数组
+		$tableheader = array('题号','题目','选项');
         $this -> _generateExecl($data,$tableheader);
     }
 
@@ -960,6 +937,17 @@ class QuestionAction extends Action {
 
         return $text;
     }
+	
+	public function exportJson($language='zh'){
+        $m = M('Question');
+        if(isset($_GET['language']))$language = $_GET['language'];
+        $_SESSION['lang'] = $language.'_json';
+
+        $ret = $m -> join('question_detail on question.id = question_detail.qid') -> join('answer on question.id = answer.qid') -> order('question.id asc') -> field('question.id, question_detail.language, question_detail.content, answer.optionset') -> where(array('language' => $language)) -> select();
+        
+		$tableheader = array('题号','语言','题目','json文本');
+        $this -> _generateExecl($ret,$tableheader);
+    }
 
     private function _generateExecl($data,$tableheader){
         $language = $_SESSION['lang'];
@@ -971,7 +959,7 @@ class QuestionAction extends Action {
         $excel = new PHPExcel();
         //Excel表格式,这里简略写了8列
         $letter = array('A','B','C','D','E','F','F','G');
-
+        
         //填充表头信息
         for($i = 0;$i < count($tableheader);$i++) {
             $excel->getActiveSheet()->setCellValue("$letter[$i]1","$tableheader[$i]");
@@ -1006,34 +994,79 @@ class QuestionAction extends Action {
         header("Content-Transfer-Encoding:binary");
         $write->save('php://output');
     }
-
-    public function listDir(){
+	
+	public function listDir(){
         $i =$_GET['qid'];
-        $files = listDirTree("E:/wamp/www/weitest/Uploads/local/".$i);
+        $files = listDirTree(UPLOADS_PATH."/local/".$i);
         //$files = listDirTree("/home/chinatjnet14/mytests.co/Uploads/local/".$i);
 
         printf("<p>输出数据为：</p><pre>%s</pre>\n", var_export($files , true)); 
     }
 
-    //导出题目json文本
-    public function exportJson($language='zh'){
-        $m = M('Question');
-        if(isset($_GET['language']))$language = $_GET['language'];
-        $_SESSION['lang'] = $language.'_json';
-
-        $ret = $m -> join('question_detail on question.id = question_detail.qid') -> join('answer on question.id = answer.qid') -> order('question.id asc') -> field('question.id, question_detail.content, answer.optionset') -> where(array('language' => $language)) -> select();
-        /*echo $m -> getLastSql();
-        printf("<p>输出数据为：</p><pre>%s</pre>\n", var_export($ret , true));exit;*/
-        //debug($ret);
-        $tableheader = array('题号','语言','题目','json文本');
-        $this -> _generateExecl($ret,$tableheader);
+    public function word($language = 'zh'){
+        isset($_GET['language'])?$language=$_GET['language']:$language = 'zh';
+        $_SESSION['lang'] = $language.'_question';
+        $m_q_d = M('question_detail');
+        $m_a = M('answer');
+        $item = $m_q_d -> field('question_detail.qid,question_detail.content,answer.optionset') -> join('answer on answer.qdid = question_detail.id') -> order('question_detail.qid asc') -> where(array("language" => $language)) -> select();
+        foreach ($item as $k => $v) {
+            $optionset = json_decode($v['optionset'],true);
+            foreach ($optionset as $k1 => $v1) {
+                if($v1['type'] == "text"){
+                    $_content = $v1['attribute']['content'];
+                    if(preg_match('/{(.*)}/im', $_content, $arr)){
+                        $text = $this -> _getTextContent($arr[1],$_content);
+                        if(is_array($text)){
+                            $content = $text;
+                        }else{
+                            $content = $content."\r\n".$text;
+                        }
+                    }else{
+                        $content = $content."\r\n".$v1['attribute']['content'];
+                    }
+                }else{
+                    $content = "{XXX}";
+                }
+                
+                $item[$k]['optionset'] = $content;
+            }
+        }
+        $data=array();
+        for ($i=0; $i < count($item); $i++) { 
+            $key = $item[$i]['qid'];
+            $data[$key]['qid'] = $item[$i]['qid'];
+            $data[$key]['title'] = $item[$i]['content'];
+            $options = $item[$i]['optionset'];
+            if(is_array($options)){
+                $data[$key]['options'] = $options;
+            }else{
+                $data[$key]['options'][] = $options;
+            }
+        }
+        //var_export($data);exit;
+        $this->assign('data',$data);//把获取的数据传递的模板，替换模板里面的变量
+        $content = $this->fetch('word');//获取模板内容信息word是模板的名称
+        $fileContent = WordMake($content);//生成word内容
+        $docPath = UPLOADS_PATH.'/question_'.$language.'.doc';
+        $fp = fopen($docPath, 'w');
+        fwrite($fp, $fileContent);
+        fclose($fp);
+        downFile($docPath);
+        
+        //$this -> display();
     }
-
-    //删除Home目录Html缓存文件
-    public function removeHomeHtml($subpath = 'Runtime'){
-        $dir = 'E:\wamp\www\weitest\Home\\'.$sub;
-        echo deldir($dir);
+	
+    //删除Home目录Html、Runtime缓存文件
+    public function removeCache($type = 1){
+        $base = "E:/wamp/www/weitest/Home";
+        //$base = "/home/chinatjnet14/mytests.co/Home";
+        $type == 1?$dir = $base."/Html":$dir = $base."/Runtime";
+        
+        if($dir !== $base){
+            echo deldir($dir);
+        }else{
+            echo '当前目录不存在！';
+        }
     }
-
 
 }
