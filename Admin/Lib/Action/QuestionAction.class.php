@@ -1066,7 +1066,7 @@ class QuestionAction extends Action {
             echo deldir($dir);
         }else{
             echo '当前目录不存在！';
-        }
+        } 
     }
 
 }
